@@ -31,6 +31,8 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
   if (!ctx) throw new Error('Could not get canvas context');
 
   // Calculate Canvas Dimensions based on layout
+  const topHeaderHeight = 180; // Reserved top header space above photo #1
+
   let canvasWidth = targetWidth;
   let canvasHeight = 3600; // default strip height
   let photoWidth = 1000;
@@ -47,7 +49,7 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
     photoWidth = canvasWidth - padding * 2; // 1060
     photoHeight = Math.round(photoWidth * 0.75); // 795
     const headerHeight = 450;
-    canvasHeight = padding * 2 + photoCount * photoHeight + (photoCount - 1) * gap + headerHeight;
+    canvasHeight = padding * 2 + topHeaderHeight + photoCount * photoHeight + (photoCount - 1) * gap + headerHeight;
   } else if (layout === 'korean_receipt') {
     photoCount = 4;
     canvasWidth = targetWidth; // e.g. 1200
@@ -55,7 +57,8 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
     gap = Math.round(canvasWidth * 0.035); // 42px
     photoWidth = canvasWidth - padding * 2;
     photoHeight = Math.round(photoWidth * 0.7); // 4:3 receipt photo ratio
-    const headerHeight = Math.round(canvasWidth * 0.58);
+    const topReceiptLogoExtra = Math.round(canvasWidth * 0.18);
+    const headerHeight = Math.round(canvasWidth * 0.58) + topReceiptLogoExtra;
     const footerHeight = Math.round(canvasWidth * 0.48);
     canvasHeight = headerHeight + photoCount * photoHeight + (photoCount - 1) * gap + footerHeight;
   } else if (layout === 'strip3') {
@@ -66,7 +69,7 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
     photoWidth = canvasWidth - padding * 2;
     photoHeight = Math.round(photoWidth * 0.75);
     const headerHeight = 500;
-    canvasHeight = padding * 2 + photoCount * photoHeight + (photoCount - 1) * gap + headerHeight;
+    canvasHeight = padding * 2 + topHeaderHeight + photoCount * photoHeight + (photoCount - 1) * gap + headerHeight;
   } else if (layout === 'grid2x2') {
     photoCount = 4;
     canvasWidth = targetWidth;
@@ -75,7 +78,7 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
     photoWidth = Math.round((canvasWidth - padding * 2 - gap) / 2);
     photoHeight = Math.round(photoWidth * 0.85);
     const headerHeight = 400;
-    canvasHeight = padding * 2 + photoHeight * 2 + gap + headerHeight;
+    canvasHeight = padding * 2 + topHeaderHeight + photoHeight * 2 + gap + headerHeight;
   } else if (layout === 'polaroid') {
     photoCount = 1;
     canvasWidth = targetWidth;
@@ -83,7 +86,7 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
     photoWidth = canvasWidth - padding * 2;
     photoHeight = photoWidth; // square
     const polaroidBottomMargin = 450;
-    canvasHeight = padding + photoHeight + polaroidBottomMargin;
+    canvasHeight = padding + topHeaderHeight + photoHeight + polaroidBottomMargin;
   } else if (layout === 'photocard') {
     photoCount = 2;
     canvasWidth = targetWidth;
@@ -92,15 +95,24 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
     photoWidth = canvasWidth - padding * 2;
     photoHeight = Math.round(photoWidth * 0.7);
     const headerHeight = 450;
-    canvasHeight = padding * 2 + photoCount * photoHeight + gap + headerHeight;
+    canvasHeight = padding * 2 + topHeaderHeight + photoCount * photoHeight + gap + headerHeight;
   }
 
   canvas.width = canvasWidth;
   canvas.height = canvasHeight;
 
-  // 1. Draw Background Frame Color
+  // 1. Draw Background Frame Color & Custom Background Image
   ctx.fillStyle = theme.frameColor || '#FFFFFF';
   ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+  if (theme.customBgImageUrl) {
+    try {
+      const bgImg = await loadImage(theme.customBgImageUrl);
+      ctx.drawImage(bgImg, 0, 0, canvasWidth, canvasHeight);
+    } catch (err) {
+      console.warn('Could not load customBgImageUrl:', err);
+    }
+  }
 
   // Background pattern and frame border lines removed per user request
 
@@ -119,26 +131,29 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
   }
 
   // 3. Render Photos into Layout Slots
+  const startPhotoY = padding + topHeaderHeight;
+
   for (let i = 0; i < photoCount; i++) {
     const slotPhoto = photos[i];
     let x = padding;
-    let y = padding;
+    let y = startPhotoY;
 
     if (layout === 'strip4' || layout === 'strip3' || layout === 'photocard') {
       x = padding;
-      y = padding + i * (photoHeight + gap);
+      y = startPhotoY + i * (photoHeight + gap);
     } else if (layout === 'korean_receipt') {
       x = padding;
-      const headerHeight = Math.round(canvasWidth * 0.58);
+      const topReceiptLogoExtra = Math.round(canvasWidth * 0.18);
+      const headerHeight = Math.round(canvasWidth * 0.58) + topReceiptLogoExtra;
       y = headerHeight + i * (photoHeight + gap);
     } else if (layout === 'grid2x2') {
       const col = i % 2;
       const row = Math.floor(i / 2);
       x = padding + col * (photoWidth + gap);
-      y = padding + row * (photoHeight + gap);
+      y = startPhotoY + row * (photoHeight + gap);
     } else if (layout === 'polaroid') {
       x = padding;
-      y = padding;
+      y = startPhotoY;
     }
 
     // Photo slot background box / placeholder
@@ -208,6 +223,27 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
 
     // Render Top Receipt Header
     let curY = Math.round(canvasWidth * 0.08);
+
+    // Render Brand Logo at the very top of receipt header if present
+    if (theme.logoUrl) {
+      try {
+        const logoImg = await loadImage(theme.logoUrl);
+        const maxLogoWidth = Math.round(canvasWidth * 0.45);
+        const maxLogoHeight = Math.round(canvasWidth * 0.15);
+        let logoW = logoImg.width;
+        let logoH = logoImg.height;
+
+        const scale = Math.min(maxLogoWidth / logoW, maxLogoHeight / logoH, 1);
+        logoW *= scale;
+        logoH *= scale;
+
+        const logoX = canvasWidth / 2 - logoW / 2;
+        ctx.drawImage(logoImg, logoX, curY, logoW, logoH);
+        curY += logoH + Math.round(canvasWidth * 0.03);
+      } catch (err) {
+        console.warn('Unable to render theme logoUrl on receipt header:', err);
+      }
+    }
 
     ctx.textAlign = 'center';
     ctx.font = `bold ${Math.round(canvasWidth * 0.042)}px ${monoFont}`;
@@ -332,52 +368,81 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
     // Normal non-receipt layout rendering
     ctx.textAlign = 'center';
 
+    // Helper function to resolve Font Family name
+    const getFontFamilyName = (family?: EventTheme['fontFamily']) => {
+      switch (family) {
+        case 'serif':
+          return 'Georgia, "Times New Roman", serif';
+        case 'mono':
+          return '"Courier New", Courier, monospace';
+        case 'handwriting':
+          return '"Brush Script MT", "Caveat", cursive';
+        case 'display':
+          return 'Impact, "Arial Black", sans-serif';
+        case 'sans':
+        default:
+          return '"Plus Jakarta Sans", system-ui, sans-serif';
+      }
+    };
+
+    const titleFontFamilyName = getFontFamilyName(theme.fontFamily);
+    const dateFontFamilyName = getFontFamilyName(theme.dateFontFamily || theme.fontFamily);
+    const textColor = theme.textColor || '#000000';
+    const brandNameText = (theme.topBrandText || theme.eventTitle || 'SnapBooth Studio').toUpperCase();
+
+    // Render Brand Text & Logo at the VERY TOP of the photostrip frame (above photo 1)
+    const topCenterY = padding + topHeaderHeight / 2;
+
+    if (theme.logoUrl) {
+      try {
+        const logoImg = await loadImage(theme.logoUrl);
+        const maxLogoWidth = 380;
+        const maxLogoHeight = 110;
+        let logoW = logoImg.width;
+        let logoH = logoImg.height;
+
+        const scale = Math.min(maxLogoWidth / logoW, maxLogoHeight / logoH, 1);
+        logoW *= scale;
+        logoH *= scale;
+
+        const logoX = canvasWidth / 2 - logoW / 2;
+        const logoY = padding + 10;
+
+        ctx.drawImage(logoImg, logoX, logoY, logoW, logoH);
+
+        // Draw Brand Name Text right below top logo
+        ctx.save();
+        ctx.fillStyle = textColor;
+        ctx.textAlign = 'center';
+        ctx.font = `bold 28px ${titleFontFamilyName}`;
+        ctx.fillText(brandNameText, canvasWidth / 2, logoY + logoH + 28);
+        ctx.restore();
+      } catch (err) {
+        console.warn('Unable to render theme logoUrl at top:', err);
+      }
+    } else {
+      // Draw Photobooth Brand Title Text prominently above Photo 1
+      ctx.save();
+      ctx.fillStyle = textColor;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      // Brand Title Text Above Photo 1
+      ctx.font = `bold 48px ${titleFontFamilyName}`;
+      ctx.fillText(brandNameText, canvasWidth / 2, topCenterY - 12);
+
+      // Decorative Tagline / Brand Subtitle
+      ctx.font = `600 20px ${dateFontFamilyName}`;
+      ctx.fillStyle = theme.textColor ? `${theme.textColor}AA` : '#555555';
+      const subTagline = theme.eventSubtitle ? `✦ ${theme.eventSubtitle} ✦` : '✦ PHOTOBOOTH MEMORIES ✦';
+      ctx.fillText(subTagline, canvasWidth / 2, topCenterY + 28);
+      ctx.restore();
+    }
+
     let headerY = canvasHeight - 400;
     if (layout === 'polaroid') {
-      headerY = padding + photoHeight + 80;
+      headerY = padding + topHeaderHeight + photoHeight + 80;
     }
-
-  // Draw Custom Product / Brand Logo (Enlarged & Centered Prominently)
-  if (theme.logoUrl) {
-    try {
-      const logoImg = await loadImage(theme.logoUrl);
-      const maxLogoWidth = 380; // Enlarged logo max width
-      const maxLogoHeight = 160; // Enlarged logo max height
-      let logoW = logoImg.width;
-      let logoH = logoImg.height;
-
-      const scale = Math.min(maxLogoWidth / logoW, maxLogoHeight / logoH, 1);
-      logoW *= scale;
-      logoH *= scale;
-
-      const logoX = canvasWidth / 2 - logoW / 2;
-      const logoY = headerY - logoH - 25;
-
-      ctx.drawImage(logoImg, logoX, logoY, logoW, logoH);
-    } catch (err) {
-      console.warn('Unable to render theme logoUrl:', err);
-    }
-  }
-
-  // Helper function to resolve Font Family name
-  const getFontFamilyName = (family?: EventTheme['fontFamily']) => {
-    switch (family) {
-      case 'serif':
-        return 'Georgia, "Times New Roman", serif';
-      case 'mono':
-        return '"Courier New", Courier, monospace';
-      case 'handwriting':
-        return '"Brush Script MT", "Caveat", cursive';
-      case 'display':
-        return 'Impact, "Arial Black", sans-serif';
-      case 'sans':
-      default:
-        return '"Plus Jakarta Sans", system-ui, sans-serif';
-    }
-  };
-
-  const titleFontFamilyName = getFontFamilyName(theme.fontFamily);
-  const dateFontFamilyName = getFontFamilyName(theme.dateFontFamily || theme.fontFamily);
 
   // Event Title
   ctx.font = `bold 56px ${titleFontFamilyName}`;
@@ -433,6 +498,16 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
   }
 
   ctx.restore();
+
+  // Render Custom Frame Overlay PNG if uploaded
+  if (theme.customFrameOverlayUrl) {
+    try {
+      const overlayImg = await loadImage(theme.customFrameOverlayUrl);
+      ctx.drawImage(overlayImg, 0, 0, canvasWidth, canvasHeight);
+    } catch (err) {
+      console.warn('Could not load customFrameOverlayUrl:', err);
+    }
+  }
 
   // 5. Render Draggable Stickers & Emojis
   if (stickers && stickers.length > 0) {

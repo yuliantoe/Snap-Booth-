@@ -42,6 +42,7 @@ export interface EventTheme {
   fontFamily: 'serif' | 'sans' | 'mono' | 'handwriting' | 'display';
   dateFontFamily?: 'serif' | 'sans' | 'mono' | 'handwriting' | 'display';
   eventTitle: string;
+  topBrandText?: string;
   eventSubtitle: string;
   eventDate: string;
   showDateBadge: boolean;
@@ -54,6 +55,9 @@ export interface EventTheme {
   homeCtaColor?: 'rose_amber' | 'cyber_neon' | 'royal_gold' | 'emerald' | 'slate_dark';
   homeBgBlur?: 'none' | 'light' | 'heavy';
   tabletOrientation?: 'portrait' | 'landscape';
+  customFrameOverlayUrl?: string;
+  customBgImageUrl?: string;
+  customStickerUrls?: string[];
 }
 
 export interface PhotoSlot {

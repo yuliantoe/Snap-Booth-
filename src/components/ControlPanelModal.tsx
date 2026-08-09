@@ -130,10 +130,14 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
   onClearGallery,
   onResetSession,
 }) => {
-  const [activeTab, setActiveTab] = useState<'home' | 'theme' | 'media' | 'gallery' | 'system'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'theme' | 'upload_custom' | 'media' | 'gallery' | 'system'>('home');
   const [themeForm, setThemeForm] = useState<EventTheme>({ ...currentTheme });
   const logoFileInputRef = useRef<HTMLInputElement | null>(null);
   const videoFileInputRef = useRef<HTMLInputElement | null>(null);
+  const themeJsonFileInputRef = useRef<HTMLInputElement | null>(null);
+  const frameOverlayFileInputRef = useRef<HTMLInputElement | null>(null);
+  const bgImageFileInputRef = useRef<HTMLInputElement | null>(null);
+  const customStickerFileInputRef = useRef<HTMLInputElement | null>(null);
 
   if (!isOpen) return null;
 
@@ -167,6 +171,83 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
         welcomeVideoUrl: videoUrl,
         welcomeMediaType: 'video',
       }));
+    }
+  };
+
+  const handleThemeJsonUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const imported = JSON.parse(event.target?.result as string);
+          if (imported && typeof imported === 'object') {
+            setThemeForm((prev) => ({
+              ...prev,
+              ...imported,
+            }));
+            alert('File Tema JSON berhasil diimpor!');
+          }
+        } catch {
+          alert('Gagal membaca file JSON tema. Pastikan format file valid.');
+        }
+      };
+      reader.readAsText(file);
+    }
+  };
+
+  const handleExportThemeJson = () => {
+    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(themeForm, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute('href', dataStr);
+    downloadAnchor.setAttribute('download', `theme_${(themeForm.eventTitle || 'custom').replace(/[^a-zA-Z0-9]/g, '_')}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+  };
+
+  const handleFrameOverlayUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const result = event.target?.result as string;
+        setThemeForm((prev) => ({
+          ...prev,
+          customFrameOverlayUrl: result,
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleBgImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const result = event.target?.result as string;
+        setThemeForm((prev) => ({
+          ...prev,
+          customBgImageUrl: result,
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCustomStickerUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const result = event.target?.result as string;
+        setThemeForm((prev) => ({
+          ...prev,
+          customStickerUrls: [...(prev.customStickerUrls || []), result],
+        }));
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -255,6 +336,18 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
           </button>
 
           <button
+            onClick={() => setActiveTab('upload_custom')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${
+              activeTab === 'upload_custom'
+                ? 'bg-rose-500 text-white shadow-md shadow-rose-500/30'
+                : 'text-slate-400 hover:text-white hover:bg-slate-900'
+            }`}
+          >
+            <Upload className="w-4 h-4 text-cyan-300" />
+            <span>3. Upload Tema & Desain</span>
+          </button>
+
+          <button
             onClick={() => setActiveTab('media')}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${
               activeTab === 'media'
@@ -263,7 +356,7 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
             }`}
           >
             <Video className="w-4 h-4" />
-            <span>3. Media Brand & Video</span>
+            <span>4. Media Brand & Video</span>
           </button>
 
           <button
@@ -275,7 +368,7 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
             }`}
           >
             <Images className="w-4 h-4" />
-            <span>4. Galeri Foto ({gallery.length})</span>
+            <span>5. Galeri Foto ({gallery.length})</span>
           </button>
 
           <button
@@ -287,7 +380,7 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
             }`}
           >
             <Settings className="w-4 h-4" />
-            <span>5. Sistem Kiosk</span>
+            <span>6. Sistem Kiosk</span>
           </button>
         </div>
 
@@ -494,6 +587,245 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
           )}
 
           {/* TAB 2: PRESET FRAME & TEKS ACARA */}
+          {activeTab === 'upload_custom' && (
+            <div className="space-y-6 animate-in fade-in duration-150">
+              {/* 1. Import / Export File Tema JSON */}
+              <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-amber-400" /> File Konfigurasi Tema (.JSON)
+                  </h3>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                    Import & Export
+                  </span>
+                </div>
+
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Upload file konfigurasi tema (.json) hasil ekspor sebelumnya atau simpan racikan tema custom yang sedang kamu buat untuk digunakan kembali di acara berikutnya.
+                </p>
+
+                <div className="flex flex-wrap gap-3">
+                  <input
+                    type="file"
+                    ref={themeJsonFileInputRef}
+                    onChange={handleThemeJsonUpload}
+                    accept=".json,application/json"
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => themeJsonFileInputRef.current?.click()}
+                    className="flex-1 min-w-[200px] py-3 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-rose-500 text-slate-950 font-extrabold text-xs hover:brightness-110 transition-all flex items-center justify-center gap-2 shadow-lg shadow-amber-500/10"
+                  >
+                    <Upload className="w-4 h-4" />
+                    <span>Upload / Import File Tema (.json)</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleExportThemeJson}
+                    className="py-3 px-5 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 font-bold text-xs hover:bg-slate-800 transition-all flex items-center justify-center gap-2"
+                  >
+                    <Download className="w-4 h-4 text-cyan-400" />
+                    <span>Export Tema Saat Ini (.json)</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* 2. Upload Bingkai / Frame Overlay PNG Transparan */}
+              <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                    <ImageIcon className="w-4 h-4 text-cyan-400" /> Upload Bingkai / Frame Overlay (PNG Transparan)
+                  </h3>
+                  {themeForm.customFrameOverlayUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setThemeForm({ ...themeForm, customFrameOverlayUrl: undefined })}
+                      className="text-xs text-rose-400 hover:underline flex items-center gap-1 font-bold"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" /> Hapus Frame Overlay
+                    </button>
+                  )}
+                </div>
+
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Upload file grafis frame bermotif / overlay berformat PNG transparan. Gambar ini akan dilapisi tepat di atas seluruh hasil foto cetak Photostrip.
+                </p>
+
+                <input
+                  type="file"
+                  ref={frameOverlayFileInputRef}
+                  onChange={handleFrameOverlayUpload}
+                  accept="image/png,image/webp"
+                  className="hidden"
+                />
+
+                {themeForm.customFrameOverlayUrl ? (
+                  <div className="p-4 bg-slate-900 rounded-2xl border border-cyan-500/30 flex items-center gap-4">
+                    <div className="w-20 h-28 rounded-xl bg-slate-950 border border-slate-800 overflow-hidden flex items-center justify-center p-1 relative shadow-md">
+                      <img
+                        src={themeForm.customFrameOverlayUrl}
+                        alt="Custom Frame Overlay"
+                        className="max-w-full max-h-full object-contain"
+                      />
+                    </div>
+                    <div className="flex-1 space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-white">Bingkai Overlay Kustom Aktif</span>
+                        <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold">
+                          ✓ Siap Dipakai
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-400 leading-relaxed">
+                        Bingkai overlay transparan sudah tersimpan dan akan melapisi hasil cetak foto secara presisi.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => frameOverlayFileInputRef.current?.click()}
+                        className="text-xs text-cyan-400 font-bold hover:underline flex items-center gap-1 mt-2"
+                      >
+                        <RefreshCw className="w-3 h-3" /> Ganti Gambar Frame Overlay
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => frameOverlayFileInputRef.current?.click()}
+                    className="w-full py-8 px-4 rounded-2xl border-2 border-dashed border-slate-800 hover:border-cyan-500/60 bg-slate-900/60 hover:bg-slate-900 text-slate-400 hover:text-cyan-300 transition-all flex flex-col items-center justify-center gap-2 group"
+                  >
+                    <div className="p-3 rounded-full bg-slate-800 group-hover:bg-cyan-500/20 text-slate-300 group-hover:text-cyan-300 transition-all">
+                      <Upload className="w-6 h-6" />
+                    </div>
+                    <span className="text-xs font-bold text-white">Klik Untuk Pilih Gambar Frame Overlay (.PNG)</span>
+                    <span className="text-[10px] text-slate-400">Rekomendasi format PNG transparan high-resolution</span>
+                  </button>
+                )}
+              </div>
+
+              {/* 3. Upload Background / Wallpaper Kustom Layout */}
+              <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                    <ImageIcon className="w-4 h-4 text-emerald-400" /> Upload Latar Belakang / Wallpaper (PNG / JPG)
+                  </h3>
+                  {themeForm.customBgImageUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setThemeForm({ ...themeForm, customBgImageUrl: undefined })}
+                      className="text-xs text-rose-400 hover:underline flex items-center gap-1 font-bold"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" /> Hapus Latar Belakang
+                    </button>
+                  )}
+                </div>
+
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Upload gambar latar belakang kustom (pattern, tekstur kayu, kain marbel, ilustrasi pesta) untuk kanvas hasil cetak foto.
+                </p>
+
+                <input
+                  type="file"
+                  ref={bgImageFileInputRef}
+                  onChange={handleBgImageUpload}
+                  accept="image/*"
+                  className="hidden"
+                />
+
+                {themeForm.customBgImageUrl ? (
+                  <div className="p-4 bg-slate-900 rounded-2xl border border-emerald-500/30 flex items-center gap-4">
+                    <div className="w-24 h-20 rounded-xl bg-slate-950 border border-slate-800 overflow-hidden relative shadow-md">
+                      <img
+                        src={themeForm.customBgImageUrl}
+                        alt="Custom Background"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="flex-1 space-y-1">
+                      <span className="text-xs font-bold text-white block">Gambar Latar Belakang Kustom Aktif</span>
+                      <p className="text-[11px] text-slate-400 leading-relaxed">
+                        Latar belakang kustom ini akan menjadi alas dasar kanvas cetak photostrip kamu.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => bgImageFileInputRef.current?.click()}
+                        className="text-xs text-emerald-400 font-bold hover:underline flex items-center gap-1 mt-1"
+                      >
+                        <RefreshCw className="w-3 h-3" /> Ganti Gambar Latar
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => bgImageFileInputRef.current?.click()}
+                    className="w-full py-6 px-4 rounded-2xl border border-dashed border-slate-800 hover:border-emerald-500/60 bg-slate-900/60 hover:bg-slate-900 text-slate-400 hover:text-emerald-300 transition-all flex items-center justify-center gap-3"
+                  >
+                    <Upload className="w-5 h-5 text-emerald-400" />
+                    <span className="text-xs font-bold text-white">Upload Gambar Latar Belakang / Pattern (.JPG / .PNG)</span>
+                  </button>
+                )}
+              </div>
+
+              {/* 4. Upload Stiker & Ornamen Desain Tambahan */}
+              <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-pink-400" /> Upload Stiker & Ornamen Grafis Tambahan
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={() => customStickerFileInputRef.current?.click()}
+                    className="px-3 py-1.5 rounded-xl bg-pink-500/20 text-pink-300 border border-pink-500/30 text-xs font-bold hover:bg-pink-500/30 transition-all flex items-center gap-1.5"
+                  >
+                    <Upload className="w-3.5 h-3.5" /> Tambah Stiker (PNG)
+                  </button>
+                </div>
+
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Tambahkan koleksi elemen ornamen grafis kustom (seperti bunga, pita, mahkota, stamp pernikahan, logo sponsor).
+                </p>
+
+                <input
+                  type="file"
+                  ref={customStickerFileInputRef}
+                  onChange={handleCustomStickerUpload}
+                  accept="image/png,image/webp"
+                  className="hidden"
+                />
+
+                {themeForm.customStickerUrls && themeForm.customStickerUrls.length > 0 ? (
+                  <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
+                    {themeForm.customStickerUrls.map((stickerUrl, idx) => (
+                      <div key={idx} className="p-2.5 bg-slate-900 rounded-2xl border border-slate-800 flex flex-col items-center gap-2 relative group">
+                        <img src={stickerUrl} alt={`Custom Sticker ${idx + 1}`} className="w-14 h-14 object-contain" />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = [...(themeForm.customStickerUrls || [])];
+                            updated.splice(idx, 1);
+                            setThemeForm({ ...themeForm, customStickerUrls: updated });
+                          }}
+                          className="absolute -top-1 -right-1 p-1 bg-rose-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-all shadow-md"
+                          title="Hapus Stiker"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-6 bg-slate-900/50 rounded-2xl border border-slate-800 text-center text-slate-400 text-xs space-y-1">
+                    <p className="font-semibold text-slate-300">Belum ada stiker / ornamen tambahan diupload</p>
+                    <p className="text-[11px] text-slate-500">Klik tombol "Tambah Stiker (PNG)" di atas untuk mengunggah aset grafis kustom kamu.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* TAB 2: PRESET FRAME & TEKS ACARA */}
           {activeTab === 'theme' && (
             <div className="space-y-6 animate-in fade-in duration-150">
               {/* Preset Theme Selection */}
@@ -540,9 +872,26 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                   <Type className="w-4 h-4 text-rose-400" /> Informasi Teks Acara
                 </h3>
 
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 mb-1.5 flex items-center justify-between">
+                    <span>Nama Brand / Tulisan di Atas Foto</span>
+                    <span className="text-[10px] text-cyan-400 font-bold">Header Atas Photostrip</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={themeForm.topBrandText || ''}
+                    onChange={(e) => setThemeForm({ ...themeForm, topBrandText: e.target.value })}
+                    placeholder="Contoh: SNAPBOOTH STUDIO / BRAND PHOTOBOOTH KAMU"
+                    className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500"
+                  />
+                  <p className="text-[10px] text-slate-500 mt-1">
+                    Tulisan kustom ini akan dicetak paling atas di header photostrip (di atas foto ke-1). Jika dikosongkan, akan otomatis memakai judul acara.
+                  </p>
+                </div>
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400 mb-1.5">Judul Utama Acara</label>
+                    <label className="block text-xs font-semibold text-slate-400 mb-1.5">Judul Utama Acara (Footer Bawah)</label>
                     <input
                       type="text"
                       value={themeForm.eventTitle}
