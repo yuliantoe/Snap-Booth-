@@ -42,7 +42,6 @@ export interface EventTheme {
   fontFamily: 'serif' | 'sans' | 'mono' | 'handwriting' | 'display';
   dateFontFamily?: 'serif' | 'sans' | 'mono' | 'handwriting' | 'display';
   eventTitle: string;
-  topBrandText?: string;
   eventSubtitle: string;
   eventDate: string;
   showDateBadge: boolean;

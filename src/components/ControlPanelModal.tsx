@@ -872,26 +872,9 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                   <Type className="w-4 h-4 text-rose-400" /> Informasi Teks Acara
                 </h3>
 
-                <div>
-                  <label className="block text-xs font-semibold text-slate-400 mb-1.5 flex items-center justify-between">
-                    <span>Nama Brand / Tulisan di Atas Foto</span>
-                    <span className="text-[10px] text-cyan-400 font-bold">Header Atas Photostrip</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={themeForm.topBrandText || ''}
-                    onChange={(e) => setThemeForm({ ...themeForm, topBrandText: e.target.value })}
-                    placeholder="Contoh: SNAPBOOTH STUDIO / BRAND PHOTOBOOTH KAMU"
-                    className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500"
-                  />
-                  <p className="text-[10px] text-slate-500 mt-1">
-                    Tulisan kustom ini akan dicetak paling atas di header photostrip (di atas foto ke-1). Jika dikosongkan, akan otomatis memakai judul acara.
-                  </p>
-                </div>
-
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400 mb-1.5">Judul Utama Acara (Footer Bawah)</label>
+                    <label className="block text-xs font-semibold text-slate-400 mb-1.5">Judul Utama Acara</label>
                     <input
                       type="text"
                       value={themeForm.eventTitle}
