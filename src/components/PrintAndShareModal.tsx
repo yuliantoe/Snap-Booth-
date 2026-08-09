@@ -32,9 +32,7 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
   const [thermal58DataUrl, setThermal58DataUrl] = useState<string>('');
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('');
   const [isCopied, setIsCopied] = useState<boolean>(false);
-  const [printMode, setPrintMode] = useState<'thermal_80mm' | 'thermal_58mm' | 'dual_4x6' | 'single'>(
-    layout === 'korean_receipt' ? 'thermal_80mm' : 'dual_4x6'
-  );
+  const [printMode, setPrintMode] = useState<'thermal_80mm' | 'thermal_58mm' | 'dual_4x6' | 'single'>('thermal_80mm');
   const [isGenerating, setIsGenerating] = useState<boolean>(true);
   const printIframeRef = useRef<HTMLIFrameElement | null>(null);
 
@@ -278,7 +276,7 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
           Cetak & Bagikan Ke Media Sosial
         </h2>
         <p className="text-slate-400 text-xs sm:text-sm max-w-lg mx-auto">
-          Scan kode QR dengan kamera HP kamu untuk menyimpan foto langsung, atau cetak instan dengan ukuran kertas foto standar 4x6 inci.
+          Scan kode QR dengan kamera HP kamu untuk menyimpan foto langsung, atau cetak instan dengan printer stiker / struk kertas termal ukuran 80mm.
         </p>
       </div>
 
@@ -289,7 +287,7 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
             {isGenerating ? (
               <div className="w-64 h-96 flex flex-col items-center justify-center space-y-3 text-slate-400">
                 <RefreshCw className="w-8 h-8 animate-spin text-rose-500" />
-                <span className="text-xs font-semibold">Mengolah Hasil Cetak High-Res...</span>
+                <span className="text-xs font-semibold">Mengolah Hasil Cetak High-Res 80mm...</span>
               </div>
             ) : (
               <img
@@ -300,59 +298,30 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
             )}
           </div>
 
-          {/* Print Size & Printer Type Selector */}
-          <div className="w-full space-y-1.5">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block text-center">
-              Ukuran Cetak & Jenis Printer
-            </span>
-            <div className="grid grid-cols-2 gap-1.5 bg-slate-900 border border-slate-800 p-1.5 rounded-2xl">
-              <button
-                onClick={() => setPrintMode('thermal_80mm')}
-                className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex flex-col items-center justify-center gap-0.5 ${
-                  printMode === 'thermal_80mm'
-                    ? 'bg-gradient-to-r from-rose-500 to-pink-600 text-white shadow-md ring-1 ring-rose-400/40'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/80'
-                }`}
-              >
-                <span>Termal 80mm</span>
-                <span className="text-[9px] font-normal opacity-80">Struk Kasir Standar</span>
-              </button>
+          {/* Fixed Thermal 80mm Paper & Printer Setting Badge */}
+          <div className="w-full space-y-2 bg-slate-900 border border-slate-800 p-3.5 rounded-2xl">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                Format & Ukuran Kertas Cetak
+              </span>
+              <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase tracking-wider">
+                ✓ 80mm Khusus
+              </span>
+            </div>
 
-              <button
-                onClick={() => setPrintMode('thermal_58mm')}
-                className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex flex-col items-center justify-center gap-0.5 ${
-                  printMode === 'thermal_58mm'
-                    ? 'bg-gradient-to-r from-rose-500 to-pink-600 text-white shadow-md ring-1 ring-rose-400/40'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/80'
-                }`}
-              >
-                <span>Termal 58mm</span>
-                <span className="text-[9px] font-normal opacity-80">Struk Mini Portable</span>
-              </button>
-
-              <button
-                onClick={() => setPrintMode('dual_4x6')}
-                className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex flex-col items-center justify-center gap-0.5 ${
-                  printMode === 'dual_4x6'
-                    ? 'bg-gradient-to-r from-rose-500 to-pink-600 text-white shadow-md ring-1 ring-rose-400/40'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/80'
-                }`}
-              >
-                <span>Kertas 4x6"</span>
-                <span className="text-[9px] font-normal opacity-80">2 Strip Foto Collated</span>
-              </button>
-
-              <button
-                onClick={() => setPrintMode('single')}
-                className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex flex-col items-center justify-center gap-0.5 ${
-                  printMode === 'single'
-                    ? 'bg-gradient-to-r from-rose-500 to-pink-600 text-white shadow-md ring-1 ring-rose-400/40'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/80'
-                }`}
-              >
-                <span>1 Strip HD</span>
-                <span className="text-[9px] font-normal opacity-80">Single High-Res</span>
-              </button>
+            <div className="bg-slate-950 p-3 rounded-xl border border-emerald-500/30 flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <Printer className="w-5 h-5" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-white">Kertas Termal 80mm</span>
+                  <span className="text-[10px] font-mono text-emerald-400 font-bold">80 x AUTO mm</span>
+                </div>
+                <p className="text-[11px] text-slate-400 leading-tight mt-0.5">
+                  Standar Receipt Photobooth (Kertas Thermal Struk / Stiker Roll 80mm)
+                </p>
+              </div>
             </div>
           </div>
         </div>
