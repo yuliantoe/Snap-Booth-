@@ -53,6 +53,7 @@ export interface EventTheme {
   homeCtaText?: string;
   homeCtaColor?: 'rose_amber' | 'cyber_neon' | 'royal_gold' | 'emerald' | 'slate_dark';
   homeBgBlur?: 'none' | 'light' | 'heavy';
+  tabletOrientation?: 'portrait' | 'landscape';
 }
 
 export interface PhotoSlot {

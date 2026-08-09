@@ -23,6 +23,8 @@ import {
   Columns,
   Monitor,
   Minus,
+  Tablet,
+  Smartphone,
 } from 'lucide-react';
 import { EventTheme, SavedPhotoStrip } from '../types';
 import { DEFAULT_THEMES } from '../utils/themePresets';
@@ -408,6 +410,86 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                   </div>
                 </div>
               </div>
+
+              {/* Menu Orientasi Layar Tablet / Kiosk */}
+              <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                    <Tablet className="w-4 h-4 text-cyan-400" /> Mode Orientasi Layar Tablet / Kiosk
+                  </h3>
+                  <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 uppercase tracking-wider">
+                    {themeForm.tabletOrientation === 'landscape' ? '💻 Landscape (Miring)' : '📱 Portrait (Tegak)'}
+                  </span>
+                </div>
+
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Atur tata letak antarmuka agar optimal untuk tablet/iPad atau monitor booth yang dipasang dalam posisi tegak (Portrait) atau miring (Landscape).
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <button
+                    type="button"
+                    onClick={() => setThemeForm({ ...themeForm, tabletOrientation: 'portrait' })}
+                    className={`p-4 rounded-2xl border text-left transition-all relative overflow-hidden flex items-start gap-3.5 ${
+                      (themeForm.tabletOrientation || 'portrait') === 'portrait'
+                        ? 'border-cyan-500 bg-cyan-500/10 text-white shadow-lg shadow-cyan-500/10 ring-1 ring-cyan-500/30'
+                        : 'border-slate-800 bg-slate-900 text-slate-400 hover:border-slate-700'
+                    }`}
+                  >
+                    <div className={`p-3 rounded-xl border ${
+                      (themeForm.tabletOrientation || 'portrait') === 'portrait'
+                        ? 'bg-cyan-500 text-slate-950 border-cyan-400 font-bold'
+                        : 'bg-slate-800 text-slate-300 border-slate-700'
+                    }`}>
+                      <Smartphone className="w-6 h-6" />
+                    </div>
+                    <div className="flex-1 space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-sm text-white">Tablet Portrait (Tegak)</span>
+                        {(themeForm.tabletOrientation || 'portrait') === 'portrait' && (
+                          <span className="p-1 rounded-full bg-cyan-500 text-slate-950">
+                            <Check className="w-3 h-3" />
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-slate-400 leading-relaxed">
+                        Optimasi untuk iPad/Tablet berdiri vertikal (Ratio 3:4 / 9:16). Layout kamera, tombol & preview tersusun vertikal memanjang.
+                      </p>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setThemeForm({ ...themeForm, tabletOrientation: 'landscape' })}
+                    className={`p-4 rounded-2xl border text-left transition-all relative overflow-hidden flex items-start gap-3.5 ${
+                      themeForm.tabletOrientation === 'landscape'
+                        ? 'border-cyan-500 bg-cyan-500/10 text-white shadow-lg shadow-cyan-500/10 ring-1 ring-cyan-500/30'
+                        : 'border-slate-800 bg-slate-900 text-slate-400 hover:border-slate-700'
+                    }`}
+                  >
+                    <div className={`p-3 rounded-xl border ${
+                      themeForm.tabletOrientation === 'landscape'
+                        ? 'bg-cyan-500 text-slate-950 border-cyan-400 font-bold'
+                        : 'bg-slate-800 text-slate-300 border-slate-700'
+                    }`}>
+                      <Tablet className="w-6 h-6 rotate-90" />
+                    </div>
+                    <div className="flex-1 space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-sm text-white">Tablet Landscape (Miring)</span>
+                        {themeForm.tabletOrientation === 'landscape' && (
+                          <span className="p-1 rounded-full bg-cyan-500 text-slate-950">
+                            <Check className="w-3 h-3" />
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-slate-400 leading-relaxed">
+                        Optimasi untuk Tablet mendatar / Monitor PC (Ratio 4:3 / 16:9). Kamera live di sebelah kiri, kontrol & slot foto di sebelah kanan secara berdampingan.
+                      </p>
+                    </div>
+                  </button>
+                </div>
+              </div>
             </div>
           )}
 
@@ -757,6 +839,86 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
           {/* TAB 5: SISTEM KIOSK */}
           {activeTab === 'system' && (
             <div className="space-y-6 animate-in fade-in duration-150">
+              {/* Menu Orientasi Layar Tablet / Kiosk */}
+              <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                    <Tablet className="w-4 h-4 text-cyan-400" /> Pengaturan Orientasi Layar Tablet / Kiosk
+                  </h3>
+                  <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 uppercase tracking-wider">
+                    {themeForm.tabletOrientation === 'landscape' ? '💻 Landscape (Miring)' : '📱 Portrait (Tegak)'}
+                  </span>
+                </div>
+
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Pilih orientasi layar device tablet (iPad / Android Tablet) atau monitor kiosk yang Anda gunakan saat menjalankan Photobooth.
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <button
+                    type="button"
+                    onClick={() => setThemeForm({ ...themeForm, tabletOrientation: 'portrait' })}
+                    className={`p-4 rounded-2xl border text-left transition-all relative overflow-hidden flex items-start gap-3.5 ${
+                      (themeForm.tabletOrientation || 'portrait') === 'portrait'
+                        ? 'border-cyan-500 bg-cyan-500/10 text-white shadow-lg shadow-cyan-500/10 ring-1 ring-cyan-500/30'
+                        : 'border-slate-800 bg-slate-900 text-slate-400 hover:border-slate-700'
+                    }`}
+                  >
+                    <div className={`p-3 rounded-xl border ${
+                      (themeForm.tabletOrientation || 'portrait') === 'portrait'
+                        ? 'bg-cyan-500 text-slate-950 border-cyan-400 font-bold'
+                        : 'bg-slate-800 text-slate-300 border-slate-700'
+                    }`}>
+                      <Smartphone className="w-6 h-6" />
+                    </div>
+                    <div className="flex-1 space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-sm text-white">Tablet Portrait (Tegak)</span>
+                        {(themeForm.tabletOrientation || 'portrait') === 'portrait' && (
+                          <span className="p-1 rounded-full bg-cyan-500 text-slate-950">
+                            <Check className="w-3 h-3" />
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-slate-400 leading-relaxed">
+                        Layout Vertikal (Ratio 3:4 / 9:16). Sangat pas untuk standing kiosk tablet & penggunaan HP/Tablet tegak.
+                      </p>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setThemeForm({ ...themeForm, tabletOrientation: 'landscape' })}
+                    className={`p-4 rounded-2xl border text-left transition-all relative overflow-hidden flex items-start gap-3.5 ${
+                      themeForm.tabletOrientation === 'landscape'
+                        ? 'border-cyan-500 bg-cyan-500/10 text-white shadow-lg shadow-cyan-500/10 ring-1 ring-cyan-500/30'
+                        : 'border-slate-800 bg-slate-900 text-slate-400 hover:border-slate-700'
+                    }`}
+                  >
+                    <div className={`p-3 rounded-xl border ${
+                      themeForm.tabletOrientation === 'landscape'
+                        ? 'bg-cyan-500 text-slate-950 border-cyan-400 font-bold'
+                        : 'bg-slate-800 text-slate-300 border-slate-700'
+                    }`}>
+                      <Tablet className="w-6 h-6 rotate-90" />
+                    </div>
+                    <div className="flex-1 space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-sm text-white">Tablet Landscape (Miring)</span>
+                        {themeForm.tabletOrientation === 'landscape' && (
+                          <span className="p-1 rounded-full bg-cyan-500 text-slate-950">
+                            <Check className="w-3 h-3" />
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-slate-400 leading-relaxed">
+                        Layout Horisontal (Ratio 4:3 / 16:9). Sangat pas untuk Tablet meja horizontal atau layar Monitor PC.
+                      </p>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
               <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-4">
                 <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
                   <RefreshCw className="w-4 h-4 text-rose-400" /> Aksi & Reset Kiosk Photobooth

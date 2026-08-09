@@ -1,5 +1,5 @@
 import React from 'react';
-import { Camera, Sliders, Images, RefreshCw } from 'lucide-react';
+import { Camera, Sliders, RefreshCw, Tablet, Smartphone } from 'lucide-react';
 import { EventTheme } from '../types';
 
 interface HeaderProps {
@@ -15,6 +15,8 @@ export const Header: React.FC<HeaderProps> = ({
   onResetSession,
   galleryCount,
 }) => {
+  const isLandscape = currentTheme.tabletOrientation === 'landscape';
+
   return (
     <header className="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 text-white px-4 py-3 shadow-lg">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
@@ -30,6 +32,14 @@ export const Header: React.FC<HeaderProps> = ({
               </h1>
               <span className="hidden sm:inline-block px-2 py-0.5 text-[10px] font-semibold tracking-wider uppercase bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-full">
                 Photobooth Digital
+              </span>
+              <span
+                onClick={onOpenControlPanel}
+                className="hidden md:inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold tracking-wide uppercase bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 rounded-full cursor-pointer hover:bg-cyan-500/30 transition-all"
+                title="Klik untuk mengubah orientasi tablet di Control Panel"
+              >
+                {isLandscape ? <Tablet className="w-3 h-3 rotate-90" /> : <Smartphone className="w-3 h-3" />}
+                <span>{isLandscape ? 'Landscape' : 'Portrait'}</span>
               </span>
             </div>
             <p className="text-xs text-slate-400 truncate max-w-[200px] sm:max-w-xs">

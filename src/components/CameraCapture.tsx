@@ -8,12 +8,14 @@ interface CameraCaptureProps {
   photos: PhotoSlot[];
   onPhotosChange: (updatedPhotos: PhotoSlot[]) => void;
   onContinueToLayout: () => void;
+  tabletOrientation?: 'portrait' | 'landscape';
 }
 
 export const CameraCapture: React.FC<CameraCaptureProps> = ({
   photos,
   onPhotosChange,
   onContinueToLayout,
+  tabletOrientation = 'portrait',
 }) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -298,8 +300,12 @@ const createDemoPosePhoto = (poseIndex: number): string => {
   const isAllFilled = filledCount >= requiredCount;
 
   return (
-    <div className="max-w-6xl mx-auto p-3 sm:p-6 space-y-6 animate-in fade-in duration-300">
-      <div className="flex flex-col md:flex-row gap-6">
+    <div className={`mx-auto p-3 sm:p-6 space-y-6 animate-in fade-in duration-300 ${
+      tabletOrientation === 'landscape' ? 'max-w-7xl' : 'max-w-5xl'
+    }`}>
+      <div className={`flex gap-6 ${
+        tabletOrientation === 'landscape' ? 'flex-row items-start' : 'flex-col md:flex-row'
+      }`}>
         {/* Left Column: Live Webcam Viewfinder */}
         <div className="flex-1 space-y-4">
           <div className="relative aspect-[4/3] rounded-2xl bg-slate-950 border border-slate-800 overflow-hidden shadow-2xl flex items-center justify-center">

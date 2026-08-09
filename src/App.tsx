@@ -126,6 +126,7 @@ export default function App() {
             photos={photos}
             onPhotosChange={setPhotos}
             onContinueToLayout={() => setCurrentStep('theme_layout')}
+            tabletOrientation={currentTheme.tabletOrientation}
           />
         )}
 
