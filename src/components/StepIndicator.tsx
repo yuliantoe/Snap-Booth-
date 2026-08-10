@@ -31,7 +31,7 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({
     },
     {
       id: 'export',
-      label: '3. Cetak & Bagikan',
+      label: '3. Cetak & Simpan',
       icon: <PrinterCheck className="w-4 h-4" />,
     },
   ];

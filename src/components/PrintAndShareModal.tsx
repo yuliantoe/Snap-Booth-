@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { LayoutType, EventTheme, PhotoSlot, FilterType, ImageAdjustments, StickerItem, SavedPhotoStrip } from '../types';
 import { generatePhotoStripCanvas } from '../utils/canvasRenderer';
-import { Printer, Download, Share2, QrCode, Copy, Check, Sparkles, RefreshCw, MessageSquare } from 'lucide-react';
+import { Printer, Download, QrCode, Sparkles, RefreshCw } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import QRCode from 'qrcode';
 
@@ -31,7 +31,6 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
   const [thermal80DataUrl, setThermal80DataUrl] = useState<string>('');
   const [thermal58DataUrl, setThermal58DataUrl] = useState<string>('');
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('');
-  const [isCopied, setIsCopied] = useState<boolean>(false);
   const [printMode, setPrintMode] = useState<'thermal_80mm' | 'thermal_58mm' | 'dual_4x6' | 'single'>(
     theme.autoPrintMode || 'thermal_80mm'
   );
@@ -248,46 +247,13 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
     }
   }, [isGenerating, highResDataUrl, theme.autoPrintEnabled]);
 
-  // Web Share API or WhatsApp Share
-  const handleNativeShare = async () => {
-    if (navigator.share && highResDataUrl) {
-      try {
-        const response = await fetch(highResDataUrl);
-        const blob = await response.blob();
-        const file = new File([blob], `SnapBooth_${Date.now()}.png`, { type: 'image/png' });
-
-        await navigator.share({
-          title: theme.eventTitle,
-          text: `Foto photobooth saya di ${theme.eventTitle}! 📸✨`,
-          files: [file],
-        });
-      } catch (err) {
-        // Fallback to clipboard
-        handleCopyLink();
-      }
-    } else {
-      handleWhatsAppShare();
-    }
-  };
-
-  const handleWhatsAppShare = () => {
-    const message = encodeURIComponent(`Halo! Lihat hasil foto photobooth saya di ${theme.eventTitle}: ${window.location.href} 📸✨`);
-    window.open(`https://api.whatsapp.com/send?text=${message}`, '_blank');
-  };
-
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(window.location.href);
-    setIsCopied(true);
-    setTimeout(() => setIsCopied(false), 2000);
-  };
-
   return (
     <div className="max-w-5xl mx-auto p-4 sm:p-6 space-y-8 animate-in fade-in duration-300">
       {/* Header Banner */}
       <div className="text-center space-y-2">
         <div className="flex flex-wrap items-center justify-center gap-2">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-semibold border border-emerald-500/30">
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Hasil Foto Siap Dicetak & Bagikan!
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Hasil Foto Siap Dicetak & Disimpan!
           </div>
 
           {theme.autoPrintEnabled && (
@@ -298,7 +264,7 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
         </div>
 
         <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
-          Cetak & Bagikan Ke Media Sosial
+          Cetak & Simpan Foto
         </h2>
 
         {autoPrintNotice && (
@@ -420,40 +386,6 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
                   Barcode polos ini secara elegan dicetak pada bagian bawah frame foto.
                 </p>
               </div>
-            </div>
-          </div>
-
-          {/* Social Media Sharing Trigger */}
-          <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 space-y-3 shadow-xl">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-              Bagikan Langsung Ke Media Sosial
-            </h3>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-              {/* Native Mobile Share / Instagram Story */}
-              <button
-                onClick={handleNativeShare}
-                className="flex items-center justify-center gap-2 p-3 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-semibold text-xs shadow-md active:scale-95 transition-all"
-              >
-                <Share2 className="w-4 h-4" /> Instagram / Story
-              </button>
-
-              {/* WhatsApp Share */}
-              <button
-                onClick={handleWhatsAppShare}
-                className="flex items-center justify-center gap-2 p-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs shadow-md active:scale-95 transition-all"
-              >
-                <MessageSquare className="w-4 h-4" /> Kirim WhatsApp
-              </button>
-
-              {/* Copy Link */}
-              <button
-                onClick={handleCopyLink}
-                className="flex items-center justify-center gap-2 p-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-slate-700 active:scale-95 transition-all"
-              >
-                {isCopied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
-                {isCopied ? 'Tersalin!' : 'Salin Tautan'}
-              </button>
             </div>
           </div>
 

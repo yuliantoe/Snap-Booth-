@@ -258,7 +258,7 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
           onClick={onContinueToExport}
           className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-rose-500 via-pink-600 to-rose-600 hover:from-rose-400 hover:to-pink-500 text-white font-bold text-sm shadow-xl shadow-rose-500/20 active:scale-95 transition-all"
         >
-          Lanjut ke Cetak & Bagikan <ChevronRight className="w-4 h-4" />
+          Lanjut ke Cetak & Simpan <ChevronRight className="w-4 h-4" />
         </button>
       </div>
     </div>
