@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   X,
   Sliders,
@@ -25,9 +25,6 @@ import {
   Minus,
   Tablet,
   Smartphone,
-  User,
-  Lock,
-  ShieldCheck,
 } from 'lucide-react';
 import { EventTheme, SavedPhotoStrip } from '../types';
 import { DEFAULT_THEMES } from '../utils/themePresets';
@@ -35,7 +32,6 @@ import { DEFAULT_THEMES } from '../utils/themePresets';
 interface ControlPanelModalProps {
   isOpen: boolean;
   onClose: () => void;
-  initialRole?: 'admin' | 'user';
   currentTheme: EventTheme;
   onSaveTheme: (updatedTheme: EventTheme) => void;
   gallery: SavedPhotoStrip[];
@@ -127,7 +123,6 @@ const HOME_LAYOUT_STYLES = [
 export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
   isOpen,
   onClose,
-  initialRole = 'admin',
   currentTheme,
   onSaveTheme,
   gallery,
@@ -135,30 +130,15 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
   onClearGallery,
   onResetSession,
 }) => {
-  const [role, setRole] = useState<'admin' | 'user'>(initialRole);
-  const [activeTab, setActiveTab] = useState<'home' | 'theme' | 'upload_custom' | 'media' | 'gallery' | 'system'>(
-    initialRole === 'user' ? 'gallery' : 'home'
-  );
+  const [activeTab, setActiveTab] = useState<'home' | 'theme' | 'upload_custom' | 'media' | 'gallery' | 'system'>('home');
   const [themeForm, setThemeForm] = useState<EventTheme>({ ...currentTheme });
-  const [showPinModal, setShowPinModal] = useState(false);
-  const [pinInput, setPinInput] = useState('');
-  const [pinError, setPinError] = useState('');
-
+  const [themeCategoryFilter, setThemeCategoryFilter] = useState<string>('all');
   const logoFileInputRef = useRef<HTMLInputElement | null>(null);
   const videoFileInputRef = useRef<HTMLInputElement | null>(null);
   const themeJsonFileInputRef = useRef<HTMLInputElement | null>(null);
   const frameOverlayFileInputRef = useRef<HTMLInputElement | null>(null);
   const bgImageFileInputRef = useRef<HTMLInputElement | null>(null);
   const customStickerFileInputRef = useRef<HTMLInputElement | null>(null);
-
-  useEffect(() => {
-    setRole(initialRole);
-    if (initialRole === 'user') {
-      setActiveTab('gallery');
-    } else {
-      setActiveTab('home');
-    }
-  }, [initialRole, isOpen]);
 
   if (!isOpen) return null;
 
@@ -306,215 +286,107 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md animate-in fade-in duration-200">
       <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden text-slate-100">
         {/* Header Bar */}
-        <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/80 gap-3 flex-wrap">
+        <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/80">
           <div className="flex items-center gap-3">
-            <div
-              className={`p-2.5 rounded-2xl text-white shadow-lg ${
-                role === 'admin'
-                  ? 'bg-gradient-to-tr from-amber-500 to-rose-500 shadow-amber-500/20'
-                  : 'bg-gradient-to-tr from-cyan-500 to-blue-500 shadow-cyan-500/20'
-              }`}
-            >
-              {role === 'admin' ? <Crown className="w-5 h-5" /> : <User className="w-5 h-5" />}
+            <div className="p-2.5 rounded-2xl bg-gradient-to-tr from-rose-500 to-amber-500 text-white shadow-lg shadow-rose-500/20">
+              <Sliders className="w-5 h-5" />
             </div>
             <div>
               <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
                 Dasboard Sistem
-                <span
-                  className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase border ${
-                    role === 'admin'
-                      ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
-                      : 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30'
-                  }`}
-                >
-                  {role === 'admin' ? '👑 Mode Admin' : '👤 Mode User / Tamu'}
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                  Pusat Pengaturan
                 </span>
               </h2>
-              <p className="text-xs text-slate-400">
-                {role === 'admin'
-                  ? 'Akses penuh kontrol sistem, tema, upload custom & kiosk'
-                  : 'Akses galeri foto, unduh hasil cetak, & pilihan tema'}
-              </p>
+              <p className="text-xs text-slate-400">Atur Tema Home Custom, Desain Frame, Media Brand & Galeri Foto</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            {/* Role Switcher Switch */}
-            <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-2xl border border-slate-800">
-              <button
-                type="button"
-                onClick={() => {
-                  if (role === 'user') {
-                    setShowPinModal(true);
-                  }
-                }}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                  role === 'admin'
-                    ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-extrabold'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-                title="Masuk Mode Admin"
-              >
-                <Crown className="w-3.5 h-3.5" />
-                <span>Admin</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setRole('user');
-                  setActiveTab('gallery');
-                }}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                  role === 'user'
-                    ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20 font-extrabold'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-                title="Masuk Mode User / Tamu"
-              >
-                <User className="w-3.5 h-3.5" />
-                <span>User</span>
-              </button>
-            </div>
-
-            <button
-              onClick={onClose}
-              className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-all"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-all"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         {/* Control Panel Tab Navigation */}
         <div className="flex items-center gap-1 p-2 bg-slate-950 border-b border-slate-800/80 overflow-x-auto scrollbar-none">
-          {role === 'admin' ? (
-            <>
-              <button
-                onClick={() => setActiveTab('home')}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${
-                  activeTab === 'home'
-                    ? 'bg-rose-500 text-white shadow-md shadow-rose-500/30'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-900'
-                }`}
-              >
-                <Layout className="w-4 h-4 text-amber-300" />
-                <span>1. Tema Tampilan Home</span>
-              </button>
+          <button
+            onClick={() => setActiveTab('home')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${
+              activeTab === 'home'
+                ? 'bg-rose-500 text-white shadow-md shadow-rose-500/30'
+                : 'text-slate-400 hover:text-white hover:bg-slate-900'
+            }`}
+          >
+            <Layout className="w-4 h-4 text-amber-300" />
+            <span>1. Tema Tampilan Home</span>
+          </button>
 
-              <button
-                onClick={() => setActiveTab('theme')}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${
-                  activeTab === 'theme'
-                    ? 'bg-rose-500 text-white shadow-md shadow-rose-500/30'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-900'
-                }`}
-              >
-                <Palette className="w-4 h-4" />
-                <span>2. Preset Frame & Teks</span>
-              </button>
+          <button
+            onClick={() => setActiveTab('theme')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${
+              activeTab === 'theme'
+                ? 'bg-rose-500 text-white shadow-md shadow-rose-500/30'
+                : 'text-slate-400 hover:text-white hover:bg-slate-900'
+            }`}
+          >
+            <Palette className="w-4 h-4" />
+            <span>2. Preset Frame & Teks</span>
+          </button>
 
-              <button
-                onClick={() => setActiveTab('upload_custom')}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${
-                  activeTab === 'upload_custom'
-                    ? 'bg-rose-500 text-white shadow-md shadow-rose-500/30'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-900'
-                }`}
-              >
-                <Upload className="w-4 h-4 text-cyan-300" />
-                <span>3. Upload Tema & Desain</span>
-              </button>
+          <button
+            onClick={() => setActiveTab('upload_custom')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${
+              activeTab === 'upload_custom'
+                ? 'bg-rose-500 text-white shadow-md shadow-rose-500/30'
+                : 'text-slate-400 hover:text-white hover:bg-slate-900'
+            }`}
+          >
+            <Upload className="w-4 h-4 text-cyan-300" />
+            <span>3. Upload Tema & Desain</span>
+          </button>
 
-              <button
-                onClick={() => setActiveTab('media')}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${
-                  activeTab === 'media'
-                    ? 'bg-rose-500 text-white shadow-md shadow-rose-500/30'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-900'
-                }`}
-              >
-                <Video className="w-4 h-4" />
-                <span>4. Media Brand & Video</span>
-              </button>
+          <button
+            onClick={() => setActiveTab('media')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${
+              activeTab === 'media'
+                ? 'bg-rose-500 text-white shadow-md shadow-rose-500/30'
+                : 'text-slate-400 hover:text-white hover:bg-slate-900'
+            }`}
+          >
+            <Video className="w-4 h-4" />
+            <span>4. Media Brand & Video</span>
+          </button>
 
-              <button
-                onClick={() => setActiveTab('gallery')}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${
-                  activeTab === 'gallery'
-                    ? 'bg-rose-500 text-white shadow-md shadow-rose-500/30'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-900'
-                }`}
-              >
-                <Images className="w-4 h-4" />
-                <span>5. Galeri Foto ({gallery.length})</span>
-              </button>
+          <button
+            onClick={() => setActiveTab('gallery')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${
+              activeTab === 'gallery'
+                ? 'bg-rose-500 text-white shadow-md shadow-rose-500/30'
+                : 'text-slate-400 hover:text-white hover:bg-slate-900'
+            }`}
+          >
+            <Images className="w-4 h-4" />
+            <span>5. Galeri Foto ({gallery.length})</span>
+          </button>
 
-              <button
-                onClick={() => setActiveTab('system')}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${
-                  activeTab === 'system'
-                    ? 'bg-rose-500 text-white shadow-md shadow-rose-500/30'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-900'
-                }`}
-              >
-                <Settings className="w-4 h-4" />
-                <span>6. Sistem Kiosk</span>
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                onClick={() => setActiveTab('gallery')}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${
-                  activeTab === 'gallery'
-                    ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/30'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-900'
-                }`}
-              >
-                <Images className="w-4 h-4" />
-                <span>Galeri Foto & Hasil Cetak ({gallery.length})</span>
-              </button>
-
-              <button
-                onClick={() => setActiveTab('theme')}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${
-                  activeTab === 'theme'
-                    ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/30'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-900'
-                }`}
-              >
-                <Palette className="w-4 h-4" />
-                <span>Pilih Tema Tampilan Preset</span>
-              </button>
-            </>
-          )}
+          <button
+            onClick={() => setActiveTab('system')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${
+              activeTab === 'system'
+                ? 'bg-rose-500 text-white shadow-md shadow-rose-500/30'
+                : 'text-slate-400 hover:text-white hover:bg-slate-900'
+            }`}
+          >
+            <Settings className="w-4 h-4" />
+            <span>6. Sistem Kiosk</span>
+          </button>
         </div>
 
         {/* Tab Contents */}
         <div className="p-6 overflow-y-auto flex-1 space-y-6">
-          {/* User Mode Banner */}
-          {role === 'user' && (
-            <div className="p-4 rounded-2xl bg-cyan-950/40 border border-cyan-500/30 flex items-center justify-between gap-3 flex-wrap">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
-                  <User className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-white">Anda dalam Dasboard Mode User / Tamu</p>
-                  <p className="text-[11px] text-slate-400">
-                    Mode ini untuk tamu acara melihat hasil foto, mengunduh cetakan, dan memilih tema preset.
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setShowPinModal(true)}
-                className="px-3.5 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-slate-950 border border-amber-500/30 text-xs font-extrabold transition-all flex items-center gap-1.5 shadow-md"
-              >
-                <Crown className="w-3.5 h-3.5" />
-                <span>Beralih ke Mode Admin</span>
-              </button>
-            </div>
-          )}
           {/* TAB 1: TEMA TAMPILAN HOME CUSTOM */}
           {activeTab === 'home' && (
             <div className="space-y-6 animate-in fade-in duration-150">
@@ -962,8 +834,41 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                 <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-amber-400" /> Pilih Preset Tema Siap Pakai
                 </h3>
+
+                {/* Theme Category Filter Pills */}
+                <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-3 scrollbar-none">
+                  {[
+                    { id: 'all', label: 'Semua Tema' },
+                    { id: 'magazine', label: '📖 Majalah Cover' },
+                    { id: 'receipt', label: '🛒 Struk Pembelian' },
+                    { id: 'cafe', label: '☕ Cafe & Kopi' },
+                    { id: 'restaurant', label: '🍷 Restaurant & Bistro' },
+                    { id: 'wedding', label: '💍 Pernikahan' },
+                    { id: 'birthday', label: '🎂 Ulang Tahun' },
+                    { id: 'party', label: '🎉 Party & Rave' },
+                    { id: 'retro', label: '📻 Retro & Y2K' },
+                    { id: 'corporate', label: '🏢 Corporate' },
+                    { id: 'minimal', label: '🖼️ Monokrom' },
+                  ].map((cat) => (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => setThemeCategoryFilter(cat.id)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                        themeCategoryFilter === cat.id
+                          ? 'bg-gradient-to-r from-rose-500 to-amber-500 text-white shadow-md shadow-rose-500/20'
+                          : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+                      }`}
+                    >
+                      {cat.label}
+                    </button>
+                  ))}
+                </div>
+
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {DEFAULT_THEMES.map((preset) => {
+                  {DEFAULT_THEMES.filter(
+                    (preset) => themeCategoryFilter === 'all' || preset.category === themeCategoryFilter
+                  ).map((preset) => {
                     const isSelected = themeForm.id === preset.id;
                     return (
                       <button
@@ -1300,6 +1205,84 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
           {/* TAB 5: SISTEM KIOSK */}
           {activeTab === 'system' && (
             <div className="space-y-6 animate-in fade-in duration-150">
+              {/* Pengaturan Auto-Print Printer Kiosk */}
+              <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                    <Printer className="w-4 h-4 text-emerald-400" /> Pengaturan Cetak Otomatis (Auto-Print)
+                  </h3>
+                  <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider border ${
+                    themeForm.autoPrintEnabled
+                      ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                      : 'bg-slate-800 text-slate-400 border-slate-700'
+                  }`}>
+                    {themeForm.autoPrintEnabled ? '🖨️ Auto-Print: AKTIF' : '⏹️ Auto-Print: NONAKTIF'}
+                  </span>
+                </div>
+
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Ketika mode ini diaktifkan, sistem akan memicu perintah cetak secara otomatis begitu pengunjung selesai mengambil seluruh sesi foto tanpa perlu menekan tombol cetak manual.
+                </p>
+
+                <div className="p-4 rounded-2xl border border-slate-800 bg-slate-900/60 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-bold text-white flex items-center gap-2">
+                        <span>Status Cetak Otomatis (Auto-Print)</span>
+                        {themeForm.autoPrintEnabled && <Sparkles className="w-3.5 h-3.5 text-amber-400" />}
+                      </p>
+                      <p className="text-xs text-slate-400">
+                        Otomatis buka dialog cetak printer saat foto selesai
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setThemeForm({ ...themeForm, autoPrintEnabled: !themeForm.autoPrintEnabled })}
+                      className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors focus:outline-none ${
+                        themeForm.autoPrintEnabled ? 'bg-emerald-500' : 'bg-slate-700'
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
+                          themeForm.autoPrintEnabled ? 'translate-x-6' : 'translate-x-1'
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  {themeForm.autoPrintEnabled && (
+                    <div className="pt-3 border-t border-slate-800/80 space-y-2.5 animate-in fade-in duration-150">
+                      <label className="text-xs font-bold text-slate-300 block">
+                        Format Kertas Auto-Print Default:
+                      </label>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        {[
+                          { id: 'thermal_80mm', label: 'Thermal 80mm', sub: 'Kios Kertas Struk' },
+                          { id: 'thermal_58mm', label: 'Thermal 58mm', sub: 'Printer Kasir Mini' },
+                          { id: 'dual_4x6', label: 'Dual Strip 4x6"', sub: 'Cetak Foto Lab 2-In-1' },
+                          { id: 'single', label: 'Single Strip', sub: 'File PNG High-Res' },
+                        ].map((fmt) => (
+                          <button
+                            key={fmt.id}
+                            type="button"
+                            onClick={() => setThemeForm({ ...themeForm, autoPrintMode: fmt.id as any })}
+                            className={`p-2.5 rounded-xl border text-left transition-all ${
+                              (themeForm.autoPrintMode || 'thermal_80mm') === fmt.id
+                                ? 'border-emerald-500 bg-emerald-500/10 text-emerald-300 font-bold'
+                                : 'border-slate-800 bg-slate-900 text-slate-400 hover:border-slate-700'
+                            }`}
+                          >
+                            <p className="text-xs font-bold">{fmt.label}</p>
+                            <p className="text-[10px] text-slate-500">{fmt.sub}</p>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
               {/* Menu Orientasi Layar Tablet / Kiosk */}
               <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-4">
                 <div className="flex items-center justify-between">
@@ -1424,90 +1407,6 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
           </div>
         </div>
       </div>
-
-      {/* Modal Verifikasi PIN Admin */}
-      {showPinModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="bg-slate-900 border border-amber-500/30 rounded-3xl p-6 w-full max-w-sm space-y-5 shadow-2xl relative text-slate-100">
-            <button
-              onClick={() => {
-                setShowPinModal(false);
-                setPinInput('');
-                setPinError('');
-              }}
-              className="absolute top-4 right-4 p-1.5 rounded-xl bg-slate-800 text-slate-400 hover:text-white"
-            >
-              <X className="w-4 h-4" />
-            </button>
-
-            <div className="text-center space-y-1.5">
-              <div className="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center mx-auto mb-2">
-                <Crown className="w-6 h-6" />
-              </div>
-              <h3 className="text-base font-bold text-white">Verifikasi Akses Admin</h3>
-              <p className="text-xs text-slate-400">
-                Masukkan PIN Admin untuk mengakses kontrol sistem Dasboard penuh.
-              </p>
-            </div>
-
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (pinInput === '1234' || pinInput === '') {
-                  setRole('admin');
-                  setActiveTab('home');
-                  setShowPinModal(false);
-                  setPinInput('');
-                  setPinError('');
-                } else {
-                  setPinError('PIN salah! PIN Default adalah 1234');
-                }
-              }}
-              className="space-y-4"
-            >
-              <div>
-                <input
-                  type="password"
-                  maxLength={4}
-                  autoFocus
-                  value={pinInput}
-                  onChange={(e) => {
-                    setPinInput(e.target.value);
-                    if (pinError) setPinError('');
-                  }}
-                  placeholder="PIN Default: 1234"
-                  className="w-full text-center tracking-[0.5em] text-lg font-mono bg-slate-950 border border-slate-800 focus:border-amber-500 rounded-2xl px-4 py-3 text-amber-300 focus:outline-none transition-all placeholder:tracking-normal placeholder:text-xs"
-                />
-                {pinError && (
-                  <p className="text-[11px] text-rose-400 text-center mt-1.5 font-bold">
-                    {pinError}
-                  </p>
-                )}
-              </div>
-
-              <div className="flex items-center gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowPinModal(false);
-                    setPinInput('');
-                    setPinError('');
-                  }}
-                  className="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-all"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-600 hover:to-rose-600 text-slate-950 font-extrabold text-xs shadow-lg shadow-amber-500/20 transition-all"
-                >
-                  Masuk Admin
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

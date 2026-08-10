@@ -32,9 +32,13 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
   const [thermal58DataUrl, setThermal58DataUrl] = useState<string>('');
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('');
   const [isCopied, setIsCopied] = useState<boolean>(false);
-  const [printMode, setPrintMode] = useState<'thermal_80mm' | 'thermal_58mm' | 'dual_4x6' | 'single'>('thermal_80mm');
+  const [printMode, setPrintMode] = useState<'thermal_80mm' | 'thermal_58mm' | 'dual_4x6' | 'single'>(
+    theme.autoPrintMode || 'thermal_80mm'
+  );
   const [isGenerating, setIsGenerating] = useState<boolean>(true);
+  const [autoPrintNotice, setAutoPrintNotice] = useState<boolean>(false);
   const printIframeRef = useRef<HTMLIFrameElement | null>(null);
+  const hasAutoPrintedRef = useRef<boolean>(false);
 
   // Trigger celebration confetti & generate high-res canvas
   useEffect(() => {
@@ -232,6 +236,18 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
     printWindow.document.close();
   };
 
+  // Auto-Print trigger when photo capture process finishes
+  useEffect(() => {
+    if (!isGenerating && highResDataUrl && theme.autoPrintEnabled && !hasAutoPrintedRef.current) {
+      hasAutoPrintedRef.current = true;
+      setAutoPrintNotice(true);
+      const timer = setTimeout(() => {
+        handlePrint();
+      }, 600);
+      return () => clearTimeout(timer);
+    }
+  }, [isGenerating, highResDataUrl, theme.autoPrintEnabled]);
+
   // Web Share API or WhatsApp Share
   const handleNativeShare = async () => {
     if (navigator.share && highResDataUrl) {
@@ -269,12 +285,29 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
     <div className="max-w-5xl mx-auto p-4 sm:p-6 space-y-8 animate-in fade-in duration-300">
       {/* Header Banner */}
       <div className="text-center space-y-2">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-semibold border border-emerald-500/30">
-          <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Hasil Foto Siap Dicetak & Bagikan!
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-semibold border border-emerald-500/30">
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Hasil Foto Siap Dicetak & Bagikan!
+          </div>
+
+          {theme.autoPrintEnabled && (
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-300 text-xs font-bold border border-cyan-500/40 animate-pulse">
+              <Printer className="w-3.5 h-3.5 text-cyan-400" /> Auto-Print Kiosk Aktif
+            </div>
+          )}
         </div>
+
         <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
           Cetak & Bagikan Ke Media Sosial
         </h2>
+
+        {autoPrintNotice && (
+          <div className="p-3 bg-cyan-500/10 border border-cyan-500/30 rounded-xl max-w-md mx-auto text-cyan-300 text-xs font-semibold flex items-center justify-center gap-2 animate-bounce">
+            <Printer className="w-4 h-4 text-cyan-400" />
+            <span>Memicu dialog cetak printer otomatis...</span>
+          </div>
+        )}
+
         <p className="text-slate-400 text-xs sm:text-sm max-w-lg mx-auto">
           Scan kode QR dengan kamera HP kamu untuk menyimpan foto langsung, atau cetak instan dengan printer stiker / struk kertas termal ukuran 80mm.
         </p>

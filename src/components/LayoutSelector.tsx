@@ -64,6 +64,20 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
       slotsCount: 4,
       badge: 'Tren Viral Korea 🇰🇷',
     },
+    {
+      id: 'magazine',
+      title: 'Cover Majalah Fashion & Editorial',
+      description: 'Format cover majalah VOGUE / Editorial dengan judul besar, tanggal edisi, dan barcode.',
+      slotsCount: 1,
+      badge: 'Desain Editorial 📖',
+    },
+    {
+      id: 'shopping_receipt',
+      title: 'Struk Pembelian Kasir & Retail',
+      description: 'Format struk belanja supermarket & kafe lengkap dengan rincian total belanja & barcode.',
+      slotsCount: 4,
+      badge: 'Struk Belanja 🛒',
+    },
   ];
 
   const renderSlotImage = (idx: number, className: string) => {
@@ -202,6 +216,23 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
                           {renderSlotImage(2, 'w-full h-5 rounded-xs')}
                           {renderSlotImage(3, 'w-full h-5 rounded-xs')}
                           <div className="text-[6px] text-center text-slate-700 pt-0.5 border-t border-dashed border-slate-300">TOTAL: ₩0 • THANK YOU</div>
+                        </div>
+                      )}
+                      {layout.id === 'magazine' && (
+                        <div className="flex flex-col gap-1 text-[7px] font-serif leading-tight p-1 bg-slate-950/80 text-amber-100 rounded border border-amber-500/30">
+                          <div className="text-center font-black tracking-widest text-[9px] text-amber-300 border-b border-amber-500/30 pb-0.5">VOGUE</div>
+                          {renderSlotImage(0, 'w-full h-16 rounded-sm')}
+                          <div className="text-[6px] text-center text-slate-300 pt-0.5 font-sans">SPECIAL ISSUE • 2026</div>
+                        </div>
+                      )}
+                      {layout.id === 'shopping_receipt' && (
+                        <div className="flex flex-col gap-0.5 text-[7px] font-mono leading-tight py-1 bg-amber-50/60 p-1 rounded border border-dashed border-slate-400">
+                          <div className="text-center font-bold text-slate-900 border-b border-dashed border-slate-400 pb-0.5">SUPERMARKET MART</div>
+                          {renderSlotImage(0, 'w-full h-5 rounded-xs')}
+                          {renderSlotImage(1, 'w-full h-5 rounded-xs')}
+                          {renderSlotImage(2, 'w-full h-5 rounded-xs')}
+                          {renderSlotImage(3, 'w-full h-5 rounded-xs')}
+                          <div className="text-[6px] text-center text-slate-800 pt-0.5 border-t border-dashed border-slate-400">TOTAL: RP 0 (LUNAS)</div>
                         </div>
                       )}
                     </div>

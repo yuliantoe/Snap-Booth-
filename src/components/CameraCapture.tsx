@@ -9,6 +9,7 @@ interface CameraCaptureProps {
   onPhotosChange: (updatedPhotos: PhotoSlot[]) => void;
   onContinueToLayout: () => void;
   tabletOrientation?: 'portrait' | 'landscape';
+  autoPrintEnabled?: boolean;
 }
 
 export const CameraCapture: React.FC<CameraCaptureProps> = ({
@@ -16,6 +17,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
   onPhotosChange,
   onContinueToLayout,
   tabletOrientation = 'portrait',
+  autoPrintEnabled = false,
 }) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -159,6 +161,11 @@ const createDemoPosePhoto = (poseIndex: number): string => {
     };
   }, [selectedDeviceId]);
 
+  const photosRef = useRef<PhotoSlot[]>(photos);
+  useEffect(() => {
+    photosRef.current = photos;
+  }, [photos]);
+
   // Find next empty slot
   useEffect(() => {
     const firstEmpty = Array.from({ length: requiredCount }).findIndex((_, idx) => !photos[idx]);
@@ -205,8 +212,9 @@ const createDemoPosePhoto = (poseIndex: number): string => {
       capturedAt: Date.now(),
     };
 
-    const updated = [...photos];
+    const updated = [...photosRef.current];
     updated[slotIdx] = newSlot;
+    photosRef.current = updated;
     onPhotosChange(updated);
   };
 
@@ -218,6 +226,7 @@ const createDemoPosePhoto = (poseIndex: number): string => {
       dataUrl: createDemoPosePhoto(idx),
       capturedAt: Date.now(),
     }));
+    photosRef.current = demoPhotos;
     onPhotosChange(demoPhotos);
   };
 
@@ -273,18 +282,19 @@ const createDemoPosePhoto = (poseIndex: number): string => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    const newPhotos = [...photos];
     Array.from(files).forEach((file: File, idx: number) => {
       const targetSlot = (activeSlotIndex + idx) % requiredCount;
       const reader = new FileReader();
       reader.onload = (event) => {
         if (event.target?.result) {
-          newPhotos[targetSlot] = {
-            id: `photo_file_${Date.now()}_${idx}`,
+          const updated = [...photosRef.current];
+          updated[targetSlot] = {
+            id: `photo_file_${Date.now()}_${idx}_${Math.random().toString(36).substring(2, 5)}`,
             dataUrl: event.target.result as string,
             capturedAt: Date.now(),
           };
-          onPhotosChange([...newPhotos]);
+          photosRef.current = updated;
+          onPhotosChange(updated);
         }
       };
       reader.readAsDataURL(file);
@@ -292,7 +302,9 @@ const createDemoPosePhoto = (poseIndex: number): string => {
   };
 
   const handleRemovePhoto = (slotIdx: number) => {
-    const updated = photos.filter((_, idx) => idx !== slotIdx);
+    const updated = [...photosRef.current];
+    updated.splice(slotIdx, 1);
+    photosRef.current = updated;
     onPhotosChange(updated);
   };
 

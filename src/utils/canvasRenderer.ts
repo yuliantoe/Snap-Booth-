@@ -13,6 +13,52 @@ interface RenderOptions {
   targetWidth?: number; // default 1200
 }
 
+// Helper to draw text with automatic font-size downscaling so it fits within maxWidth
+function drawAutoFitText(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  maxWidth: number,
+  startFontSize: number,
+  fontFamily: string,
+  fontWeight: string = 'bold',
+  textAlign: CanvasTextAlign = 'center'
+): number {
+  let fontSize = startFontSize;
+  ctx.save();
+  ctx.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
+  while (ctx.measureText(text).width > maxWidth && fontSize > 10) {
+    fontSize -= 1.5;
+    ctx.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
+  }
+  ctx.textAlign = textAlign;
+  ctx.fillText(text, x, y);
+  ctx.restore();
+  return fontSize;
+}
+
+// Helper to draw a clean edge-to-edge dashed vector line for receipt layout
+function drawReceiptDashedLine(
+  ctx: CanvasRenderingContext2D,
+  x1: number,
+  x2: number,
+  y: number,
+  color: string,
+  pattern: number[] = [10, 6],
+  lineWidth: number = 2
+) {
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = lineWidth;
+  ctx.setLineDash(pattern);
+  ctx.beginPath();
+  ctx.moveTo(x1, y);
+  ctx.lineTo(x2, y);
+  ctx.stroke();
+  ctx.restore();
+}
+
 export async function generatePhotoStripCanvas(options: RenderOptions): Promise<HTMLCanvasElement> {
   const {
     photos,
@@ -50,7 +96,7 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
     photoHeight = Math.round(photoWidth * 0.75); // 795
     const headerHeight = 450;
     canvasHeight = padding * 2 + topLogoHeight + photoCount * photoHeight + (photoCount - 1) * gap + headerHeight;
-  } else if (layout === 'korean_receipt') {
+  } else if (layout === 'korean_receipt' || layout === 'shopping_receipt') {
     photoCount = 4;
     canvasWidth = targetWidth; // e.g. 1200
     padding = Math.round(canvasWidth * 0.06); // 72px
@@ -59,8 +105,18 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
     photoHeight = Math.round(photoWidth * 0.7); // 4:3 receipt photo ratio
     const topReceiptLogoExtra = theme.logoUrl ? Math.round(canvasWidth * 0.18) : 0;
     const headerHeight = Math.round(canvasWidth * 0.58) + topReceiptLogoExtra;
-    const footerHeight = Math.round(canvasWidth * 0.48);
+    const footerHeight = Math.round(canvasWidth * 0.52);
     canvasHeight = headerHeight + photoCount * photoHeight + (photoCount - 1) * gap + footerHeight;
+  } else if (layout === 'magazine') {
+    photoCount = 1;
+    canvasWidth = targetWidth; // 1200
+    padding = 70;
+    photoWidth = canvasWidth - padding * 2; // 1060
+    photoHeight = Math.round(photoWidth * 0.95); // 1007px
+    const topLogoExtra = theme.logoUrl ? 120 : 0;
+    const magazineHeaderHeight = 360 + topLogoExtra;
+    const magazineFooterHeight = 360;
+    canvasHeight = padding + magazineHeaderHeight + photoHeight + magazineFooterHeight + padding;
   } else if (layout === 'strip3') {
     photoCount = 3;
     canvasWidth = targetWidth;
@@ -141,11 +197,16 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
     if (layout === 'strip4' || layout === 'strip3' || layout === 'photocard') {
       x = padding;
       y = startPhotoY + i * (photoHeight + gap);
-    } else if (layout === 'korean_receipt') {
+    } else if (layout === 'korean_receipt' || layout === 'shopping_receipt') {
       x = padding;
       const topReceiptLogoExtra = theme.logoUrl ? Math.round(canvasWidth * 0.18) : 0;
       const headerHeight = Math.round(canvasWidth * 0.58) + topReceiptLogoExtra;
       y = headerHeight + i * (photoHeight + gap);
+    } else if (layout === 'magazine') {
+      x = padding;
+      const topLogoExtra = theme.logoUrl ? 120 : 0;
+      const magazineHeaderHeight = 360 + topLogoExtra;
+      y = padding + magazineHeaderHeight;
     } else if (layout === 'grid2x2') {
       const col = i % 2;
       const row = Math.floor(i / 2);
@@ -220,6 +281,9 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
     const monoFont = '"Courier New", Courier, monospace';
     const textColor = theme.textColor || '#1A1A1A';
     ctx.fillStyle = textColor;
+    const maxContentWidth = canvasWidth - padding * 2;
+    const leftX = padding;
+    const rightX = canvasWidth - padding;
 
     // Render Top Receipt Header
     let curY = Math.round(canvasWidth * 0.08);
@@ -245,32 +309,25 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
       }
     }
 
-    ctx.textAlign = 'center';
-    ctx.font = `bold ${Math.round(canvasWidth * 0.042)}px ${monoFont}`;
-    ctx.fillText(isCfd ? '★ CAR FREE DAY / RECEIPT PHOTO ★' : '★ LIFE 4-CUTS / 영수증 ★', canvasWidth / 2, curY);
+    drawAutoFitText(ctx, isCfd ? '★ CAR FREE DAY / RECEIPT PHOTO ★' : '★ LIFE 4-CUTS / 영수증 ★', canvasWidth / 2, curY, maxContentWidth, Math.round(canvasWidth * 0.042), monoFont, 'bold');
     curY += Math.round(canvasWidth * 0.048);
 
-    ctx.font = `bold ${Math.round(canvasWidth * 0.04)}px ${monoFont}`;
-    ctx.fillText((theme.eventTitle || (isCfd ? 'JAKARTA CAR FREE DAY' : 'KR RECEIPT PHOTOBOOTH')).toUpperCase(), canvasWidth / 2, curY);
+    const titleText = (theme.eventTitle || (isCfd ? 'JAKARTA CAR FREE DAY' : 'KR RECEIPT PHOTOBOOTH')).toUpperCase();
+    drawAutoFitText(ctx, titleText, canvasWidth / 2, curY, maxContentWidth, Math.round(canvasWidth * 0.04), monoFont, 'bold');
     curY += Math.round(canvasWidth * 0.038);
 
     if (theme.eventSubtitle) {
-      ctx.font = `${Math.round(canvasWidth * 0.026)}px ${monoFont}`;
-      ctx.fillText(theme.eventSubtitle.toUpperCase(), canvasWidth / 2, curY);
+      drawAutoFitText(ctx, theme.eventSubtitle.toUpperCase(), canvasWidth / 2, curY, maxContentWidth, Math.round(canvasWidth * 0.026), monoFont, 'normal');
       curY += Math.round(canvasWidth * 0.035);
     }
 
     // Receipt Dashed Separator
-    ctx.font = `bold ${Math.round(canvasWidth * 0.028)}px ${monoFont}`;
-    ctx.fillText('------------------------------------------------', canvasWidth / 2, curY);
+    drawReceiptDashedLine(ctx, leftX, rightX, curY, textColor);
     curY += Math.round(canvasWidth * 0.035);
 
     // Order Info Table Left/Right
     ctx.textAlign = 'left';
     ctx.font = `${Math.round(canvasWidth * 0.026)}px ${monoFont}`;
-    const leftX = padding;
-    const rightX = canvasWidth - padding;
-
     ctx.fillText(`DATE : ${theme.eventDate || (isCfd ? 'MINGGU, 08 AGUSTUS 2026' : '2026.08.08')}`, leftX, curY);
     ctx.textAlign = 'right';
     ctx.fillText(`TIME: ${new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`, rightX, curY);
@@ -282,26 +339,24 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
     ctx.fillText('REG: #01 [PAID]', rightX, curY);
     curY += Math.round(canvasWidth * 0.035);
 
-    ctx.textAlign = 'center';
-    ctx.fillText('------------------------------------------------', canvasWidth / 2, curY);
+    drawReceiptDashedLine(ctx, leftX, rightX, curY, textColor);
     curY += Math.round(canvasWidth * 0.035);
 
     ctx.textAlign = 'left';
+    ctx.font = `bold ${Math.round(canvasWidth * 0.026)}px ${monoFont}`;
     ctx.fillText('QTY  ITEM DESCRIPTION                    PRICE', leftX, curY);
     curY += Math.round(canvasWidth * 0.032);
-    ctx.textAlign = 'center';
-    ctx.fillText('------------------------------------------------', canvasWidth / 2, curY);
+    drawReceiptDashedLine(ctx, leftX, rightX, curY, textColor);
 
     // Render Bottom Receipt Footer (Below the 4 photos)
-    const headerHeight = Math.round(canvasWidth * 0.58);
+    const topReceiptLogoExtra = theme.logoUrl ? Math.round(canvasWidth * 0.18) : 0;
+    const headerHeight = Math.round(canvasWidth * 0.58) + topReceiptLogoExtra;
     const photoCountLocal = 4;
     const gapLocal = Math.round(canvasWidth * 0.035);
     const photoHeightLocal = Math.round((canvasWidth - padding * 2) * 0.7);
     let footerY = headerHeight + photoCountLocal * photoHeightLocal + (photoCountLocal - 1) * gapLocal + Math.round(canvasWidth * 0.04);
 
-    ctx.textAlign = 'center';
-    ctx.font = `bold ${Math.round(canvasWidth * 0.028)}px ${monoFont}`;
-    ctx.fillText('------------------------------------------------', canvasWidth / 2, footerY);
+    drawReceiptDashedLine(ctx, leftX, rightX, footerY, textColor);
     footerY += Math.round(canvasWidth * 0.032);
 
     ctx.font = `${Math.round(canvasWidth * 0.026)}px ${monoFont}`;
@@ -317,9 +372,7 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
     ctx.fillText(isCfd ? 'RP 0' : '₩0', rightX, footerY);
     footerY += Math.round(canvasWidth * 0.032);
 
-    ctx.textAlign = 'center';
-    ctx.font = `bold ${Math.round(canvasWidth * 0.028)}px ${monoFont}`;
-    ctx.fillText('------------------------------------------------', canvasWidth / 2, footerY);
+    drawReceiptDashedLine(ctx, leftX, rightX, footerY, textColor);
     footerY += Math.round(canvasWidth * 0.035);
 
     ctx.font = `bold ${Math.round(canvasWidth * 0.032)}px ${monoFont}`;
@@ -329,17 +382,13 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
     ctx.fillText(isCfd ? 'RP 0 (GRATIS)' : '₩0 (FREE)', rightX, footerY);
     footerY += Math.round(canvasWidth * 0.04);
 
-    ctx.textAlign = 'center';
-    ctx.font = `bold ${Math.round(canvasWidth * 0.028)}px ${monoFont}`;
-    ctx.fillText('------------------------------------------------', canvasWidth / 2, footerY);
+    drawReceiptDashedLine(ctx, leftX, rightX, footerY, textColor);
     footerY += Math.round(canvasWidth * 0.038);
 
-    ctx.font = `bold ${Math.round(canvasWidth * 0.03)}px ${monoFont}`;
-    ctx.fillText(isCfd ? '★ TERIMA KASIH • NIKMATI CFD SEHAT ★' : '★ THANK YOU FOR MAKING MEMORIES ★', canvasWidth / 2, footerY);
+    drawAutoFitText(ctx, isCfd ? '★ TERIMA KASIH • NIKMATI CFD SEHAT ★' : '★ THANK YOU FOR MAKING MEMORIES ★', canvasWidth / 2, footerY, maxContentWidth, Math.round(canvasWidth * 0.028), monoFont, 'bold');
     footerY += Math.round(canvasWidth * 0.035);
 
-    ctx.font = `${Math.round(canvasWidth * 0.026)}px ${monoFont}`;
-    ctx.fillText(isCfd ? 'Nikmati Udara Segar & Bebas Polusi 🏃🚲' : '감사합니다! 좋은 하루 되세요 ✨', canvasWidth / 2, footerY);
+    drawAutoFitText(ctx, isCfd ? 'Nikmati Udara Segar & Bebas Polusi 🏃🚲' : '감사합니다! 좋은 하루 되세요 ✨', canvasWidth / 2, footerY, maxContentWidth, Math.round(canvasWidth * 0.026), monoFont, 'normal');
     footerY += Math.round(canvasWidth * 0.04);
 
     // Thermal Barcode at Bottom of Korean Receipt
@@ -362,8 +411,267 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
       currX += w;
     }
 
-    ctx.font = `bold ${Math.round(canvasWidth * 0.024)}px ${monoFont}`;
-    ctx.fillText(isCfd ? '* JAKARTA-CAR-FREE-DAY-RECEIPT *' : '* KR-RECEIPT-PHOTO-FOUR-CUTS *', canvasWidth / 2, barcodeY + barcodeH + Math.round(canvasWidth * 0.03));
+    drawAutoFitText(ctx, isCfd ? '* JAKARTA-CAR-FREE-DAY-RECEIPT *' : '* KR-RECEIPT-PHOTO-FOUR-CUTS *', canvasWidth / 2, barcodeY + barcodeH + Math.round(canvasWidth * 0.03), maxContentWidth, Math.round(canvasWidth * 0.024), monoFont, 'bold');
+  } else if (layout === 'shopping_receipt') {
+    // Top and Bottom Serrated / Paper Tear Edges
+    drawSerratedPaperEdge(ctx, canvasWidth, 0, true);
+    drawSerratedPaperEdge(ctx, canvasWidth, canvasHeight, false);
+
+    const monoFont = '"Courier New", Courier, monospace';
+    const textColor = theme.textColor || '#111827';
+    ctx.fillStyle = textColor;
+    const maxContentWidth = canvasWidth - padding * 2;
+    const leftX = padding;
+    const rightX = canvasWidth - padding;
+
+    // Render Top Receipt Header
+    let curY = Math.round(canvasWidth * 0.08);
+
+    if (theme.logoUrl) {
+      try {
+        const logoImg = await loadImage(theme.logoUrl);
+        const maxLogoWidth = Math.round(canvasWidth * 0.45);
+        const maxLogoHeight = Math.round(canvasWidth * 0.15);
+        let logoW = logoImg.width;
+        let logoH = logoImg.height;
+
+        const scale = Math.min(maxLogoWidth / logoW, maxLogoHeight / logoH, 1);
+        logoW *= scale;
+        logoH *= scale;
+
+        const logoX = canvasWidth / 2 - logoW / 2;
+        ctx.drawImage(logoImg, logoX, curY, logoW, logoH);
+        curY += logoH + Math.round(canvasWidth * 0.03);
+      } catch (err) {
+        console.warn('Unable to render theme logoUrl on receipt header:', err);
+      }
+    }
+
+    drawAutoFitText(ctx, '★ STRUK PEMBELIAN & KASIR ★', canvasWidth / 2, curY, maxContentWidth, Math.round(canvasWidth * 0.04), monoFont, 'bold');
+    curY += Math.round(canvasWidth * 0.048);
+
+    const titleText = (theme.eventTitle || 'HAPPY MART SUPERMARKET').toUpperCase();
+    drawAutoFitText(ctx, titleText, canvasWidth / 2, curY, maxContentWidth, Math.round(canvasWidth * 0.042), monoFont, 'bold');
+    curY += Math.round(canvasWidth * 0.038);
+
+    if (theme.eventSubtitle) {
+      drawAutoFitText(ctx, theme.eventSubtitle.toUpperCase(), canvasWidth / 2, curY, maxContentWidth, Math.round(canvasWidth * 0.025), monoFont, 'normal');
+      curY += Math.round(canvasWidth * 0.035);
+    }
+
+    drawReceiptDashedLine(ctx, leftX, rightX, curY, textColor, [12, 6], 3);
+    curY += Math.round(canvasWidth * 0.035);
+
+    ctx.textAlign = 'left';
+    ctx.font = `${Math.round(canvasWidth * 0.026)}px ${monoFont}`;
+    ctx.fillText(`TGL: ${theme.eventDate || '08 AGUSTUS 2026'}`, leftX, curY);
+    ctx.textAlign = 'right';
+    ctx.fillText(`JAM: ${new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`, rightX, curY);
+    curY += Math.round(canvasWidth * 0.032);
+
+    ctx.textAlign = 'left';
+    ctx.fillText(`INV: #MART-2026-${Math.floor(Math.random() * 8999 + 1000)}`, leftX, curY);
+    ctx.textAlign = 'right';
+    ctx.fillText('KASIR: #01 [LUNAS]', rightX, curY);
+    curY += Math.round(canvasWidth * 0.035);
+
+    drawReceiptDashedLine(ctx, leftX, rightX, curY, textColor);
+    curY += Math.round(canvasWidth * 0.035);
+
+    ctx.textAlign = 'left';
+    ctx.font = `bold ${Math.round(canvasWidth * 0.026)}px ${monoFont}`;
+    ctx.fillText('QTY  NAMA ITEM                          HARGA', leftX, curY);
+    curY += Math.round(canvasWidth * 0.032);
+    drawReceiptDashedLine(ctx, leftX, rightX, curY, textColor);
+
+    // Render Bottom Receipt Footer (Below the 4 photos)
+    const topReceiptLogoExtra = theme.logoUrl ? Math.round(canvasWidth * 0.18) : 0;
+    const headerHeight = Math.round(canvasWidth * 0.58) + topReceiptLogoExtra;
+    const photoCountLocal = 4;
+    const gapLocal = Math.round(canvasWidth * 0.035);
+    const photoHeightLocal = Math.round((canvasWidth - padding * 2) * 0.7);
+    let footerY = headerHeight + photoCountLocal * photoHeightLocal + (photoCountLocal - 1) * gapLocal + Math.round(canvasWidth * 0.04);
+
+    drawReceiptDashedLine(ctx, leftX, rightX, footerY, textColor);
+    footerY += Math.round(canvasWidth * 0.032);
+
+    ctx.font = `${Math.round(canvasWidth * 0.026)}px ${monoFont}`;
+    ctx.textAlign = 'left';
+    ctx.fillText('1x  SESI FOTO PHOTOBOOTH', leftX, footerY);
+    ctx.textAlign = 'right';
+    ctx.fillText('RP 0', rightX, footerY);
+    footerY += Math.round(canvasWidth * 0.03);
+
+    ctx.textAlign = 'left';
+    ctx.fillText('1x  CETAK FOTO HIGH-RES', leftX, footerY);
+    ctx.textAlign = 'right';
+    ctx.fillText('RP 0', rightX, footerY);
+    footerY += Math.round(canvasWidth * 0.032);
+
+    drawReceiptDashedLine(ctx, leftX, rightX, footerY, textColor);
+    footerY += Math.round(canvasWidth * 0.035);
+
+    ctx.font = `${Math.round(canvasWidth * 0.026)}px ${monoFont}`;
+    ctx.textAlign = 'left';
+    ctx.fillText('SUBTOTAL', leftX, footerY);
+    ctx.textAlign = 'right';
+    ctx.fillText('RP 0', rightX, footerY);
+    footerY += Math.round(canvasWidth * 0.03);
+
+    ctx.textAlign = 'left';
+    ctx.fillText('DISKON MEMORY (100%)', leftX, footerY);
+    ctx.textAlign = 'right';
+    ctx.fillText('-RP 0', rightX, footerY);
+    footerY += Math.round(canvasWidth * 0.032);
+
+    drawReceiptDashedLine(ctx, leftX, rightX, footerY, textColor, [12, 6], 3);
+    footerY += Math.round(canvasWidth * 0.035);
+
+    ctx.font = `bold ${Math.round(canvasWidth * 0.032)}px ${monoFont}`;
+    ctx.textAlign = 'left';
+    ctx.fillText('TOTAL BAYAR', leftX, footerY);
+    ctx.textAlign = 'right';
+    ctx.fillText('RP 0 (GRATIS)', rightX, footerY);
+    footerY += Math.round(canvasWidth * 0.04);
+
+    drawReceiptDashedLine(ctx, leftX, rightX, footerY, textColor);
+    footerY += Math.round(canvasWidth * 0.038);
+
+    drawAutoFitText(ctx, '★ TERIMA KASIH ATAS KUNJUNGAN ANDA ★', canvasWidth / 2, footerY, maxContentWidth, Math.round(canvasWidth * 0.028), monoFont, 'bold');
+    footerY += Math.round(canvasWidth * 0.035);
+
+    drawAutoFitText(ctx, 'Simpan Struk Ini Sebagai Kenangan Manis ✨', canvasWidth / 2, footerY, maxContentWidth, Math.round(canvasWidth * 0.026), monoFont, 'normal');
+    footerY += Math.round(canvasWidth * 0.04);
+
+    // Thermal Barcode at Bottom
+    const barcodeW = Math.round(canvasWidth * 0.55);
+    const barcodeH = Math.round(canvasWidth * 0.08);
+    const barcodeX = canvasWidth / 2 - barcodeW / 2;
+    const barcodeY = footerY;
+
+    ctx.fillStyle = textColor;
+    const barPattern = [3, 1, 4, 1, 2, 3, 1, 2, 4, 1, 3, 2, 1, 4, 2, 3, 1, 2, 1, 3, 2, 3, 1, 2, 4, 1, 3];
+    const totalUnits = barPattern.reduce((a, b) => a + b, 0);
+    const unitW = barcodeW / totalUnits;
+
+    let currX = barcodeX;
+    for (let i = 0; i < barPattern.length; i++) {
+      const w = barPattern[i] * unitW;
+      if (i % 2 === 0) {
+        ctx.fillRect(currX, barcodeY, Math.max(w * 0.85, 2), barcodeH);
+      }
+      currX += w;
+    }
+
+    drawAutoFitText(ctx, '* RETAIL-SHOPPING-RECEIPT-PHOTO *', canvasWidth / 2, barcodeY + barcodeH + Math.round(canvasWidth * 0.03), maxContentWidth, Math.round(canvasWidth * 0.024), monoFont, 'bold');
+  } else if (layout === 'magazine') {
+    const textColor = theme.textColor || '#FAF8F5';
+    ctx.fillStyle = textColor;
+    const maxContentWidth = canvasWidth - padding * 2;
+
+    const getFontFamilyName = (family?: EventTheme['fontFamily']) => {
+      switch (family) {
+        case 'serif':
+          return 'Georgia, "Times New Roman", serif';
+        case 'mono':
+          return '"Courier New", Courier, monospace';
+        case 'handwriting':
+          return '"Brush Script MT", "Caveat", cursive';
+        case 'display':
+          return 'Impact, "Arial Black", sans-serif';
+        case 'sans':
+        default:
+          return '"Plus Jakarta Sans", system-ui, sans-serif';
+      }
+    };
+
+    const titleFont = getFontFamilyName(theme.fontFamily);
+
+    // Top Header Masthead
+    let topY = padding + 60;
+
+    if (theme.logoUrl) {
+      try {
+        const logoImg = await loadImage(theme.logoUrl);
+        const maxLogoWidth = 360;
+        const maxLogoHeight = 110;
+        let logoW = logoImg.width;
+        let logoH = logoImg.height;
+
+        const scale = Math.min(maxLogoWidth / logoW, maxLogoHeight / logoH, 1);
+        logoW *= scale;
+        logoH *= scale;
+
+        const logoX = canvasWidth / 2 - logoW / 2;
+        ctx.drawImage(logoImg, logoX, padding, logoW, logoH);
+        topY = padding + logoH + 40;
+      } catch (err) {
+        console.warn('Unable to render theme logoUrl on magazine header:', err);
+      }
+    }
+
+    // Masthead Big Title (Auto-fit so long names fit seamlessly)
+    const magTitle = (theme.eventTitle || 'VOGUE EDITORIAL').toUpperCase();
+    drawAutoFitText(ctx, magTitle, canvasWidth / 2, topY + 60, maxContentWidth, 90, titleFont, '900', 'center');
+
+    // Subtitle & Category
+    const magSub = (theme.eventSubtitle || 'SPECIAL COVER STORY • LIMITED EDITION').toUpperCase();
+    ctx.fillStyle = theme.accentColor || textColor;
+    drawAutoFitText(ctx, magSub, canvasWidth / 2, topY + 115, maxContentWidth, 26, titleFont, '600', 'center');
+
+    if (theme.showDateBadge && theme.eventDate) {
+      ctx.fillStyle = textColor;
+      drawAutoFitText(ctx, theme.eventDate.toUpperCase(), canvasWidth / 2, topY + 150, maxContentWidth, 20, 'sans-serif', 'bold', 'center');
+    }
+
+    // Top Divider Line
+    ctx.strokeStyle = theme.accentColor || textColor;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(padding, topY + 175);
+    ctx.lineTo(canvasWidth - padding, topY + 175);
+    ctx.stroke();
+
+    // Magazine Bottom Headlines (Below Photo)
+    const topLogoExtra = theme.logoUrl ? 120 : 0;
+    const magazineHeaderHeight = 360 + topLogoExtra;
+    const photoH = Math.round((canvasWidth - padding * 2) * 0.95);
+    const bottomY = padding + magazineHeaderHeight + photoH + 50;
+
+    ctx.fillStyle = textColor;
+    drawAutoFitText(ctx, '★ EXCLUSIVE COVER STORY', padding, bottomY, maxContentWidth * 0.65, 32, titleFont, 'bold', 'left');
+
+    const subText = (theme.eventTitle || 'THE ART OF CREATING UNFORGETTABLE MEMORIES').toUpperCase();
+    ctx.fillStyle = theme.accentColor || '#E2E8F0';
+    drawAutoFitText(ctx, subText, padding, bottomY + 42, maxContentWidth * 0.65, 22, 'sans-serif', 'normal', 'left');
+
+    const issueText = (theme.eventSubtitle || 'SPRING / SUMMER SPECIAL EDITORIAL • SNAPBOOTH').toUpperCase();
+    ctx.fillStyle = textColor;
+    drawAutoFitText(ctx, issueText, padding, bottomY + 75, maxContentWidth * 0.65, 18, 'sans-serif', 'normal', 'left');
+
+    // Bottom Right Barcode & ISSN Code
+    const barcodeW = 260;
+    const barcodeH = 48;
+    const barcodeX = canvasWidth - padding - barcodeW;
+    const barcodeY = bottomY;
+
+    ctx.fillStyle = textColor;
+    const barPattern = [3, 1, 4, 1, 2, 3, 1, 2, 4, 1, 3, 2, 1, 4, 2, 3, 1, 2, 1, 3, 2, 3, 1, 2, 4, 1, 3];
+    const totalUnits = barPattern.reduce((a, b) => a + b, 0);
+    const unitW = barcodeW / totalUnits;
+
+    let currX = barcodeX;
+    for (let i = 0; i < barPattern.length; i++) {
+      const w = barPattern[i] * unitW;
+      if (i % 2 === 0) {
+        ctx.fillRect(currX, barcodeY, Math.max(w * 0.85, 2), barcodeH);
+      }
+      currX += w;
+    }
+
+    ctx.font = 'bold 13px "Courier New", monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText('* VOGUE-MAGAZINE-COVER *', canvasWidth - padding, barcodeY + barcodeH + 18);
   } else {
     // Normal non-receipt layout rendering
     ctx.textAlign = 'center';

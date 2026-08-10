@@ -1,4 +1,4 @@
-export type LayoutType = 'strip4' | 'strip3' | 'grid2x2' | 'polaroid' | 'photocard' | 'korean_receipt';
+export type LayoutType = 'strip4' | 'strip3' | 'grid2x2' | 'polaroid' | 'photocard' | 'korean_receipt' | 'magazine' | 'shopping_receipt';
 
 export type FilterType = 
   | 'normal' 
@@ -33,7 +33,7 @@ export interface StickerItem {
 export interface EventTheme {
   id: string;
   name: string;
-  category: 'wedding' | 'birthday' | 'party' | 'retro' | 'corporate' | 'minimal';
+  category: 'wedding' | 'birthday' | 'party' | 'retro' | 'corporate' | 'minimal' | 'cafe' | 'restaurant' | 'magazine' | 'receipt';
   frameColor: string; // hex
   textColor: string; // hex
   backgroundColor: string; // hex or CSS gradient
@@ -54,6 +54,8 @@ export interface EventTheme {
   homeCtaColor?: 'rose_amber' | 'cyber_neon' | 'royal_gold' | 'emerald' | 'slate_dark';
   homeBgBlur?: 'none' | 'light' | 'heavy';
   tabletOrientation?: 'portrait' | 'landscape';
+  autoPrintEnabled?: boolean;
+  autoPrintMode?: 'thermal_80mm' | 'thermal_58mm' | 'dual_4x6' | 'single';
   customFrameOverlayUrl?: string;
   customBgImageUrl?: string;
   customStickerUrls?: string[];

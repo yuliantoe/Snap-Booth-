@@ -27,12 +27,6 @@ export default function App() {
 
   // Control Panel Modal state
   const [isControlPanelOpen, setIsControlPanelOpen] = useState<boolean>(false);
-  const [dashboardRole, setDashboardRole] = useState<'admin' | 'user'>('admin');
-
-  const handleOpenControlPanel = (role: 'admin' | 'user' = 'admin') => {
-    setDashboardRole(role);
-    setIsControlPanelOpen(true);
-  };
 
   // Load saved session gallery from localStorage
   useEffect(() => {
@@ -103,7 +97,7 @@ export default function App() {
       {/* Navbar Header */}
       <Header
         currentTheme={currentTheme}
-        onOpenControlPanel={handleOpenControlPanel}
+        onOpenControlPanel={() => setIsControlPanelOpen(true)}
         onResetSession={handleResetSession}
         galleryCount={gallery.length}
       />
@@ -133,6 +127,7 @@ export default function App() {
             onPhotosChange={setPhotos}
             onContinueToLayout={() => setCurrentStep('theme_layout')}
             tabletOrientation={currentTheme.tabletOrientation}
+            autoPrintEnabled={currentTheme.autoPrintEnabled}
           />
         )}
 
@@ -165,7 +160,6 @@ export default function App() {
       <ControlPanelModal
         isOpen={isControlPanelOpen}
         onClose={() => setIsControlPanelOpen(false)}
-        initialRole={dashboardRole}
         currentTheme={currentTheme}
         onSaveTheme={setCurrentTheme}
         gallery={gallery}

@@ -3,7 +3,41 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Google AI Studio App</title>
+    <title>Photobooth Kiosk & Dasboard</title>
+    <script>
+      (function() {
+        // Prevent extension rejections from surfacing as uncaught errors
+        window.addEventListener('unhandledrejection', function (event) {
+          var reason = '';
+          try {
+            if (typeof event.reason === 'string') {
+              reason = event.reason;
+            } else if (event.reason) {
+              reason = event.reason.message || event.reason.stack || JSON.stringify(event.reason);
+            }
+          } catch (e) {}
+          
+          if (/metamask|ethereum|wallet|web3/i.test(reason) || !reason) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (typeof event.stopImmediatePropagation === 'function') {
+              event.stopImmediatePropagation();
+            }
+          }
+        }, true);
+
+        window.addEventListener('error', function (event) {
+          var msg = (event && (event.message || event.filename)) || '';
+          if (/metamask|ethereum|wallet|web3/i.test(msg)) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (typeof event.stopImmediatePropagation === 'function') {
+              event.stopImmediatePropagation();
+            }
+          }
+        }, true);
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
