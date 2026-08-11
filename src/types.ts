@@ -49,6 +49,7 @@ export interface EventTheme {
   logoUrl?: string;
   welcomeMediaType?: 'photo' | 'video';
   welcomeVideoUrl?: string;
+  welcomePhotoUrl?: string;
   homeStyle?: 'classic' | 'minimal' | 'billboard' | 'kiosk_vertical' | 'neon_party' | 'luxury_wedding';
   homeCtaText?: string;
   homeCtaColor?: 'rose_amber' | 'cyber_neon' | 'royal_gold' | 'emerald' | 'slate_dark';

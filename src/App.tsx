@@ -83,6 +83,49 @@ export default function App() {
     setCurrentStep('welcome');
   };
 
+  // Auto-return to welcome screen after 3 seconds of inactivity when not on welcome screen
+  useEffect(() => {
+    if (currentStep === 'welcome' || isControlPanelOpen) {
+      return;
+    }
+
+    const IDLE_TIMEOUT_MS = 3000;
+    let timer: NodeJS.Timeout;
+
+    const resetIdleTimer = () => {
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => {
+        handleResetSession();
+      }, IDLE_TIMEOUT_MS);
+    };
+
+    // Start initial 3-second timer
+    resetIdleTimer();
+
+    // Listen for user interaction events across the page
+    const interactionEvents = [
+      'mousemove',
+      'mousedown',
+      'touchstart',
+      'touchmove',
+      'keydown',
+      'scroll',
+      'click',
+      'pointerdown',
+    ];
+
+    interactionEvents.forEach((evt) => {
+      window.addEventListener(evt, resetIdleTimer, { passive: true });
+    });
+
+    return () => {
+      if (timer) clearTimeout(timer);
+      interactionEvents.forEach((evt) => {
+        window.removeEventListener(evt, resetIdleTimer);
+      });
+    };
+  }, [currentStep, isControlPanelOpen]);
+
   // Step navigation rules
   const canNavigateTo = (step: StepType) => {
     if (step === 'welcome') return true;

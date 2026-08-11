@@ -77,7 +77,7 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
   if (!ctx) throw new Error('Could not get canvas context');
 
   // Calculate Canvas Dimensions based on layout
-  const topLogoHeight = theme.logoUrl ? 180 : 0;
+  const topLogoHeight = theme.logoUrl ? Math.round(targetWidth * 0.24) : 0;
 
   let canvasWidth = targetWidth;
   let canvasHeight = 3600; // default strip height
@@ -103,7 +103,7 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
     gap = Math.round(canvasWidth * 0.035); // 42px
     photoWidth = canvasWidth - padding * 2;
     photoHeight = Math.round(photoWidth * 0.7); // 4:3 receipt photo ratio
-    const topReceiptLogoExtra = theme.logoUrl ? Math.round(canvasWidth * 0.18) : 0;
+    const topReceiptLogoExtra = theme.logoUrl ? Math.round(canvasWidth * 0.26) : 0;
     const headerHeight = Math.round(canvasWidth * 0.58) + topReceiptLogoExtra;
     const footerHeight = Math.round(canvasWidth * 0.52);
     canvasHeight = headerHeight + photoCount * photoHeight + (photoCount - 1) * gap + footerHeight;
@@ -113,7 +113,7 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
     padding = 70;
     photoWidth = canvasWidth - padding * 2; // 1060
     photoHeight = Math.round(photoWidth * 0.95); // 1007px
-    const topLogoExtra = theme.logoUrl ? 120 : 0;
+    const topLogoExtra = theme.logoUrl ? Math.round(canvasWidth * 0.24) : 0;
     const magazineHeaderHeight = 360 + topLogoExtra;
     const magazineFooterHeight = 360;
     canvasHeight = padding + magazineHeaderHeight + photoHeight + magazineFooterHeight + padding;
@@ -199,12 +199,12 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
       y = startPhotoY + i * (photoHeight + gap);
     } else if (layout === 'korean_receipt' || layout === 'shopping_receipt') {
       x = padding;
-      const topReceiptLogoExtra = theme.logoUrl ? Math.round(canvasWidth * 0.18) : 0;
+      const topReceiptLogoExtra = theme.logoUrl ? Math.round(canvasWidth * 0.26) : 0;
       const headerHeight = Math.round(canvasWidth * 0.58) + topReceiptLogoExtra;
       y = headerHeight + i * (photoHeight + gap);
     } else if (layout === 'magazine') {
       x = padding;
-      const topLogoExtra = theme.logoUrl ? 120 : 0;
+      const topLogoExtra = theme.logoUrl ? Math.round(canvasWidth * 0.24) : 0;
       const magazineHeaderHeight = 360 + topLogoExtra;
       y = padding + magazineHeaderHeight;
     } else if (layout === 'grid2x2') {
@@ -292,8 +292,8 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
     if (theme.logoUrl) {
       try {
         const logoImg = await loadImage(theme.logoUrl);
-        const maxLogoWidth = Math.round(canvasWidth * 0.45);
-        const maxLogoHeight = Math.round(canvasWidth * 0.15);
+        const maxLogoWidth = Math.round(canvasWidth * 0.65);
+        const maxLogoHeight = Math.round(canvasWidth * 0.22);
         let logoW = logoImg.width;
         let logoH = logoImg.height;
 
@@ -349,7 +349,7 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
     drawReceiptDashedLine(ctx, leftX, rightX, curY, textColor);
 
     // Render Bottom Receipt Footer (Below the 4 photos)
-    const topReceiptLogoExtra = theme.logoUrl ? Math.round(canvasWidth * 0.18) : 0;
+    const topReceiptLogoExtra = theme.logoUrl ? Math.round(canvasWidth * 0.26) : 0;
     const headerHeight = Math.round(canvasWidth * 0.58) + topReceiptLogoExtra;
     const photoCountLocal = 4;
     const gapLocal = Math.round(canvasWidth * 0.035);
@@ -430,8 +430,8 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
     if (theme.logoUrl) {
       try {
         const logoImg = await loadImage(theme.logoUrl);
-        const maxLogoWidth = Math.round(canvasWidth * 0.45);
-        const maxLogoHeight = Math.round(canvasWidth * 0.15);
+        const maxLogoWidth = Math.round(canvasWidth * 0.65);
+        const maxLogoHeight = Math.round(canvasWidth * 0.22);
         let logoW = logoImg.width;
         let logoH = logoImg.height;
 
@@ -485,7 +485,7 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
     drawReceiptDashedLine(ctx, leftX, rightX, curY, textColor);
 
     // Render Bottom Receipt Footer (Below the 4 photos)
-    const topReceiptLogoExtra = theme.logoUrl ? Math.round(canvasWidth * 0.18) : 0;
+    const topReceiptLogoExtra = theme.logoUrl ? Math.round(canvasWidth * 0.26) : 0;
     const headerHeight = Math.round(canvasWidth * 0.58) + topReceiptLogoExtra;
     const photoCountLocal = 4;
     const gapLocal = Math.round(canvasWidth * 0.035);
@@ -593,8 +593,8 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
     if (theme.logoUrl) {
       try {
         const logoImg = await loadImage(theme.logoUrl);
-        const maxLogoWidth = 360;
-        const maxLogoHeight = 110;
+        const maxLogoWidth = Math.round(canvasWidth * 0.65);
+        const maxLogoHeight = Math.round(canvasWidth * 0.22);
         let logoW = logoImg.width;
         let logoH = logoImg.height;
 
@@ -604,7 +604,7 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
 
         const logoX = canvasWidth / 2 - logoW / 2;
         ctx.drawImage(logoImg, logoX, padding, logoW, logoH);
-        topY = padding + logoH + 40;
+        topY = padding + logoH + 30;
       } catch (err) {
         console.warn('Unable to render theme logoUrl on magazine header:', err);
       }
@@ -680,8 +680,8 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
     if (theme.logoUrl) {
       try {
         const logoImg = await loadImage(theme.logoUrl);
-        const maxLogoWidth = 420; // Enlarged top logo max width
-        const maxLogoHeight = 150; // Enlarged top logo max height
+        const maxLogoWidth = Math.round(canvasWidth * 0.65);
+        const maxLogoHeight = Math.round(canvasWidth * 0.22);
         let logoW = logoImg.width;
         let logoH = logoImg.height;
 

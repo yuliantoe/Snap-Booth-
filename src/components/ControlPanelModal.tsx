@@ -58,6 +58,39 @@ const PRESET_VIDEOS = [
   },
 ];
 
+const PRESET_WELCOME_PHOTOS = [
+  {
+    id: 'party_celebration',
+    name: '🎉 Party & Sparkles',
+    url: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1920&q=80',
+  },
+  {
+    id: 'wedding_romantic',
+    name: '💍 Wedding Lights',
+    url: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1920&q=80',
+  },
+  {
+    id: 'neon_night',
+    name: '⚡ Cyberpunk Neon',
+    url: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=1920&q=80',
+  },
+  {
+    id: 'gala_gold',
+    name: '✨ Gold Bokeh Gala',
+    url: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1920&q=80',
+  },
+  {
+    id: 'cozy_cafe',
+    name: '☕ Cafe & Bakery',
+    url: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=1920&q=80',
+  },
+  {
+    id: 'studio_minimal',
+    name: '🖼️ Dark Studio Texture',
+    url: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=1920&q=80',
+  },
+];
+
 const PRESET_LOGOS = [
   {
     id: 'snapbooth_badge',
@@ -134,6 +167,7 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
   const [themeForm, setThemeForm] = useState<EventTheme>({ ...currentTheme });
   const [themeCategoryFilter, setThemeCategoryFilter] = useState<string>('all');
   const logoFileInputRef = useRef<HTMLInputElement | null>(null);
+  const welcomePhotoFileInputRef = useRef<HTMLInputElement | null>(null);
   const videoFileInputRef = useRef<HTMLInputElement | null>(null);
   const themeJsonFileInputRef = useRef<HTMLInputElement | null>(null);
   const frameOverlayFileInputRef = useRef<HTMLInputElement | null>(null);
@@ -996,8 +1030,8 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                     }`}
                   >
                     <ImageIcon className="w-6 h-6 text-rose-400" />
-                    <span className="text-sm">Foto Logo Brand</span>
-                    <span className="text-[10px] font-normal text-slate-400">Menampilkan Logo Brand/Acara</span>
+                    <span className="text-sm">Foto Welcoming Background</span>
+                    <span className="text-[10px] font-normal text-slate-400">Menampilkan Foto Fullscreen & Logo</span>
                   </button>
 
                   <button
@@ -1013,6 +1047,99 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                     <span className="text-sm">Video Background Loop</span>
                     <span className="text-[10px] font-normal text-slate-400">Menampilkan Animasi Video Bergerak</span>
                   </button>
+                </div>
+              </div>
+
+              {/* Welcoming Fullscreen Background Photo */}
+              <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                    <ImageIcon className="w-4 h-4 text-rose-400" /> Upload / Pilih Foto Welcoming Fullscreen
+                  </h3>
+                  {themeForm.welcomePhotoUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setThemeForm({ ...themeForm, welcomePhotoUrl: undefined })}
+                      className="text-xs text-rose-400 hover:underline flex items-center gap-1 font-semibold"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" /> Reset Foto Fullscreen
+                    </button>
+                  )}
+                </div>
+
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Foto ini akan tampil penuh (fullscreen) pada halaman paling awal saat pengunjung mendekati booth foto.
+                </p>
+
+                <div className="space-y-3">
+                  <input
+                    type="file"
+                    ref={welcomePhotoFileInputRef}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                          setThemeForm({
+                            ...themeForm,
+                            welcomePhotoUrl: event.target?.result as string,
+                            welcomeMediaType: 'photo',
+                          });
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                    accept="image/*"
+                    className="hidden"
+                  />
+
+                  <div className="flex flex-wrap items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => welcomePhotoFileInputRef.current?.click()}
+                      className="px-5 py-3 rounded-2xl bg-gradient-to-r from-rose-500 to-amber-500 hover:brightness-110 text-slate-950 font-extrabold text-xs flex items-center gap-2 shadow-lg shadow-rose-500/10 transition-all"
+                    >
+                      <Upload className="w-4 h-4" /> Upload Custom Background Fullscreen (.JPG/.PNG)
+                    </button>
+                  </div>
+
+                  {/* Preset Welcoming Photos */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Preset Wallpaper Welcoming High-Res:</label>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {PRESET_WELCOME_PHOTOS.map((bg) => {
+                        const isSelected = themeForm.welcomePhotoUrl === bg.url;
+                        return (
+                          <button
+                            key={bg.id}
+                            type="button"
+                            onClick={() =>
+                              setThemeForm({
+                                ...themeForm,
+                                welcomePhotoUrl: bg.url,
+                                welcomeMediaType: 'photo',
+                              })
+                            }
+                            className={`p-2.5 rounded-2xl border text-left transition-all overflow-hidden flex flex-col gap-2 relative ${
+                              isSelected
+                                ? 'border-rose-500 bg-rose-500/10 text-white shadow-lg shadow-rose-500/10'
+                                : 'border-slate-800 bg-slate-900 text-slate-400 hover:border-slate-700'
+                            }`}
+                          >
+                            <div className="w-full h-20 rounded-xl overflow-hidden relative bg-slate-950">
+                              <img src={bg.url} alt={bg.name} className="w-full h-full object-cover" />
+                              {isSelected && (
+                                <div className="absolute top-1.5 right-1.5 p-1 bg-rose-500 text-white rounded-full shadow-md">
+                                  <Check className="w-3 h-3" />
+                                </div>
+                              )}
+                            </div>
+                            <span className="text-xs font-bold text-slate-200 truncate">{bg.name}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
               </div>
 

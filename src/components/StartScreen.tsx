@@ -10,6 +10,7 @@ interface StartScreenProps {
 }
 
 const DEFAULT_VIDEO = 'https://assets.mixkit.co/videos/preview/mixkit-sparkles-and-glitter-in-the-dark-42880-large.mp4';
+const DEFAULT_WELCOME_PHOTO = 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1920&q=80';
 
 export const StartScreen: React.FC<StartScreenProps> = ({
   currentTheme,
@@ -17,6 +18,7 @@ export const StartScreen: React.FC<StartScreenProps> = ({
 }) => {
   const mediaType = currentTheme.welcomeMediaType || 'photo';
   const videoUrl = currentTheme.welcomeVideoUrl || DEFAULT_VIDEO;
+  const photoUrl = currentTheme.welcomePhotoUrl || currentTheme.customBgImageUrl || DEFAULT_WELCOME_PHOTO;
   const homeStyle = currentTheme.homeStyle || 'classic';
   const ctaText = currentTheme.homeCtaText || 'SENTUH UNTUK MULAI FOTO';
   const ctaColor = currentTheme.homeCtaColor || 'rose_amber';
@@ -39,15 +41,15 @@ export const StartScreen: React.FC<StartScreenProps> = ({
     }
   };
 
-  // Video background blur level
+  // Video/Photo background blur level
   const getBlurClass = () => {
-    if (bgBlur === 'heavy') return 'filter blur-[4px] opacity-40';
-    if (bgBlur === 'none') return 'opacity-60';
-    return 'filter blur-[1.5px] opacity-50';
+    if (bgBlur === 'heavy') return 'filter blur-[5px] opacity-40';
+    if (bgBlur === 'none') return 'opacity-75';
+    return 'filter blur-[2px] opacity-60';
   };
 
   return (
-    <div className="relative w-full min-h-[calc(100vh-120px)] flex flex-col items-center justify-center overflow-hidden bg-slate-950 p-4 sm:p-8">
+    <div className="fixed inset-0 z-40 w-full h-full min-h-screen overflow-hidden bg-slate-950 flex flex-col items-center justify-center p-4 sm:p-8">
       {/* Background Media Layer */}
       {mediaType === 'video' ? (
         <div className="absolute inset-0 z-0">
@@ -59,13 +61,18 @@ export const StartScreen: React.FC<StartScreenProps> = ({
             playsInline
             className={`w-full h-full object-cover scale-105 transition-all ${getBlurClass()}`}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-slate-950/30" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-slate-950/30" />
         </div>
       ) : (
         <div className="absolute inset-0 z-0 overflow-hidden">
-          <div className="absolute -top-32 -left-32 w-96 h-96 bg-rose-500/20 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-amber-500/20 rounded-full blur-3xl animate-pulse delay-1000" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(15,23,42,0.4)_0%,rgba(2,6,23,0.95)_100%)]" />
+          <img
+            src={photoUrl}
+            alt="Welcoming Fullscreen Background"
+            className={`w-full h-full object-cover scale-105 transition-all ${getBlurClass()}`}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/65 to-slate-950/35" />
+          <div className="absolute -top-32 -left-32 w-96 h-96 bg-rose-500/20 rounded-full blur-3xl animate-pulse mix-blend-screen" />
+          <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-amber-500/20 rounded-full blur-3xl animate-pulse delay-1000 mix-blend-screen" />
         </div>
       )}
 
