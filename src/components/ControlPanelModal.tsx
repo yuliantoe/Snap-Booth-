@@ -25,8 +25,13 @@ import {
   Minus,
   Tablet,
   Smartphone,
+  Clock,
+  Timer,
+  LogOut,
+  User,
+  Users,
 } from 'lucide-react';
-import { EventTheme, SavedPhotoStrip } from '../types';
+import { EventTheme, SavedPhotoStrip, UserAccount } from '../types';
 import { DEFAULT_THEMES } from '../utils/themePresets';
 
 interface ControlPanelModalProps {
@@ -38,6 +43,9 @@ interface ControlPanelModalProps {
   onDeleteFromGallery: (id: string) => void;
   onClearGallery: () => void;
   onResetSession: () => void;
+  currentUser?: UserAccount | null;
+  onLogout?: () => void;
+  onOpenAuthModal?: () => void;
 }
 
 const PRESET_VIDEOS = [
@@ -162,6 +170,9 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
   onDeleteFromGallery,
   onClearGallery,
   onResetSession,
+  currentUser,
+  onLogout,
+  onOpenAuthModal,
 }) => {
   const [activeTab, setActiveTab] = useState<'home' | 'theme' | 'upload_custom' | 'media' | 'gallery' | 'system'>('home');
   const [themeForm, setThemeForm] = useState<EventTheme>({ ...currentTheme });
@@ -326,97 +337,227 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
               <Sliders className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
-                Dasboard Sistem
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                  Pusat Pengaturan
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">
+                  Dasboard Sistem
+                </h2>
+                {currentUser && (
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                    💎 {currentUser.businessName || currentUser.displayName}
+                  </span>
+                )}
+                <span className="hidden sm:inline-block px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                  Cloud Synced
                 </span>
-              </h2>
+              </div>
               <p className="text-xs text-slate-400">Atur Tema Home Custom, Desain Frame, Media Brand & Galeri Foto</p>
             </div>
           </div>
 
-          <button
-            onClick={onClose}
-            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-all"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            {onOpenAuthModal && (
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  onOpenAuthModal();
+                }}
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold border border-slate-700 transition-all cursor-pointer"
+                title="Ganti User atau login akun lain"
+              >
+                <Users className="w-3.5 h-3.5 text-cyan-400" />
+                <span>Ganti User</span>
+              </button>
+            )}
+            {onLogout && (
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  onLogout();
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs font-bold transition-all cursor-pointer"
+                title="Logout dari akun ini"
+              >
+                <LogOut className="w-3.5 h-3.5 text-rose-400" />
+                <span>Logout</span>
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-all cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
-        {/* Control Panel Tab Navigation */}
-        <div className="flex items-center gap-1 p-2 bg-slate-950 border-b border-slate-800/80 overflow-x-auto scrollbar-none">
-          <button
-            onClick={() => setActiveTab('home')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${
-              activeTab === 'home'
-                ? 'bg-rose-500 text-white shadow-md shadow-rose-500/30'
-                : 'text-slate-400 hover:text-white hover:bg-slate-900'
-            }`}
-          >
-            <Layout className="w-4 h-4 text-amber-300" />
-            <span>1. Tema Tampilan Home</span>
-          </button>
+        {/* Control Panel Tab Navigation - 6 Prominent Visible Tabs */}
+        <div className="p-3 bg-slate-950 border-b border-slate-800">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+            {/* Tab 1: Home */}
+            <button
+              onClick={() => setActiveTab('home')}
+              type="button"
+              className={`p-2.5 rounded-2xl border text-left transition-all flex flex-col justify-between gap-1.5 ${
+                activeTab === 'home'
+                  ? 'bg-rose-500 text-white border-rose-400 shadow-lg shadow-rose-500/25 ring-1 ring-rose-400'
+                  : 'bg-slate-900/90 text-slate-300 border-slate-800 hover:border-slate-700 hover:bg-slate-850'
+              }`}
+            >
+              <div className="flex items-center justify-between w-full">
+                <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-md ${
+                  activeTab === 'home' ? 'bg-white/20 text-white' : 'bg-slate-800 text-rose-400'
+                }`}>
+                  TAB 1
+                </span>
+                <Layout className={`w-4 h-4 ${activeTab === 'home' ? 'text-amber-200' : 'text-rose-400'}`} />
+              </div>
+              <div>
+                <p className="text-xs font-bold leading-tight truncate">Tema Home</p>
+                <p className={`text-[10px] leading-tight truncate ${activeTab === 'home' ? 'text-white/80' : 'text-slate-500'}`}>
+                  Layout & Tombol
+                </p>
+              </div>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('theme')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${
-              activeTab === 'theme'
-                ? 'bg-rose-500 text-white shadow-md shadow-rose-500/30'
-                : 'text-slate-400 hover:text-white hover:bg-slate-900'
-            }`}
-          >
-            <Palette className="w-4 h-4" />
-            <span>2. Preset Frame & Teks</span>
-          </button>
+            {/* Tab 2: Preset Frame */}
+            <button
+              onClick={() => setActiveTab('theme')}
+              type="button"
+              className={`p-2.5 rounded-2xl border text-left transition-all flex flex-col justify-between gap-1.5 ${
+                activeTab === 'theme'
+                  ? 'bg-rose-500 text-white border-rose-400 shadow-lg shadow-rose-500/25 ring-1 ring-rose-400'
+                  : 'bg-slate-900/90 text-slate-300 border-slate-800 hover:border-slate-700 hover:bg-slate-850'
+              }`}
+            >
+              <div className="flex items-center justify-between w-full">
+                <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-md ${
+                  activeTab === 'theme' ? 'bg-white/20 text-white' : 'bg-slate-800 text-pink-400'
+                }`}>
+                  TAB 2
+                </span>
+                <Palette className={`w-4 h-4 ${activeTab === 'theme' ? 'text-amber-200' : 'text-pink-400'}`} />
+              </div>
+              <div>
+                <p className="text-xs font-bold leading-tight truncate">Preset Frame</p>
+                <p className={`text-[10px] leading-tight truncate ${activeTab === 'theme' ? 'text-white/80' : 'text-slate-500'}`}>
+                  Warna & Teks Acara
+                </p>
+              </div>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('upload_custom')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${
-              activeTab === 'upload_custom'
-                ? 'bg-rose-500 text-white shadow-md shadow-rose-500/30'
-                : 'text-slate-400 hover:text-white hover:bg-slate-900'
-            }`}
-          >
-            <Upload className="w-4 h-4 text-cyan-300" />
-            <span>3. Upload Tema & Desain</span>
-          </button>
+            {/* Tab 3: Upload Custom */}
+            <button
+              onClick={() => setActiveTab('upload_custom')}
+              type="button"
+              className={`p-2.5 rounded-2xl border text-left transition-all flex flex-col justify-between gap-1.5 ${
+                activeTab === 'upload_custom'
+                  ? 'bg-rose-500 text-white border-rose-400 shadow-lg shadow-rose-500/25 ring-1 ring-rose-400'
+                  : 'bg-slate-900/90 text-slate-300 border-slate-800 hover:border-slate-700 hover:bg-slate-850'
+              }`}
+            >
+              <div className="flex items-center justify-between w-full">
+                <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-md ${
+                  activeTab === 'upload_custom' ? 'bg-white/20 text-white' : 'bg-slate-800 text-cyan-400'
+                }`}>
+                  TAB 3
+                </span>
+                <Upload className={`w-4 h-4 ${activeTab === 'upload_custom' ? 'text-cyan-200' : 'text-cyan-400'}`} />
+              </div>
+              <div>
+                <p className="text-xs font-bold leading-tight truncate">Upload Desain</p>
+                <p className={`text-[10px] leading-tight truncate ${activeTab === 'upload_custom' ? 'text-white/80' : 'text-slate-500'}`}>
+                  Overlay PNG & Stiker
+                </p>
+              </div>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('media')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${
-              activeTab === 'media'
-                ? 'bg-rose-500 text-white shadow-md shadow-rose-500/30'
-                : 'text-slate-400 hover:text-white hover:bg-slate-900'
-            }`}
-          >
-            <Video className="w-4 h-4" />
-            <span>4. Media Brand & Video</span>
-          </button>
+            {/* Tab 4: Media */}
+            <button
+              onClick={() => setActiveTab('media')}
+              type="button"
+              className={`p-2.5 rounded-2xl border text-left transition-all flex flex-col justify-between gap-1.5 ${
+                activeTab === 'media'
+                  ? 'bg-rose-500 text-white border-rose-400 shadow-lg shadow-rose-500/25 ring-1 ring-rose-400'
+                  : 'bg-slate-900/90 text-slate-300 border-slate-800 hover:border-slate-700 hover:bg-slate-850'
+              }`}
+            >
+              <div className="flex items-center justify-between w-full">
+                <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-md ${
+                  activeTab === 'media' ? 'bg-white/20 text-white' : 'bg-slate-800 text-amber-400'
+                }`}>
+                  TAB 4
+                </span>
+                <Video className={`w-4 h-4 ${activeTab === 'media' ? 'text-amber-200' : 'text-amber-400'}`} />
+              </div>
+              <div>
+                <p className="text-xs font-bold leading-tight truncate">Media Brand</p>
+                <p className={`text-[10px] leading-tight truncate ${activeTab === 'media' ? 'text-white/80' : 'text-slate-500'}`}>
+                  Logo, Foto & Video
+                </p>
+              </div>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('gallery')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${
-              activeTab === 'gallery'
-                ? 'bg-rose-500 text-white shadow-md shadow-rose-500/30'
-                : 'text-slate-400 hover:text-white hover:bg-slate-900'
-            }`}
-          >
-            <Images className="w-4 h-4" />
-            <span>5. Galeri Foto ({gallery.length})</span>
-          </button>
+            {/* Tab 5: Galeri Foto */}
+            <button
+              onClick={() => setActiveTab('gallery')}
+              type="button"
+              className={`p-2.5 rounded-2xl border text-left transition-all flex flex-col justify-between gap-1.5 ${
+                activeTab === 'gallery'
+                  ? 'bg-rose-500 text-white border-rose-400 shadow-lg shadow-rose-500/25 ring-1 ring-rose-400'
+                  : 'bg-slate-900/90 text-slate-300 border-slate-800 hover:border-slate-700 hover:bg-slate-850'
+              }`}
+            >
+              <div className="flex items-center justify-between w-full">
+                <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-md ${
+                  activeTab === 'gallery' ? 'bg-white/20 text-white' : 'bg-slate-800 text-purple-400'
+                }`}>
+                  TAB 5
+                </span>
+                <div className="flex items-center gap-1">
+                  {gallery.length > 0 && (
+                    <span className="px-1.5 py-0.2 rounded-full text-[9px] font-extrabold bg-amber-400 text-slate-950">
+                      {gallery.length}
+                    </span>
+                  )}
+                  <Images className={`w-4 h-4 ${activeTab === 'gallery' ? 'text-white' : 'text-purple-400'}`} />
+                </div>
+              </div>
+              <div>
+                <p className="text-xs font-bold leading-tight truncate">5. Galeri Foto</p>
+                <p className={`text-[10px] leading-tight truncate ${activeTab === 'gallery' ? 'text-white/80' : 'text-slate-500'}`}>
+                  {gallery.length} Strip Tersimpan
+                </p>
+              </div>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('system')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${
-              activeTab === 'system'
-                ? 'bg-rose-500 text-white shadow-md shadow-rose-500/30'
-                : 'text-slate-400 hover:text-white hover:bg-slate-900'
-            }`}
-          >
-            <Settings className="w-4 h-4" />
-            <span>6. Sistem Kiosk</span>
-          </button>
+            {/* Tab 6: Sistem Kiosk */}
+            <button
+              onClick={() => setActiveTab('system')}
+              type="button"
+              className={`p-2.5 rounded-2xl border text-left transition-all flex flex-col justify-between gap-1.5 relative overflow-hidden ${
+                activeTab === 'system'
+                  ? 'bg-rose-500 text-white border-rose-400 shadow-lg shadow-rose-500/25 ring-1 ring-rose-400'
+                  : 'bg-slate-900/90 text-slate-300 border-slate-800 hover:border-slate-700 hover:bg-slate-850'
+              }`}
+            >
+              <div className="flex items-center justify-between w-full">
+                <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-md ${
+                  activeTab === 'system' ? 'bg-white/20 text-white' : 'bg-slate-800 text-emerald-400'
+                }`}>
+                  TAB 6
+                </span>
+                <Settings className={`w-4 h-4 ${activeTab === 'system' ? 'text-amber-200' : 'text-emerald-400'}`} />
+              </div>
+              <div>
+                <p className="text-xs font-bold leading-tight truncate">6. Sistem Kiosk</p>
+                <p className={`text-[10px] leading-tight truncate ${activeTab === 'system' ? 'text-white/80' : 'text-slate-500'}`}>
+                  Auto-Reset & Print
+                </p>
+              </div>
+            </button>
+          </div>
         </div>
 
         {/* Tab Contents */}
@@ -1332,6 +1473,115 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
           {/* TAB 5: SISTEM KIOSK */}
           {activeTab === 'system' && (
             <div className="space-y-6 animate-in fade-in duration-150">
+              {/* Pengaturan Auto-Reset Idle (Inaktivitas Pengunjung) */}
+              <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                    <Timer className="w-4 h-4 text-amber-400" /> Auto-Reset Idle (Inaktivitas Layar)
+                  </h3>
+                  <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider border ${
+                    (themeForm.idleTimeoutSeconds ?? 3) > 0
+                      ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+                      : 'bg-slate-800 text-slate-400 border-slate-700'
+                  }`}>
+                    {(themeForm.idleTimeoutSeconds ?? 3) > 0
+                      ? `⏱️ Reset: ${themeForm.idleTimeoutSeconds ?? 3} Detik`
+                      : '⏹️ Auto-Reset: NONAKTIF'}
+                  </span>
+                </div>
+
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Jika layar photobooth tidak disentuh/dipakai oleh pengunjung selama durasi waktu yang dipilih (saat berada di luar Welcome Screen), sistem akan otomatis membersihkan sesi dan kembali ke Welcome Screen fullscreen.
+                </p>
+
+                <div className="p-4 rounded-2xl border border-slate-800 bg-slate-900/60 space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-bold text-slate-300 flex items-center gap-2">
+                        <Clock className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Pilihan Cepat Waktu Idle (3 Detik s/d 10 Detik):</span>
+                      </label>
+                      <span className="text-xs font-extrabold text-amber-400">
+                        {(themeForm.idleTimeoutSeconds ?? 3) > 0
+                          ? `${themeForm.idleTimeoutSeconds ?? 3} Detik`
+                          : 'Nonaktif (Manual)'}
+                      </span>
+                    </div>
+
+                    {/* Grid tombol 3s sampai 10s */}
+                    <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
+                      {[3, 4, 5, 6, 7, 8, 9, 10].map((sec) => {
+                        const isSelected = (themeForm.idleTimeoutSeconds ?? 3) === sec;
+                        return (
+                          <button
+                            key={sec}
+                            type="button"
+                            onClick={() => setThemeForm({ ...themeForm, idleTimeoutSeconds: sec })}
+                            className={`p-2 rounded-xl border text-center transition-all flex flex-col items-center justify-center gap-0.5 ${
+                              isSelected
+                                ? 'border-amber-500 bg-amber-500/20 text-amber-300 font-extrabold shadow-md shadow-amber-500/10 ring-1 ring-amber-500/40'
+                                : 'border-slate-800 bg-slate-900 text-slate-400 hover:border-slate-700 hover:text-white'
+                            }`}
+                          >
+                            <span className="text-sm font-black">{sec}s</span>
+                            <span className="text-[9px] opacity-75">{sec === 3 ? 'Default' : `${sec} dtk`}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Range Slider for granular control */}
+                  <div className="space-y-2 pt-2 border-t border-slate-800/80">
+                    <div className="flex items-center justify-between text-xs text-slate-400">
+                      <span>Geser Slider Waktu:</span>
+                      <span className="font-mono text-amber-300 font-bold">
+                        {(themeForm.idleTimeoutSeconds ?? 3) > 0
+                          ? `${themeForm.idleTimeoutSeconds ?? 3} Detik (Timer Inaktif)`
+                          : 'Tidak ada timer'}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-[11px] font-bold text-slate-500">3s</span>
+                      <input
+                        type="range"
+                        min="3"
+                        max="10"
+                        step="1"
+                        value={(themeForm.idleTimeoutSeconds ?? 3) <= 0 ? 3 : (themeForm.idleTimeoutSeconds ?? 3)}
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value, 10);
+                          setThemeForm({ ...themeForm, idleTimeoutSeconds: val });
+                        }}
+                        className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500"
+                      />
+                      <span className="text-[11px] font-bold text-slate-500">10s</span>
+                    </div>
+                  </div>
+
+                  {/* Opsi Nonaktifkan Auto-Reset */}
+                  <div className="pt-2 flex items-center justify-between border-t border-slate-800/80 text-xs">
+                    <span className="text-slate-400">Mode Tanpa Auto-Reset (Hanya Reset Manual):</span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setThemeForm({
+                          ...themeForm,
+                          idleTimeoutSeconds: (themeForm.idleTimeoutSeconds ?? 3) === 0 ? 3 : 0,
+                        })
+                      }
+                      className={`px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all ${
+                        (themeForm.idleTimeoutSeconds ?? 3) === 0
+                          ? 'bg-rose-500/20 text-rose-300 border-rose-500/40 font-bold'
+                          : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
+                      }`}
+                    >
+                      {(themeForm.idleTimeoutSeconds ?? 3) === 0 ? '✓ Auto-Reset Dinonaktifkan' : 'Nonaktifkan Auto-Reset'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
               {/* Pengaturan Auto-Print Printer Kiosk */}
               <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-4">
                 <div className="flex items-center justify-between">
@@ -1489,6 +1739,63 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                   </button>
                 </div>
               </div>
+
+              {/* User Account & Session Management */}
+              {currentUser && (
+                <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-4">
+                  <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                    <User className="w-4 h-4 text-emerald-400" /> Status Akun & Sesi Login
+                  </h3>
+
+                  <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 flex items-center justify-center font-bold">
+                        <User className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-bold text-white">{currentUser.displayName}</p>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                            {currentUser.role === 'super_admin' ? '👑 Super Admin' : '💎 Klien Aktif'}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-400 font-mono">
+                          @{currentUser.username || currentUser.email} • PIN: {currentUser.boothAccessPin || '1234'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      {onOpenAuthModal && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onClose();
+                            onOpenAuthModal();
+                          }}
+                          className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 flex items-center gap-1.5 transition-all cursor-pointer"
+                        >
+                          <Users className="w-3.5 h-3.5 text-cyan-400" />
+                          <span>Ganti User</span>
+                        </button>
+                      )}
+                      {onLogout && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onClose();
+                            onLogout();
+                          }}
+                          className="px-3.5 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
+                        >
+                          <LogOut className="w-3.5 h-3.5 text-rose-400" />
+                          <span>Logout</span>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-4">
                 <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">

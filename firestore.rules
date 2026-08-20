@@ -1,0 +1,24 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // User profile and role documents
+    match /users/{userId} {
+      allow read, write: if true;
+    }
+    
+    // Subscriptions management
+    match /subscriptions/{subId} {
+      allow read, write: if true;
+    }
+    
+    // Client photobooth custom configurations
+    match /client_configs/{clientId} {
+      allow read, write: if true;
+    }
+    
+    // Global platform metadata & announcements
+    match /platform_settings/{settingId} {
+      allow read, write: if true;
+    }
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile & Subscription",
+      "description": "Client and Super Admin account records with subscription details",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "format": "email" },
+        "displayName": { "type": "string" },
+        "businessName": { "type": "string" },
+        "role": { "type": "string", "enum": ["super_admin", "client"] },
+        "subscriptionStatus": { "type": "string", "enum": ["active", "expired", "trial", "suspended"] },
+        "subscriptionPlan": { "type": "string", "enum": ["Starter", "Pro Booth", "Enterprise VIP", "Lifetime"] },
+        "subscriptionStartDate": { "type": "string" },
+        "subscriptionEndDate": { "type": "string" },
+        "phone": { "type": "string" },
+        "boothAccessCode": { "type": "string" },
+        "maxPhotosPerMonth": { "type": "number" },
+        "notes": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["email", "role", "subscriptionStatus"]
+    },
+    "SubscriptionRecord": {
+      "title": "Subscription Billing Record",
+      "description": "Payment and billing history for client subscription packages",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "userEmail": { "type": "string" },
+        "clientName": { "type": "string" },
+        "planName": { "type": "string" },
+        "durationMonths": { "type": "number" },
+        "priceIdr": { "type": "number" },
+        "status": { "type": "string", "enum": ["active", "pending", "expired", "cancelled"] },
+        "paymentMethod": { "type": "string" },
+        "startDate": { "type": "string" },
+        "endDate": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["userId", "planName", "status"]
+    },
+    "ClientConfig": {
+      "title": "Client Photobooth Theme & Kiosk Settings",
+      "description": "Stores custom branding, welcome media, frames, and kiosk settings per client",
+      "type": "object",
+      "properties": {
+        "clientId": { "type": "string" },
+        "themeSettings": { "type": "object" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["clientId"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "entity": "UserProfile",
+      "description": "User profiles with role and subscription status",
+      "rules": "allow read, write: if true;"
+    },
+    "/subscriptions/{subId}": {
+      "entity": "SubscriptionRecord",
+      "description": "Subscription invoice and package details managed by Super Admin",
+      "rules": "allow read, write: if true;"
+    },
+    "/client_configs/{clientId}": {
+      "entity": "ClientConfig",
+      "description": "Client customized theme and kiosk settings",
+      "rules": "allow read, write: if true;"
+    }
+  }
+}

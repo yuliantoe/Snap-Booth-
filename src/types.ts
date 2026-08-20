@@ -57,6 +57,7 @@ export interface EventTheme {
   tabletOrientation?: 'portrait' | 'landscape';
   autoPrintEnabled?: boolean;
   autoPrintMode?: 'thermal_80mm' | 'thermal_58mm' | 'dual_4x6' | 'single';
+  idleTimeoutSeconds?: number; // Inactivity auto-reset timeout (3, 4, 5, 6, 7, 8, 9, 10 seconds or 0/disabled)
   customFrameOverlayUrl?: string;
   customBgImageUrl?: string;
   customStickerUrls?: string[];
@@ -78,3 +79,59 @@ export interface SavedPhotoStrip {
 }
 
 export type StepType = 'welcome' | 'theme_layout' | 'capture' | 'export';
+
+export type UserRole = 'super_admin' | 'client' | 'guest';
+
+export type SubscriptionStatus = 'active' | 'expired' | 'trial' | 'suspended';
+
+export type SubscriptionPlanId = 'starter' | 'pro_booth' | 'enterprise_vip' | 'lifetime';
+
+export interface SubscriptionPlanInfo {
+  id: SubscriptionPlanId;
+  name: string;
+  pricePerMonth: number;
+  badge: string;
+  description: string;
+  features: string[];
+  maxEvents: number;
+  hasCustomBranding: boolean;
+  hasVideoWelcoming: boolean;
+  hasCustomOverlays: boolean;
+}
+
+export interface UserAccount {
+  id: string;
+  username?: string;
+  password?: string;
+  email: string;
+  displayName: string;
+  businessName?: string;
+  role: UserRole;
+  subscriptionStatus: SubscriptionStatus;
+  subscriptionPlan: SubscriptionPlanId;
+  subscriptionStartDate: string; // ISO string or YYYY-MM-DD
+  subscriptionEndDate: string;   // ISO string or YYYY-MM-DD
+  phone?: string;
+  boothAccessPin?: string;
+  notes?: string;
+  customTheme?: EventTheme;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface SubscriptionBillingRecord {
+  id: string;
+  userId: string;
+  userEmail: string;
+  businessName: string;
+  planId: SubscriptionPlanId;
+  planName: string;
+  durationMonths: number;
+  priceIdr: number;
+  status: 'paid' | 'pending' | 'expired' | 'cancelled';
+  paymentMethod: string;
+  startDate: string;
+  endDate: string;
+  createdAt: string;
+}
+

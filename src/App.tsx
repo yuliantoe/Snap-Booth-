@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutType, EventTheme, PhotoSlot, FilterType, ImageAdjustments, StickerItem, SavedPhotoStrip, StepType } from './types';
+import {
+  LayoutType,
+  EventTheme,
+  PhotoSlot,
+  FilterType,
+  ImageAdjustments,
+  StickerItem,
+  SavedPhotoStrip,
+  StepType,
+  UserAccount,
+} from './types';
 import { DEFAULT_THEMES } from './utils/themePresets';
 import { Header } from './components/Header';
 import { StepIndicator } from './components/StepIndicator';
@@ -8,6 +18,18 @@ import { LayoutSelector } from './components/LayoutSelector';
 import { CameraCapture } from './components/CameraCapture';
 import { PrintAndShareModal } from './components/PrintAndShareModal';
 import { ControlPanelModal } from './components/ControlPanelModal';
+import { AuthModal } from './components/AuthModal';
+import { SuperAdminModal } from './components/SuperAdminModal';
+import { SubscriptionExpiredModal } from './components/SubscriptionExpiredModal';
+import {
+  DEFAULT_USERS,
+  subscribeToUsers,
+  saveUserToFirestore,
+  deleteUserFromFirestore,
+  saveClientThemeToCloud,
+  loadClientThemeFromCloud,
+  calculateRemainingDays,
+} from './services/subscriptionService';
 
 export default function App() {
   const [currentStep, setCurrentStep] = useState<StepType>('welcome');
@@ -25,8 +47,68 @@ export default function App() {
   const [stickers, setStickers] = useState<StickerItem[]>([]);
   const [gallery, setGallery] = useState<SavedPhotoStrip[]>([]);
 
-  // Control Panel Modal state
+  // User Authentication & Subscription States
+  const [usersList, setUsersList] = useState<UserAccount[]>(DEFAULT_USERS);
+  const [currentUser, setCurrentUser] = useState<UserAccount | null>(null);
+
+  // Modals state
   const [isControlPanelOpen, setIsControlPanelOpen] = useState<boolean>(false);
+  const [isSuperAdminOpen, setIsSuperAdminOpen] = useState<boolean>(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
+  const [isExpiredModalOpen, setIsExpiredModalOpen] = useState<boolean>(false);
+
+  // 1. Subscribe to Firestore Real-time Users List
+  useEffect(() => {
+    const unsubscribe = subscribeToUsers((updatedUsers) => {
+      if (updatedUsers && updatedUsers.length > 0) {
+        setUsersList(updatedUsers);
+
+        // If current user is logged in, sync their latest subscription info
+        if (currentUser) {
+          const fresh = updatedUsers.find((u) => u.id === currentUser.id);
+          if (fresh) {
+            setCurrentUser(fresh);
+          }
+        }
+      }
+    });
+
+    return () => {
+      if (typeof unsubscribe === 'function') unsubscribe();
+    };
+  }, [currentUser?.id]);
+
+  // 2. Initialize Current User from LocalStorage or default to Active Pro Client
+  useEffect(() => {
+    try {
+      const savedUserId = localStorage.getItem('snapbooth_active_user_id');
+      if (savedUserId) {
+        const found = usersList.find((u) => u.id === savedUserId);
+        if (found) {
+          setCurrentUser(found);
+          return;
+        }
+      }
+      // Default to Luna Photobooth (Active Pro Client)
+      const defaultClient = usersList.find((u) => u.id === 'client_luna_pro') || DEFAULT_USERS[1];
+      setCurrentUser(defaultClient);
+    } catch {
+      setCurrentUser(DEFAULT_USERS[1]);
+    }
+  }, []);
+
+  // 3. Sync Client Custom Theme from Firestore Cloud when currentUser changes
+  useEffect(() => {
+    if (currentUser?.id) {
+      loadClientThemeFromCloud(currentUser.id).then((cloudTheme) => {
+        if (cloudTheme) {
+          setCurrentTheme(cloudTheme);
+        } else if (currentUser.customTheme) {
+          setCurrentTheme(currentUser.customTheme);
+        }
+      });
+    }
+  }, [currentUser?.id]);
 
   // Load saved session gallery from localStorage
   useEffect(() => {
@@ -83,13 +165,123 @@ export default function App() {
     setCurrentStep('welcome');
   };
 
-  // Auto-return to welcome screen after 3 seconds of inactivity when not on welcome screen
-  useEffect(() => {
-    if (currentStep === 'welcome' || isControlPanelOpen) {
+  // Handle Control Panel Opening with Subscription Check
+  const handleOpenControlPanel = () => {
+    if (!currentUser) {
+      setIsAuthModalOpen(true);
       return;
     }
 
-    const IDLE_TIMEOUT_MS = 3000;
+    // Super Admin always has access
+    if (currentUser.role === 'super_admin') {
+      setIsControlPanelOpen(true);
+      return;
+    }
+
+    // Client: Check subscription status
+    const remainingDays = calculateRemainingDays(currentUser.subscriptionEndDate);
+    const isExpired = currentUser.subscriptionStatus === 'expired' || remainingDays < 0;
+
+    if (isExpired || currentUser.subscriptionStatus === 'suspended') {
+      setIsExpiredModalOpen(true);
+      return;
+    }
+
+    // Active client: open dashboard
+    setIsControlPanelOpen(true);
+  };
+
+  // Save Theme Updates and Sync to Cloud Firestore
+  const handleSaveTheme = async (updatedTheme: EventTheme) => {
+    setCurrentTheme(updatedTheme);
+    if (currentUser?.id) {
+      await saveClientThemeToCloud(currentUser.id, updatedTheme);
+    }
+  };
+
+  // Handle User Login / Switch
+  const handleUserLogin = (user: UserAccount) => {
+    setCurrentUser(user);
+    try {
+      localStorage.setItem('snapbooth_active_user_id', user.id);
+    } catch {
+      // ignore
+    }
+  };
+
+  // Handle User Logout
+  const handleLogout = () => {
+    try {
+      localStorage.removeItem('snapbooth_active_user_id');
+    } catch {
+      // ignore
+    }
+    setCurrentUser(null);
+    setIsControlPanelOpen(false);
+    setIsSuperAdminOpen(false);
+    setIsAuthModalOpen(true);
+  };
+
+  // Handle Super Admin Updates
+  const handleUpdateUser = async (userId: string, updates: Partial<UserAccount>) => {
+    const existing = usersList.find((u) => u.id === userId);
+    if (!existing) return;
+
+    const merged: UserAccount = {
+      ...existing,
+      ...updates,
+      updatedAt: new Date().toISOString(),
+    };
+
+    setUsersList((prev) => prev.map((u) => (u.id === userId ? merged : u)));
+    await saveUserToFirestore(merged);
+
+    if (currentUser?.id === userId) {
+      setCurrentUser(merged);
+    }
+  };
+
+  const handleCreateUser = async (newUserData: Omit<UserAccount, 'id' | 'createdAt'>): Promise<UserAccount> => {
+    const newId = `client_${Date.now()}`;
+    const newUser: UserAccount = {
+      id: newId,
+      ...newUserData,
+      createdAt: new Date().toISOString(),
+    };
+
+    setUsersList((prev) => [newUser, ...prev]);
+    await saveUserToFirestore(newUser);
+    return newUser;
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    setUsersList((prev) => prev.filter((u) => u.id !== userId));
+    await deleteUserFromFirestore(userId);
+    if (currentUser?.id === userId) {
+      // Fallback to Super Admin or default client
+      const fallback = usersList.find((u) => u.id !== userId) || DEFAULT_USERS[0];
+      handleUserLogin(fallback);
+    }
+  };
+
+  // Auto-return to welcome screen after configurable idle seconds of inactivity when not on welcome screen
+  useEffect(() => {
+    if (
+      currentStep === 'welcome' ||
+      isControlPanelOpen ||
+      isSuperAdminOpen ||
+      isAuthModalOpen ||
+      isExpiredModalOpen
+    ) {
+      return;
+    }
+
+    const idleSeconds = currentTheme.idleTimeoutSeconds !== undefined ? currentTheme.idleTimeoutSeconds : 3;
+    if (idleSeconds <= 0) {
+      return; // 0 or negative means auto-reset is disabled
+    }
+
+    const IDLE_TIMEOUT_MS = idleSeconds * 1000;
     let timer: NodeJS.Timeout;
 
     const resetIdleTimer = () => {
@@ -99,7 +291,7 @@ export default function App() {
       }, IDLE_TIMEOUT_MS);
     };
 
-    // Start initial 3-second timer
+    // Start initial timer
     resetIdleTimer();
 
     // Listen for user interaction events across the page
@@ -124,7 +316,14 @@ export default function App() {
         window.removeEventListener(evt, resetIdleTimer);
       });
     };
-  }, [currentStep, isControlPanelOpen]);
+  }, [
+    currentStep,
+    isControlPanelOpen,
+    isSuperAdminOpen,
+    isAuthModalOpen,
+    isExpiredModalOpen,
+    currentTheme.idleTimeoutSeconds,
+  ]);
 
   // Step navigation rules
   const canNavigateTo = (step: StepType) => {
@@ -137,10 +336,14 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-rose-500 selection:text-white">
-      {/* Navbar Header */}
+      {/* Navbar Header with Multi-Role Badges, User Dropdown, Ganti User, and Logout */}
       <Header
         currentTheme={currentTheme}
-        onOpenControlPanel={() => setIsControlPanelOpen(true)}
+        currentUser={currentUser}
+        onOpenControlPanel={handleOpenControlPanel}
+        onOpenSuperAdmin={() => setIsSuperAdminOpen(true)}
+        onOpenAuthModal={() => setIsAuthModalOpen(true)}
+        onLogout={handleLogout}
         onResetSession={handleResetSession}
         galleryCount={gallery.length}
       />
@@ -159,7 +362,7 @@ export default function App() {
             currentTheme={currentTheme}
             onUpdateTheme={setCurrentTheme}
             onStartPhotobooth={() => setCurrentStep('capture')}
-            onOpenThemeCustomizer={() => setIsControlPanelOpen(true)}
+            onOpenThemeCustomizer={handleOpenControlPanel}
           />
         )}
 
@@ -180,7 +383,7 @@ export default function App() {
             onSelectLayout={setSelectedLayout}
             currentTheme={currentTheme}
             photos={photos}
-            onOpenThemeCustomizer={() => setIsControlPanelOpen(true)}
+            onOpenThemeCustomizer={handleOpenControlPanel}
             onContinueToExport={() => setCurrentStep('export')}
           />
         )}
@@ -199,16 +402,52 @@ export default function App() {
         )}
       </main>
 
-      {/* Unified Control Panel System Modal */}
+      {/* Unified Client Control Panel System Modal */}
       <ControlPanelModal
         isOpen={isControlPanelOpen}
         onClose={() => setIsControlPanelOpen(false)}
         currentTheme={currentTheme}
-        onSaveTheme={setCurrentTheme}
+        onSaveTheme={handleSaveTheme}
         gallery={gallery}
         onDeleteFromGallery={handleDeleteFromGallery}
         onClearGallery={handleClearGallery}
         onResetSession={handleResetSession}
+        currentUser={currentUser}
+        onLogout={handleLogout}
+        onOpenAuthModal={() => setIsAuthModalOpen(true)}
+      />
+
+      {/* Super Admin Management Portal Modal */}
+      <SuperAdminModal
+        isOpen={isSuperAdminOpen}
+        onClose={() => setIsSuperAdminOpen(false)}
+        usersList={usersList}
+        currentUser={currentUser}
+        onUpdateUser={handleUpdateUser}
+        onCreateUser={handleCreateUser}
+        onDeleteUser={handleDeleteUser}
+        onImpersonateUser={handleUserLogin}
+        onLogout={handleLogout}
+        onOpenAuthModal={() => setIsAuthModalOpen(true)}
+      />
+
+      {/* Auth & Subscription Switch Modal */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        currentUser={currentUser}
+        usersList={usersList}
+        onLogin={handleUserLogin}
+        onRegisterClient={handleCreateUser}
+        onLogout={handleLogout}
+      />
+
+      {/* Subscription Expired Alert Modal */}
+      <SubscriptionExpiredModal
+        isOpen={isExpiredModalOpen}
+        onClose={() => setIsExpiredModalOpen(false)}
+        currentUser={currentUser}
+        onOpenAuth={() => setIsAuthModalOpen(true)}
       />
 
       {/* Footer */}
@@ -218,4 +457,3 @@ export default function App() {
     </div>
   );
 }
-
