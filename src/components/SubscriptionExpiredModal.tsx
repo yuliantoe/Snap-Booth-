@@ -33,7 +33,7 @@ export const SubscriptionExpiredModal: React.FC<SubscriptionExpiredModalProps> =
 
   const handleWhatsAppContact = () => {
     const text = encodeURIComponent(
-      `Halo Super Admin SnapBooth, saya ingin memperpanjang langganan photobooth untuk bisnis:\n\nNama Bisnis: ${currentUser.businessName || currentUser.displayName}\nEmail: ${currentUser.email}\nPaket: ${planInfo.name}\n\nMohon petunjuk pembayarannya. Terima kasih!`
+      `Halo Super Admin snapBoth Receipt, saya ingin memperpanjang langganan photobooth untuk bisnis:\n\nNama Bisnis: ${currentUser.businessName || currentUser.displayName}\nEmail: ${currentUser.email}\nPaket: ${planInfo.name}\n\nMohon petunjuk pembayarannya. Terima kasih!`
     );
     window.open(`https://wa.me/6281288889999?text=${text}`, '_blank');
   };

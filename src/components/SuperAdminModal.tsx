@@ -76,8 +76,8 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
   const [newEmail, setNewEmail] = useState('');
   const [newPhone, setNewPhone] = useState('');
   const [newDurationType, setNewDurationType] = useState<
-    'trial_3' | 'trial_7' | 'trial_14' | 'trial_30' | 'month_1' | 'month_3' | 'month_6' | 'year_1' | 'off'
-  >('trial_7');
+    'trial_3' | 'trial_7' | 'trial_14' | 'trial_30' | 'week_1' | 'month_1' | 'month_3' | 'month_6' | 'year_1' | 'off'
+  >('trial_3');
   const [newPin, setNewPin] = useState('1234');
   const [newNotes, setNewNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -123,6 +123,13 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
     return u.subscriptionStatus === 'trial' && rem >= 0;
   }).length;
 
+  const expiringSoonClients = clientsOnly.filter((u) => {
+    const isUnl = isDurationUnlimited(u.subscriptionEndDate);
+    const rem = calculateRemainingDays(u.subscriptionEndDate);
+    const isExp = !isUnl && (u.subscriptionStatus === 'expired' || rem < 0);
+    return !isUnl && !isExp && rem < 3 && rem >= 0;
+  });
+
   const expiredClients = clientsOnly.filter((u) => {
     const isUnl = isDurationUnlimited(u.subscriptionEndDate);
     const rem = calculateRemainingDays(u.subscriptionEndDate);
@@ -144,6 +151,7 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
 
     let matchStatus = true;
     if (filterStatus === 'active') matchStatus = (user.subscriptionStatus === 'active' || isUnl) && !isExpired;
+    else if (filterStatus === 'expiring_soon') matchStatus = !isUnl && !isExpired && remaining < 3 && remaining >= 0;
     else if (filterStatus === 'trial') matchStatus = user.subscriptionStatus === 'trial' && !isExpired;
     else if (filterStatus === 'unlimited') matchStatus = isUnl;
     else if (filterStatus === 'expired') matchStatus = isExpired;
@@ -236,19 +244,23 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
         status = 'active';
         noteDuration = 'Durasi OFF (Tanpa Batas)';
       } else if (newDurationType.startsWith('trial_')) {
-        const days = parseInt(newDurationType.replace('trial_', ''), 10) || 7;
+        const days = parseInt(newDurationType.replace('trial_', ''), 10) || 3;
         endDate = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
         status = 'trial';
         noteDuration = `Masa Trial ${days} Hari`;
+      } else if (newDurationType === 'week_1') {
+        endDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+        status = 'active';
+        noteDuration = 'Langganan Mingguan (7 Hari - Rp 30.000)';
       } else if (newDurationType.startsWith('month_')) {
         const months = parseInt(newDurationType.replace('month_', ''), 10) || 1;
         endDate = new Date(Date.now() + months * 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
         status = 'active';
-        noteDuration = `Durasi ${months} Bulan`;
+        noteDuration = months === 1 ? 'Langganan Bulanan (30 Hari - Rp 50.000)' : `Durasi ${months} Bulan`;
       } else if (newDurationType === 'year_1') {
         endDate = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
         status = 'active';
-        noteDuration = 'Durasi 1 Tahun';
+        noteDuration = 'Langganan Tahunan (365 Hari - Rp 500.000)';
       }
 
       const cleanUsername = (newUsername.trim() || newEmail.split('@')[0]).toLowerCase().replace(/[^a-z0-9_.-]/g, '');
@@ -409,6 +421,42 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
           {/* TAB 1: CUSTOMER LIST */}
           {activeTab === 'customers' && (
             <div className="space-y-5 animate-in fade-in duration-150">
+              {/* Peringatan Sisa Masa Aktif Klien (< 3 Hari) */}
+              {expiringSoonClients.length > 0 && (
+                <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-amber-500/15 via-rose-500/10 to-amber-500/15 border-2 border-amber-500/60 shadow-xl shadow-amber-500/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-amber-200 animate-in fade-in">
+                  <div className="flex items-start gap-3.5">
+                    <div className="p-2.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 shrink-0 shadow-inner">
+                      <AlertCircle className="w-5 h-5 animate-pulse text-amber-400" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-sm sm:text-base font-black text-amber-300">
+                          Peringatan Sisa Masa Aktif Klien (&lt; 3 Hari)
+                        </h4>
+                        <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-amber-500 text-slate-950 uppercase font-mono animate-pulse">
+                          {expiringSoonClients.length} Akun Mendekati Expired
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-300 mt-1 leading-relaxed max-w-2xl">
+                        Terdapat <strong>{expiringSoonClients.length} akun customer</strong> yang sisa masa aktifnya kurang dari 3 hari. Segera lakukan follow up perpanjangan langganan atau tambah durasi.
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setFilterStatus(filterStatus === 'expiring_soon' ? 'all' : 'expiring_soon')}
+                    className={`shrink-0 w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                      filterStatus === 'expiring_soon'
+                        ? 'bg-amber-400 text-slate-950 shadow-lg shadow-amber-500/20 ring-2 ring-amber-300'
+                        : 'bg-amber-500/20 hover:bg-amber-500 hover:text-slate-950 text-amber-300 border border-amber-500/40'
+                    }`}
+                  >
+                    <Filter className="w-4 h-4" />
+                    <span>{filterStatus === 'expiring_soon' ? 'Tampilkan Semua Klien' : `Filter Akun (< 3 Hari)`}</span>
+                  </button>
+                </div>
+              )}
+
               {/* Metric Summary Cards */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col justify-between">
@@ -465,13 +513,14 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                   <select
                     value={filterStatus}
                     onChange={(e) => setFilterStatus(e.target.value)}
-                    className="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-300 text-xs focus:outline-none"
+                    className="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-300 text-xs focus:outline-none font-bold"
                   >
-                    <option value="all">Semua Status</option>
-                    <option value="active">🟢 Hanya Aktif</option>
-                    <option value="trial">🟡 Hanya Trial</option>
+                    <option value="all">Semua Status ({totalClients})</option>
+                    <option value="expiring_soon">⚠️ Sisa Masa Aktif &lt; 3 Hari ({expiringSoonClients.length})</option>
+                    <option value="active">🟢 Hanya Aktif ({activeClients})</option>
+                    <option value="trial">🟡 Hanya Trial ({trialClients})</option>
                     <option value="unlimited">♾️ Hanya Unlimited (OFF)</option>
-                    <option value="expired">🔴 Hanya Expired</option>
+                    <option value="expired">🔴 Hanya Expired ({expiredClients})</option>
                     <option value="suspended">⚫ Suspended</option>
                   </select>
                 </div>
@@ -488,6 +537,7 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                     const isUnl = isDurationUnlimited(client.subscriptionEndDate);
                     const remainingDays = calculateRemainingDays(client.subscriptionEndDate);
                     const isExpired = !isUnl && (client.subscriptionStatus === 'expired' || remainingDays < 0);
+                    const isExpiringSoon = !isUnl && !isExpired && remainingDays < 3 && remainingDays >= 0;
                     const isTrial = client.subscriptionStatus === 'trial' && !isExpired;
                     const isEditing = editingUserId === client.id;
                     const showPassword = !!showPasswordMap[client.id];
@@ -498,6 +548,8 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                         className={`p-4 rounded-2xl border transition-all ${
                           isExpired
                             ? 'border-rose-900/50 bg-rose-950/10'
+                            : isExpiringSoon
+                            ? 'border-amber-500/70 bg-amber-950/20 ring-1 ring-amber-500/40 shadow-lg shadow-amber-500/5'
                             : isTrial
                             ? 'border-amber-900/50 bg-amber-950/10'
                             : 'border-slate-800 bg-slate-950/80 hover:border-slate-700'
@@ -510,6 +562,8 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                               className={`p-3 rounded-2xl border shrink-0 ${
                                 isExpired
                                   ? 'bg-rose-500/20 border-rose-500/30 text-rose-400'
+                                  : isExpiringSoon
+                                  ? 'bg-amber-500/20 border-amber-500/40 text-amber-300'
                                   : isTrial
                                   ? 'bg-amber-500/20 border-amber-500/30 text-amber-400'
                                   : isUnl
@@ -528,9 +582,11 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                                   @{client.username || client.email.split('@')[0]}
                                 </span>
                                 <span
-                                  className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border ${
+                                  className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border flex items-center gap-1 ${
                                     isExpired
                                       ? 'bg-rose-500/20 text-rose-400 border-rose-500/30'
+                                      : isExpiringSoon
+                                      ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 animate-pulse font-mono'
                                       : isTrial
                                       ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
                                       : isUnl
@@ -540,6 +596,8 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                                 >
                                   {isExpired
                                     ? '🔴 Expired'
+                                    : isExpiringSoon
+                                    ? `⚠️ Sisa masa aktif: ${remainingDays === 0 ? 'Hari ini' : `${remainingDays} hari`}`
                                     : isTrial
                                     ? `🟡 Trial (${remainingDays} Hari Lagi)`
                                     : isUnl
@@ -596,20 +654,28 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                           <div className="flex flex-wrap items-center gap-2 pt-2 lg:pt-0 border-t lg:border-t-0 border-slate-800/80">
                             {/* Quick Extend / Trial / OFF */}
                             <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800">
-                              <span className="text-[10px] font-bold text-slate-400 px-1.5">Aksi Cepat:</span>
+                              <span className="text-[10px] font-bold text-slate-400 px-1.5">Aksi:</span>
                               <button
                                 type="button"
-                                onClick={() => handleExtendDays(client.id, client.subscriptionEndDate, 7, true)}
+                                onClick={() => handleExtendDays(client.id, client.subscriptionEndDate, 3, true)}
                                 className="px-2 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500 hover:text-slate-950 text-amber-300 text-[10px] font-bold transition-colors"
-                                title="Set/Perpanjang Trial 7 Hari"
+                                title="Set/Perpanjang Trial 3 Hari"
                               >
-                                +7 H Trial
+                                +3 H Trial
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleExtendDays(client.id, client.subscriptionEndDate, 7, false)}
+                                className="px-2 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500 hover:text-slate-950 text-emerald-300 text-[10px] font-bold transition-colors"
+                                title="Perpanjang 7 Hari (Mingguan)"
+                              >
+                                +7 H
                               </button>
                               <button
                                 type="button"
                                 onClick={() => handleExtendDays(client.id, client.subscriptionEndDate, 30, false)}
                                 className="px-2 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500 hover:text-slate-950 text-emerald-300 text-[10px] font-bold transition-colors"
-                                title="Perpanjang 30 Hari"
+                                title="Perpanjang 30 Hari (Bulanan)"
                               >
                                 +30 H
                               </button>
@@ -945,16 +1011,17 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                     className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs focus:border-amber-500 outline-none"
                   >
                     <optgroup label="🟡 Pilihan Masa Trial (Uji Coba)">
-                      <option value="trial_3">Trial 3 Hari (Uji Coba Singkat)</option>
-                      <option value="trial_7">Trial 7 Hari (Uji Coba Rekomendasi)</option>
-                      <option value="trial_14">Trial 14 Hari (Uji Coba 2 Minggu)</option>
-                      <option value="trial_30">Trial 30 Hari (Uji Coba 1 Bulan)</option>
+                      <option value="trial_3">Trial 3 Hari (Gratis Uji Coba)</option>
+                      <option value="trial_7">Trial 7 Hari (1 Minggu)</option>
+                      <option value="trial_14">Trial 14 Hari (2 Minggu)</option>
+                      <option value="trial_30">Trial 30 Hari (1 Bulan)</option>
                     </optgroup>
-                    <optgroup label="🟢 Pilihan Durasi Reguler">
-                      <option value="month_1">1 Bulan (30 Hari)</option>
-                      <option value="month_3">3 Bulan (90 Hari)</option>
-                      <option value="month_6">6 Bulan (180 Hari)</option>
-                      <option value="year_1">1 Tahun (365 Hari)</option>
+                    <optgroup label="🟢 Paket Langganan Reguler">
+                      <option value="week_1">Mingguan (7 Hari) — Rp 30.000</option>
+                      <option value="month_1">Bulanan (30 Hari) — Rp 50.000</option>
+                      <option value="month_3">3 Bulan (90 Hari) — Rp 140.000</option>
+                      <option value="month_6">6 Bulan (180 Hari) — Rp 270.000</option>
+                      <option value="year_1">Tahunan (365 Hari) — Rp 500.000</option>
                     </optgroup>
                     <optgroup label="♾️ Tanpa Batas / Durasi OFF">
                       <option value="off">OFF / Tanpa Batas (Unlimited / Selamanya Aktif)</option>

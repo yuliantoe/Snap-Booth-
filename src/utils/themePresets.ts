@@ -91,7 +91,7 @@ export const DEFAULT_THEMES: EventTheme[] = [
     bgPattern: 'solid',
     accentColor: '#333333',
     fontFamily: 'sans',
-    eventTitle: 'SNAPBOOTH STUDIO',
+    eventTitle: 'SNAPBOTH RECEIPT',
     eventSubtitle: 'Classic Black & White Collection',
     eventDate: '2026.08.08',
     showDateBadge: true,

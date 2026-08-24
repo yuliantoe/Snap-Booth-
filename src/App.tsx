@@ -439,6 +439,7 @@ export default function App() {
             stickers={stickers}
             onSaveToGallery={handleSaveToGallery}
             onResetSession={handleResetSession}
+            currentUser={currentUser}
           />
         )}
       </main>
@@ -493,7 +494,7 @@ export default function App() {
 
       {/* Footer */}
       <footer className="border-t border-slate-900 bg-slate-950 py-4 text-center text-xs text-slate-500">
-        <p>SnapBooth Studio • Photobooth Digital untuk Pesta, Pernikahan & Acara Spesial</p>
+        <p>snapBoth Receipt • Photobooth Digital Receipt untuk Cafe, Bisnis, Pesta, Pernikahan & Acara Spesial</p>
       </footer>
     </div>
   );

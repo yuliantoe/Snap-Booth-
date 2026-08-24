@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { LayoutType, EventTheme, PhotoSlot, FilterType, ImageAdjustments, StickerItem, SavedPhotoStrip } from '../types';
+import { LayoutType, EventTheme, PhotoSlot, FilterType, ImageAdjustments, StickerItem, SavedPhotoStrip, UserAccount } from '../types';
 import { generatePhotoStripCanvas } from '../utils/canvasRenderer';
+import { isDurationUnlimited, calculateRemainingDays } from '../services/subscriptionService';
 import {
   Printer,
   Download,
@@ -94,6 +95,7 @@ interface PrintAndShareModalProps {
   stickers: StickerItem[];
   onSaveToGallery: (strip: SavedPhotoStrip) => void;
   onResetSession: () => void;
+  currentUser?: UserAccount | null;
 }
 
 export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
@@ -105,7 +107,13 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
   stickers,
   onSaveToGallery,
   onResetSession,
+  currentUser,
 }) => {
+  const isSuperAdmin = currentUser?.role === 'super_admin';
+  const isUnl = currentUser ? isDurationUnlimited(currentUser.subscriptionEndDate) : false;
+  const isExpired = !isUnl && (currentUser?.subscriptionStatus === 'expired' || calculateRemainingDays(currentUser?.subscriptionEndDate || '') < 0);
+  const isTrial = !isSuperAdmin && currentUser?.subscriptionStatus === 'trial' && !isExpired;
+
   const [highResDataUrl, setHighResDataUrl] = useState<string>('');
   const [dualStripDataUrl, setDualStripDataUrl] = useState<string>('');
   const [thermal80DataUrl, setThermal80DataUrl] = useState<string>('');
@@ -252,6 +260,7 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
           includeQrCode: true,
           qrUrl: appUrl,
           targetWidth: 1200,
+          isTrial,
         });
         const singleDataUrl = singleCanvas.toDataURL('image/png', 1.0);
 
@@ -266,6 +275,7 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
           includeQrCode: true,
           qrUrl: appUrl,
           targetWidth: 800,
+          isTrial,
         });
         const t80DataUrl = thermal80Canvas.toDataURL('image/png', 1.0);
 
@@ -280,6 +290,7 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
           includeQrCode: true,
           qrUrl: appUrl,
           targetWidth: 576,
+          isTrial,
         });
         const t58DataUrl = thermal58Canvas.toDataURL('image/png', 1.0);
 
@@ -540,6 +551,17 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
               />
             )}
           </div>
+
+          {/* Trial Notice Badge on Result */}
+          {isTrial && (
+            <div className="w-full p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center gap-2.5 text-amber-300 text-xs">
+              <span className="text-sm shrink-0">🟡</span>
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-[11px]">Mode Akun Trial 3 Hari Aktif</p>
+                <p className="text-[10px] text-amber-200/80 leading-relaxed">Hasil foto memuat watermark uji coba. Berlangganan mingguan (30rb), bulanan (50rb), atau tahunan (500rb) untuk menghapus watermark & akses custom desain.</p>
+              </div>
+            </div>
+          )}
 
           {/* Active Connected Printer & Paper Format Badge */}
           <div className="w-full space-y-2.5 bg-slate-900 border border-slate-800 p-3.5 rounded-2xl">

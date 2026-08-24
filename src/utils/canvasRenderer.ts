@@ -11,6 +11,7 @@ interface RenderOptions {
   includeQrCode?: boolean;
   qrUrl?: string;
   targetWidth?: number; // default 1200
+  isTrial?: boolean;
 }
 
 // Helper to draw text with automatic font-size downscaling so it fits within maxWidth
@@ -725,7 +726,7 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
 
   // Event Title
   ctx.font = `bold 56px ${titleFontFamilyName}`;
-  ctx.fillText(theme.eventTitle || 'SnapBooth Studio', canvasWidth / 2, headerY);
+  ctx.fillText(theme.eventTitle || 'snapBoth Receipt', canvasWidth / 2, headerY);
 
   // Subtitle
   if (theme.eventSubtitle) {
@@ -778,8 +779,8 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
 
   ctx.restore();
 
-  // Render Custom Frame Overlay PNG if uploaded
-  if (theme.customFrameOverlayUrl) {
+  // Render Custom Frame Overlay PNG if uploaded (Hanya aktif untuk akun berbayar / bukan trial)
+  if (theme.customFrameOverlayUrl && !options.isTrial) {
     try {
       const overlayImg = await loadImage(theme.customFrameOverlayUrl);
       ctx.drawImage(overlayImg, 0, 0, canvasWidth, canvasHeight);
@@ -815,6 +816,39 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
 
       ctx.restore();
     }
+  }
+
+  // 6. Watermark & Badge Khusus Akun Masa Trial
+  if (options.isTrial) {
+    ctx.save();
+
+    // Bottom Watermark Ribbon
+    const bannerH = Math.max(48, Math.round(canvasWidth * 0.045));
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+    ctx.fillRect(0, canvasHeight - bannerH, canvasWidth, bannerH);
+
+    // Accent line above banner
+    ctx.fillStyle = '#F59E0B';
+    ctx.fillRect(0, canvasHeight - bannerH, canvasWidth, 3);
+
+    ctx.fillStyle = '#FBBF24';
+    ctx.font = `bold ${Math.round(bannerH * 0.42)}px "Plus Jakarta Sans", system-ui, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('⚡ SNAPBOTH RECEIPT • TRIAL VERSION (MASA UJI COBA)', canvasWidth / 2, canvasHeight - bannerH / 2 + 1);
+
+    // Subtle diagonal background watermark in center
+    ctx.save();
+    ctx.translate(canvasWidth / 2, canvasHeight / 2);
+    ctx.rotate(-Math.PI / 6);
+    ctx.font = `900 ${Math.round(canvasWidth * 0.055)}px "Plus Jakarta Sans", system-ui, sans-serif`;
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.07)';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('SNAPBOTH TRIAL MODE', 0, 0);
+    ctx.restore();
+
+    ctx.restore();
   }
 
   return canvas;

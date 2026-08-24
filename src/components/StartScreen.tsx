@@ -210,7 +210,7 @@ export const StartScreen: React.FC<StartScreenProps> = ({
           <div className="p-8 sm:p-10 flex flex-col justify-center space-y-6 text-left">
             <div className="space-y-2">
               <h1 className="text-2xl sm:text-4xl font-extrabold text-white leading-tight">
-                {currentTheme.eventTitle || 'SnapBooth Studio'}
+                {currentTheme.eventTitle || 'snapBoth Receipt'}
               </h1>
               <p className="text-sm text-slate-300 font-medium">
                 {currentTheme.eventSubtitle || 'Abadikan Momen Spesial Anda Sekarang'}
@@ -323,7 +323,7 @@ export const StartScreen: React.FC<StartScreenProps> = ({
             </div>
 
             <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight drop-shadow-lg">
-              {currentTheme.eventTitle || 'SnapBooth Studio'}
+              {currentTheme.eventTitle || 'snapBoth Receipt'}
             </h1>
             <p className="text-sm sm:text-base text-slate-300 font-medium max-w-md mx-auto">
               {currentTheme.eventSubtitle || 'Abadikan Momen Spesial Anda Sekarang'}

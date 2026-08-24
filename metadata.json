@@ -1,5 +1,5 @@
 {
-  "name": "SnapBooth Studio",
+  "name": "snapBoth Receipt",
   "description": "Aplikasi photobooth interaktif untuk mengambil/mengunggah foto, menerapkan filter & kustomisasi tema acara, serta cetak instan dan berbagi ke media sosial.",
   "requestFramePermissions": ["camera"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]

@@ -51,7 +51,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [regBusinessName, setRegBusinessName] = useState('');
   const [regEmail, setRegEmail] = useState('');
   const [regPhone, setRegPhone] = useState('');
-  const [regDuration, setRegDuration] = useState<'trial_7' | 'trial_14' | 'month_1' | 'off'>('trial_7');
+  const [regDuration, setRegDuration] = useState<'trial_3' | 'weekly_30k' | 'monthly_50k' | 'yearly_500k' | 'off'>('trial_3');
   const [regPin, setRegPin] = useState('1234');
   const [showRegPassword, setShowRegPassword] = useState(false);
 
@@ -113,18 +113,22 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         endDate = '2099-12-31';
         status = 'active';
         note = 'Pendaftaran mandiri (Durasi OFF / Unlimited)';
-      } else if (regDuration === 'trial_7') {
+      } else if (regDuration === 'trial_3') {
+        endDate = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+        status = 'trial';
+        note = 'Pendaftaran mandiri (Trial 3 Hari - Gratis)';
+      } else if (regDuration === 'weekly_30k') {
         endDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-        status = 'trial';
-        note = 'Pendaftaran mandiri (Trial 7 Hari)';
-      } else if (regDuration === 'trial_14') {
-        endDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-        status = 'trial';
-        note = 'Pendaftaran mandiri (Trial 14 Hari)';
-      } else if (regDuration === 'month_1') {
+        status = 'active';
+        note = 'Pendaftaran mandiri (Langganan Mingguan - Rp 30.000 / 7 Hari)';
+      } else if (regDuration === 'monthly_50k') {
         endDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
         status = 'active';
-        note = 'Pendaftaran mandiri (1 Bulan)';
+        note = 'Pendaftaran mandiri (Langganan Bulanan - Rp 50.000 / 30 Hari)';
+      } else if (regDuration === 'yearly_500k') {
+        endDate = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+        status = 'active';
+        note = 'Pendaftaran mandiri (Langganan Tahunan - Rp 500.000 / 365 Hari)';
       }
 
       const cleanUsername = (regUsername.trim() || regEmail.split('@')[0]).toLowerCase().replace(/[^a-z0-9_.-]/g, '');
@@ -414,16 +418,20 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-300">Pilihan Masa Aktif Awal:</label>
+                <label className="text-xs font-bold text-slate-300 flex items-center justify-between">
+                  <span>Pilihan Masa Aktif Awal:</span>
+                  <span className="text-[11px] text-amber-400 font-normal">Trial 3 Hari / Langganan</span>
+                </label>
                 <select
                   value={regDuration}
                   onChange={(e) => setRegDuration(e.target.value as any)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-amber-500"
+                  className="w-full px-3.5 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-amber-500 font-medium"
                 >
-                  <option value="trial_7">Trial 7 Hari (Gratis Uji Coba)</option>
-                  <option value="trial_14">Trial 14 Hari (2 Minggu)</option>
-                  <option value="month_1">Langganan 1 Bulan (30 Hari)</option>
-                  <option value="off">OFF / Unlimited (Tanpa Batas Waktu)</option>
+                  <option value="trial_3">🟡 Trial 3 Hari — Gratis Masa Uji Coba</option>
+                  <option value="weekly_30k">🟢 Langganan Mingguan — Rp 30.000 / 7 Hari</option>
+                  <option value="monthly_50k">🟢 Langganan Bulanan — Rp 50.000 / 30 Hari (1 Bulan)</option>
+                  <option value="yearly_500k">💎 Langganan Tahunan — Rp 500.000 / 365 Hari (1 Tahun)</option>
+                  <option value="off">♾️ OFF / Unlimited — Tanpa Batas Masa Berlaku</option>
                 </select>
               </div>
 

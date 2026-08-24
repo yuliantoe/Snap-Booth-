@@ -16,6 +16,7 @@ import {
   UserCheck,
   KeyRound,
   ExternalLink,
+  Sparkles,
 } from 'lucide-react';
 import { EventTheme, UserAccount } from '../types';
 import { calculateRemainingDays, SUBSCRIPTION_PLANS, isDurationUnlimited } from '../services/subscriptionService';
@@ -50,6 +51,7 @@ export const Header: React.FC<HeaderProps> = ({
   const remainingDays = currentUser ? calculateRemainingDays(currentUser.subscriptionEndDate) : 0;
   const isExpired = !isUnl && (currentUser?.subscriptionStatus === 'expired' || remainingDays < 0);
   const isTrial = currentUser?.subscriptionStatus === 'trial' && !isExpired;
+  const isExpiringSoon = !isSuperAdmin && !isUnl && !isExpired && remainingDays < 3 && remainingDays >= 0;
   const currentPlan = currentUser?.subscriptionPlan ? SUBSCRIPTION_PLANS[currentUser.subscriptionPlan] : null;
 
   // Close dropdown on click outside
@@ -74,11 +76,8 @@ export const Header: React.FC<HeaderProps> = ({
           <div>
             <div className="flex items-center gap-1.5 sm:gap-2">
               <h1 className="text-base sm:text-lg font-black tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent">
-                SnapBooth<span className="text-rose-400">Studio</span>
+                snapBoth<span className="text-rose-400"> Receipt</span>
               </h1>
-              <span className="hidden md:inline-block px-2 py-0.5 text-[9px] font-bold tracking-wider uppercase bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-full">
-                Photobooth Kiosk
-              </span>
               <span
                 onClick={onOpenControlPanel}
                 className="hidden lg:inline-flex items-center gap-1 px-2 py-0.5 text-[9px] font-bold tracking-wide uppercase bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 rounded-full cursor-pointer hover:bg-cyan-500/30 transition-all"
@@ -89,7 +88,7 @@ export const Header: React.FC<HeaderProps> = ({
               </span>
             </div>
             <p className="text-[11px] text-slate-400 truncate max-w-[150px] sm:max-w-xs">
-              {currentUser?.businessName || currentTheme.eventTitle || 'SnapBooth Event'}
+              {currentUser?.businessName || currentTheme.eventTitle || 'snapBoth Receipt Event'}
             </p>
           </div>
         </div>
@@ -107,6 +106,8 @@ export const Header: React.FC<HeaderProps> = ({
                     ? 'bg-amber-500/10 border-amber-500/40 text-amber-300 hover:bg-amber-500/20'
                     : isExpired
                     ? 'bg-rose-500/20 border-rose-500/40 text-rose-300 hover:bg-rose-500/30 ring-1 ring-rose-500/40'
+                    : isExpiringSoon
+                    ? 'bg-amber-500/20 border-amber-500/50 text-amber-300 hover:bg-amber-500/30 ring-1 ring-amber-500/40 animate-pulse'
                     : isTrial
                     ? 'bg-amber-500/10 border-amber-500/30 text-amber-300 hover:bg-amber-500/20'
                     : isUnl
@@ -119,6 +120,8 @@ export const Header: React.FC<HeaderProps> = ({
                   <Crown className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                 ) : isExpired ? (
                   <AlertCircle className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+                ) : isExpiringSoon ? (
+                  <AlertCircle className="w-3.5 h-3.5 text-amber-400 shrink-0 animate-bounce" />
                 ) : (
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                 )}
@@ -131,6 +134,8 @@ export const Header: React.FC<HeaderProps> = ({
                       ? 'Super Admin'
                       : isExpired
                       ? 'Expired'
+                      : isExpiringSoon
+                      ? `⚠️ Sisa ${remainingDays === 0 ? 'Hari ini' : `${remainingDays}h`}`
                       : isTrial
                       ? `Trial (${remainingDays}h)`
                       : isUnl
@@ -153,6 +158,8 @@ export const Header: React.FC<HeaderProps> = ({
                             ? 'bg-amber-500/20 border-amber-500/40 text-amber-300'
                             : isExpired
                             ? 'bg-rose-500/20 border-rose-500/40 text-rose-300'
+                            : isExpiringSoon
+                            ? 'bg-amber-500/20 border-amber-500/50 text-amber-300'
                             : isTrial
                             ? 'bg-amber-500/20 border-amber-500/40 text-amber-300'
                             : isUnl
@@ -176,6 +183,8 @@ export const Header: React.FC<HeaderProps> = ({
                                 ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
                                 : isExpired
                                 ? 'bg-rose-500/20 text-rose-300 border-rose-500/30'
+                                : isExpiringSoon
+                                ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 animate-pulse'
                                 : isTrial
                                 ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
                                 : isUnl
@@ -187,6 +196,8 @@ export const Header: React.FC<HeaderProps> = ({
                               ? '👑 Super Admin'
                               : isExpired
                               ? '🔴 Langganan Berakhir'
+                              : isExpiringSoon
+                              ? `⚠️ Sisa ${remainingDays === 0 ? 'Hari ini' : `${remainingDays} Hari`}`
                               : isTrial
                               ? `🟡 Masa Trial (${remainingDays} Hari)`
                               : isUnl
@@ -196,6 +207,34 @@ export const Header: React.FC<HeaderProps> = ({
                         </div>
                       </div>
                     </div>
+
+                    {/* Sisa masa aktif warning alert in dropdown */}
+                    {isExpiringSoon && (
+                      <div className="mt-2.5 p-2.5 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-200 text-xs flex items-start gap-2">
+                        <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                        <div className="space-y-1">
+                          <p className="font-bold text-amber-300 leading-tight">
+                            Peringatan: Sisa Masa Aktif ({remainingDays === 0 ? 'Hari Ini' : `${remainingDays} Hari Lagi`})
+                          </p>
+                          <p className="text-[11px] text-slate-300 leading-snug">
+                            Akun Anda akan segera berakhir pada {currentUser.subscriptionEndDate}. Segera lakukan perpanjangan paket.
+                          </p>
+                          {onOpenAuthModal && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setIsUserMenuOpen(false);
+                                onOpenAuthModal();
+                              }}
+                              className="mt-1 px-2.5 py-1 rounded-lg bg-amber-500 text-slate-950 text-[10px] font-black hover:bg-amber-400 transition-colors inline-flex items-center gap-1"
+                            >
+                              <Sparkles className="w-3 h-3" />
+                              <span>Perpanjang Sekarang</span>
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Menu Items */}

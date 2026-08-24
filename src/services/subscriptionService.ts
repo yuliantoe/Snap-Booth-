@@ -95,7 +95,7 @@ export const DEFAULT_USERS: UserAccount[] = [
     password: 'admin123',
     email: 'admin@snapbooth.id',
     displayName: 'Super Admin Master',
-    businessName: 'SnapBooth HQ Indonesia',
+    businessName: 'snapBoth Receipt HQ Indonesia',
     role: 'super_admin',
     subscriptionStatus: 'active',
     subscriptionPlan: 'lifetime',
