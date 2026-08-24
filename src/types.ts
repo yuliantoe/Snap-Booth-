@@ -57,7 +57,8 @@ export interface EventTheme {
   tabletOrientation?: 'portrait' | 'landscape';
   autoPrintEnabled?: boolean;
   autoPrintMode?: 'thermal_80mm' | 'thermal_58mm' | 'dual_4x6' | 'single';
-  idleTimeoutSeconds?: number; // Inactivity auto-reset timeout (3, 4, 5, 6, 7, 8, 9, 10 seconds or 0/disabled)
+  idleTimeoutMinutes?: number; // Inactivity auto-reset timeout in minutes (e.g., 3, 4, 5 s/d 10 menit, or 0/disabled)
+  idleTimeoutSeconds?: number; // Legacy compatibility
   customFrameOverlayUrl?: string;
   customBgImageUrl?: string;
   customStickerUrls?: string[];

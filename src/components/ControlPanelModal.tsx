@@ -355,20 +355,6 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
-            {onOpenAuthModal && (
-              <button
-                type="button"
-                onClick={() => {
-                  onClose();
-                  onOpenAuthModal();
-                }}
-                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold border border-slate-700 transition-all cursor-pointer"
-                title="Ganti User atau login akun lain"
-              >
-                <Users className="w-3.5 h-3.5 text-cyan-400" />
-                <span>Ganti User</span>
-              </button>
-            )}
             {onLogout && (
               <button
                 type="button"
@@ -1475,111 +1461,140 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
             <div className="space-y-6 animate-in fade-in duration-150">
               {/* Pengaturan Auto-Reset Idle (Inaktivitas Pengunjung) */}
               <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                    <Timer className="w-4 h-4 text-amber-400" /> Auto-Reset Idle (Inaktivitas Layar)
-                  </h3>
-                  <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider border ${
-                    (themeForm.idleTimeoutSeconds ?? 3) > 0
-                      ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
-                      : 'bg-slate-800 text-slate-400 border-slate-700'
-                  }`}>
-                    {(themeForm.idleTimeoutSeconds ?? 3) > 0
-                      ? `⏱️ Reset: ${themeForm.idleTimeoutSeconds ?? 3} Detik`
-                      : '⏹️ Auto-Reset: NONAKTIF'}
-                  </span>
-                </div>
+                {(() => {
+                  const currentIdleMin =
+                    themeForm.idleTimeoutMinutes !== undefined
+                      ? themeForm.idleTimeoutMinutes
+                      : themeForm.idleTimeoutSeconds !== undefined
+                      ? themeForm.idleTimeoutSeconds
+                      : 3;
+                  const isAutoResetActive = currentIdleMin > 0;
 
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Jika layar photobooth tidak disentuh/dipakai oleh pengunjung selama durasi waktu yang dipilih (saat berada di luar Welcome Screen), sistem akan otomatis membersihkan sesi dan kembali ke Welcome Screen fullscreen.
-                </p>
+                  return (
+                    <>
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                          <Timer className="w-4 h-4 text-amber-400" /> Auto-Reset Idle (Inaktivitas Layar)
+                        </h3>
+                        <span
+                          className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider border ${
+                            isAutoResetActive
+                              ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+                              : 'bg-slate-800 text-slate-400 border-slate-700'
+                          }`}
+                        >
+                          {isAutoResetActive
+                            ? `⏱️ Reset: ${currentIdleMin} Menit`
+                            : '⏹️ Auto-Reset: NONAKTIF'}
+                        </span>
+                      </div>
 
-                <div className="p-4 rounded-2xl border border-slate-800 bg-slate-900/60 space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <label className="text-xs font-bold text-slate-300 flex items-center gap-2">
-                        <Clock className="w-3.5 h-3.5 text-amber-400" />
-                        <span>Pilihan Cepat Waktu Idle (3 Detik s/d 10 Detik):</span>
-                      </label>
-                      <span className="text-xs font-extrabold text-amber-400">
-                        {(themeForm.idleTimeoutSeconds ?? 3) > 0
-                          ? `${themeForm.idleTimeoutSeconds ?? 3} Detik`
-                          : 'Nonaktif (Manual)'}
-                      </span>
-                    </div>
+                      <p className="text-xs text-slate-400 leading-relaxed">
+                        Jika layar photobooth tidak disentuh/digunakan oleh pengunjung selama durasi waktu yang dipilih (saat berada di luar Welcome Screen), sistem akan otomatis membersihkan sesi dan kembali ke Welcome Screen fullscreen.
+                      </p>
 
-                    {/* Grid tombol 3s sampai 10s */}
-                    <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
-                      {[3, 4, 5, 6, 7, 8, 9, 10].map((sec) => {
-                        const isSelected = (themeForm.idleTimeoutSeconds ?? 3) === sec;
-                        return (
+                      <div className="p-4 rounded-2xl border border-slate-800 bg-slate-900/60 space-y-4">
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <label className="text-xs font-bold text-slate-300 flex items-center gap-2">
+                              <Clock className="w-3.5 h-3.5 text-amber-400" />
+                              <span>Pilihan Waktu Idle (3 Menit s/d 10 Menit):</span>
+                            </label>
+                            <span className="text-xs font-extrabold text-amber-400">
+                              {isAutoResetActive
+                                ? `${currentIdleMin} Menit (${currentIdleMin * 60} Detik)`
+                                : 'Nonaktif (Manual)'}
+                            </span>
+                          </div>
+
+                          {/* Grid tombol 1 Menit sampai 10 Menit */}
+                          <div className="grid grid-cols-5 sm:grid-cols-10 gap-1.5 sm:gap-2">
+                            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((min) => {
+                              const isSelected = isAutoResetActive && currentIdleMin === min;
+                              return (
+                                <button
+                                  key={min}
+                                  type="button"
+                                  onClick={() =>
+                                    setThemeForm({
+                                      ...themeForm,
+                                      idleTimeoutMinutes: min,
+                                      idleTimeoutSeconds: min,
+                                    })
+                                  }
+                                  className={`p-2 rounded-xl border text-center transition-all flex flex-col items-center justify-center gap-0.5 cursor-pointer ${
+                                    isSelected
+                                      ? 'border-amber-500 bg-amber-500/20 text-amber-300 font-extrabold shadow-md shadow-amber-500/10 ring-1 ring-amber-500/40'
+                                      : 'border-slate-800 bg-slate-900 text-slate-400 hover:border-slate-700 hover:text-white'
+                                  }`}
+                                >
+                                  <span className="text-sm font-black">{min}m</span>
+                                  <span className="text-[9px] opacity-75 truncate max-w-full">
+                                    {min === 3 ? 'Default' : `${min} mnt`}
+                                  </span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Range Slider for granular control in minutes */}
+                        <div className="space-y-2 pt-2 border-t border-slate-800/80">
+                          <div className="flex items-center justify-between text-xs text-slate-400">
+                            <span>Geser Slider Waktu Menit:</span>
+                            <span className="font-mono text-amber-300 font-bold">
+                              {isAutoResetActive
+                                ? `${currentIdleMin} Menit (${currentIdleMin * 60} Detik inaktif)`
+                                : 'Timer dinonaktifkan'}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <span className="text-[11px] font-bold text-slate-500">1 Menit</span>
+                            <input
+                              type="range"
+                              min="1"
+                              max="10"
+                              step="1"
+                              value={currentIdleMin <= 0 ? 3 : currentIdleMin}
+                              onChange={(e) => {
+                                const val = parseInt(e.target.value, 10);
+                                setThemeForm({
+                                  ...themeForm,
+                                  idleTimeoutMinutes: val,
+                                  idleTimeoutSeconds: val,
+                                });
+                              }}
+                              className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500"
+                            />
+                            <span className="text-[11px] font-bold text-slate-500">10 Menit</span>
+                          </div>
+                        </div>
+
+                        {/* Opsi Nonaktifkan Auto-Reset */}
+                        <div className="pt-2 flex items-center justify-between border-t border-slate-800/80 text-xs">
+                          <span className="text-slate-400">Mode Tanpa Auto-Reset (Hanya Reset Manual):</span>
                           <button
-                            key={sec}
                             type="button"
-                            onClick={() => setThemeForm({ ...themeForm, idleTimeoutSeconds: sec })}
-                            className={`p-2 rounded-xl border text-center transition-all flex flex-col items-center justify-center gap-0.5 ${
-                              isSelected
-                                ? 'border-amber-500 bg-amber-500/20 text-amber-300 font-extrabold shadow-md shadow-amber-500/10 ring-1 ring-amber-500/40'
-                                : 'border-slate-800 bg-slate-900 text-slate-400 hover:border-slate-700 hover:text-white'
+                            onClick={() =>
+                              setThemeForm({
+                                ...themeForm,
+                                idleTimeoutMinutes: isAutoResetActive ? 0 : 3,
+                                idleTimeoutSeconds: isAutoResetActive ? 0 : 3,
+                              })
+                            }
+                            className={`px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all cursor-pointer ${
+                              !isAutoResetActive
+                                ? 'bg-rose-500/20 text-rose-300 border-rose-500/40 font-bold'
+                                : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
                             }`}
                           >
-                            <span className="text-sm font-black">{sec}s</span>
-                            <span className="text-[9px] opacity-75">{sec === 3 ? 'Default' : `${sec} dtk`}</span>
+                            {!isAutoResetActive ? '✓ Auto-Reset Dinonaktifkan' : 'Nonaktifkan Auto-Reset'}
                           </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Range Slider for granular control */}
-                  <div className="space-y-2 pt-2 border-t border-slate-800/80">
-                    <div className="flex items-center justify-between text-xs text-slate-400">
-                      <span>Geser Slider Waktu:</span>
-                      <span className="font-mono text-amber-300 font-bold">
-                        {(themeForm.idleTimeoutSeconds ?? 3) > 0
-                          ? `${themeForm.idleTimeoutSeconds ?? 3} Detik (Timer Inaktif)`
-                          : 'Tidak ada timer'}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-[11px] font-bold text-slate-500">3s</span>
-                      <input
-                        type="range"
-                        min="3"
-                        max="10"
-                        step="1"
-                        value={(themeForm.idleTimeoutSeconds ?? 3) <= 0 ? 3 : (themeForm.idleTimeoutSeconds ?? 3)}
-                        onChange={(e) => {
-                          const val = parseInt(e.target.value, 10);
-                          setThemeForm({ ...themeForm, idleTimeoutSeconds: val });
-                        }}
-                        className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500"
-                      />
-                      <span className="text-[11px] font-bold text-slate-500">10s</span>
-                    </div>
-                  </div>
-
-                  {/* Opsi Nonaktifkan Auto-Reset */}
-                  <div className="pt-2 flex items-center justify-between border-t border-slate-800/80 text-xs">
-                    <span className="text-slate-400">Mode Tanpa Auto-Reset (Hanya Reset Manual):</span>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setThemeForm({
-                          ...themeForm,
-                          idleTimeoutSeconds: (themeForm.idleTimeoutSeconds ?? 3) === 0 ? 3 : 0,
-                        })
-                      }
-                      className={`px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all ${
-                        (themeForm.idleTimeoutSeconds ?? 3) === 0
-                          ? 'bg-rose-500/20 text-rose-300 border-rose-500/40 font-bold'
-                          : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
-                      }`}
-                    >
-                      {(themeForm.idleTimeoutSeconds ?? 3) === 0 ? '✓ Auto-Reset Dinonaktifkan' : 'Nonaktifkan Auto-Reset'}
-                    </button>
-                  </div>
-                </div>
+                        </div>
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
 
               {/* Pengaturan Auto-Print Printer Kiosk */}
@@ -1766,19 +1781,6 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                     </div>
 
                     <div className="flex items-center gap-2">
-                      {onOpenAuthModal && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            onClose();
-                            onOpenAuthModal();
-                          }}
-                          className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 flex items-center gap-1.5 transition-all cursor-pointer"
-                        >
-                          <Users className="w-3.5 h-3.5 text-cyan-400" />
-                          <span>Ganti User</span>
-                        </button>
-                      )}
                       {onLogout && (
                         <button
                           type="button"

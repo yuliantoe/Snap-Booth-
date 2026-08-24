@@ -78,7 +78,7 @@ export default function App() {
     };
   }, [currentUser?.id]);
 
-  // 2. Initialize Current User from LocalStorage or default to Active Pro Client
+  // 2. Initialize Current User from LocalStorage
   useEffect(() => {
     try {
       const savedUserId = localStorage.getItem('snapbooth_active_user_id');
@@ -89,11 +89,10 @@ export default function App() {
           return;
         }
       }
-      // Default to Luna Photobooth (Active Pro Client)
-      const defaultClient = usersList.find((u) => u.id === 'client_luna_pro') || DEFAULT_USERS[1];
-      setCurrentUser(defaultClient);
+      // If no saved user in localStorage, user remains logged out (null)
+      setCurrentUser(null);
     } catch {
-      setCurrentUser(DEFAULT_USERS[1]);
+      setCurrentUser(null);
     }
   }, []);
 
@@ -107,6 +106,9 @@ export default function App() {
           setCurrentTheme(currentUser.customTheme);
         }
       });
+    } else {
+      // Default theme for logged out state
+      setCurrentTheme(DEFAULT_THEMES[0]);
     }
   }, [currentUser?.id]);
 
@@ -217,6 +219,8 @@ export default function App() {
       // ignore
     }
     setCurrentUser(null);
+    setPhotos([]);
+    setCurrentStep('welcome');
     setIsControlPanelOpen(false);
     setIsSuperAdminOpen(false);
     setIsAuthModalOpen(true);
@@ -264,7 +268,7 @@ export default function App() {
     }
   };
 
-  // Auto-return to welcome screen after configurable idle seconds of inactivity when not on welcome screen
+  // Auto-return to welcome screen after configurable idle minutes of inactivity when not on welcome screen
   useEffect(() => {
     if (
       currentStep === 'welcome' ||
@@ -276,12 +280,18 @@ export default function App() {
       return;
     }
 
-    const idleSeconds = currentTheme.idleTimeoutSeconds !== undefined ? currentTheme.idleTimeoutSeconds : 3;
-    if (idleSeconds <= 0) {
+    const idleMinutes =
+      currentTheme.idleTimeoutMinutes !== undefined
+        ? currentTheme.idleTimeoutMinutes
+        : currentTheme.idleTimeoutSeconds !== undefined
+        ? currentTheme.idleTimeoutSeconds
+        : 3;
+
+    if (idleMinutes <= 0) {
       return; // 0 or negative means auto-reset is disabled
     }
 
-    const IDLE_TIMEOUT_MS = idleSeconds * 1000;
+    const IDLE_TIMEOUT_MS = idleMinutes * 60 * 1000; // Convert minutes to milliseconds
     let timer: NodeJS.Timeout;
 
     const resetIdleTimer = () => {
@@ -322,21 +332,48 @@ export default function App() {
     isSuperAdminOpen,
     isAuthModalOpen,
     isExpiredModalOpen,
+    currentTheme.idleTimeoutMinutes,
     currentTheme.idleTimeoutSeconds,
   ]);
 
-  // Step navigation rules
+  // Step navigation rules: before login, photo steps (capture, layout, export) are inactive
   const canNavigateTo = (step: StepType) => {
     if (step === 'welcome') return true;
+    if (!currentUser) return false; // Sebelum login menu foto tidak aktif
     if (step === 'capture') return true;
     if (step === 'theme_layout') return photos.filter(Boolean).length > 0;
     if (step === 'export') return photos.filter(Boolean).length > 0;
     return false;
   };
 
+  // Handle Starting Photo Session with Login Check
+  const handleStartPhotobooth = () => {
+    if (!currentUser) {
+      setIsAuthModalOpen(true);
+      return;
+    }
+
+    // Super Admin always has access
+    if (currentUser.role === 'super_admin') {
+      setCurrentStep('capture');
+      return;
+    }
+
+    // Client: Check subscription status
+    const remainingDays = calculateRemainingDays(currentUser.subscriptionEndDate);
+    const isExpired = currentUser.subscriptionStatus === 'expired' || remainingDays < 0;
+
+    if (isExpired || currentUser.subscriptionStatus === 'suspended') {
+      setIsExpiredModalOpen(true);
+      return;
+    }
+
+    setCurrentStep('capture');
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-rose-500 selection:text-white">
-      {/* Navbar Header with Multi-Role Badges, User Dropdown, Ganti User, and Logout */}
+      {/* Navbar Header with Multi-Role Badges, User Dropdown, and Logout */}
       <Header
         currentTheme={currentTheme}
         currentUser={currentUser}
@@ -351,8 +388,10 @@ export default function App() {
       {/* Step Progress Wizard Bar */}
       <StepIndicator
         currentStep={currentStep}
+        currentUser={currentUser}
         onSelectStep={(step) => canNavigateTo(step) && setCurrentStep(step)}
         canNavigateTo={canNavigateTo}
+        onOpenAuthModal={() => setIsAuthModalOpen(true)}
       />
 
       {/* Main Content Area */}
@@ -360,9 +399,11 @@ export default function App() {
         {currentStep === 'welcome' && (
           <StartScreen
             currentTheme={currentTheme}
+            currentUser={currentUser}
             onUpdateTheme={setCurrentTheme}
-            onStartPhotobooth={() => setCurrentStep('capture')}
+            onStartPhotobooth={handleStartPhotobooth}
             onOpenThemeCustomizer={handleOpenControlPanel}
+            onOpenAuthModal={() => setIsAuthModalOpen(true)}
           />
         )}
 

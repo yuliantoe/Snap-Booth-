@@ -1,12 +1,14 @@
 import React from 'react';
-import { Camera, Sparkles, Heart, Zap, Crown, Flame } from 'lucide-react';
-import { EventTheme } from '../types';
+import { Camera, Sparkles, Heart, Zap, Crown, Flame, Lock, LogIn } from 'lucide-react';
+import { EventTheme, UserAccount } from '../types';
 
 interface StartScreenProps {
   currentTheme: EventTheme;
+  currentUser?: UserAccount | null;
   onUpdateTheme?: (updatedTheme: EventTheme) => void;
   onStartPhotobooth: () => void;
   onOpenThemeCustomizer?: () => void;
+  onOpenAuthModal?: () => void;
 }
 
 const DEFAULT_VIDEO = 'https://assets.mixkit.co/videos/preview/mixkit-sparkles-and-glitter-in-the-dark-42880-large.mp4';
@@ -14,18 +16,26 @@ const DEFAULT_WELCOME_PHOTO = 'https://images.unsplash.com/photo-1511795409834-e
 
 export const StartScreen: React.FC<StartScreenProps> = ({
   currentTheme,
+  currentUser,
   onStartPhotobooth,
+  onOpenAuthModal,
 }) => {
+  const isLoggedIn = Boolean(currentUser);
   const mediaType = currentTheme.welcomeMediaType || 'photo';
   const videoUrl = currentTheme.welcomeVideoUrl || DEFAULT_VIDEO;
   const photoUrl = currentTheme.welcomePhotoUrl || currentTheme.customBgImageUrl || DEFAULT_WELCOME_PHOTO;
   const homeStyle = currentTheme.homeStyle || 'classic';
-  const ctaText = currentTheme.homeCtaText || 'SENTUH UNTUK MULAI FOTO';
+  const ctaText = !isLoggedIn
+    ? 'LOGIN UNTUK MULAI FOTO'
+    : currentTheme.homeCtaText || 'SENTUH UNTUK MULAI FOTO';
   const ctaColor = currentTheme.homeCtaColor || 'rose_amber';
   const bgBlur = currentTheme.homeBgBlur || 'light';
 
   // CTA button styling map
   const getCtaClass = () => {
+    if (!isLoggedIn) {
+      return 'bg-gradient-to-r from-amber-500 via-rose-500 to-pink-600 text-white shadow-rose-500/40 border-amber-400/50 hover:brightness-110';
+    }
     switch (ctaColor) {
       case 'cyber_neon':
         return 'bg-gradient-to-r from-cyan-500 via-teal-400 to-fuchsia-500 text-slate-950 shadow-cyan-500/50 border-cyan-300/60';
@@ -76,6 +86,23 @@ export const StartScreen: React.FC<StartScreenProps> = ({
         </div>
       )}
 
+      {/* Logged Out Notice Banner */}
+      {!isLoggedIn && (
+        <div className="relative z-20 mb-4 inline-flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-slate-950/90 border border-amber-500/40 text-amber-300 text-xs sm:text-sm font-bold shadow-xl backdrop-blur-md animate-in fade-in slide-in-from-top-4 duration-300">
+          <Lock className="w-4 h-4 text-amber-400 shrink-0" />
+          <span>Menu Foto Tidak Aktif • Silakan Login Terlebih Dahulu</span>
+          {onOpenAuthModal && (
+            <button
+              type="button"
+              onClick={onOpenAuthModal}
+              className="ml-1 px-2.5 py-1 rounded-lg bg-amber-500 text-slate-950 font-black text-xs hover:bg-amber-400 transition-colors cursor-pointer"
+            >
+              Login Sekarang
+            </button>
+          )}
+        </div>
+      )}
+
       {/* ---------------------------------------------------- */}
       {/* STYLE 1: LUXURY WEDDING */}
       {/* ---------------------------------------------------- */}
@@ -106,9 +133,13 @@ export const StartScreen: React.FC<StartScreenProps> = ({
           <div className="pt-2">
             <button
               onClick={onStartPhotobooth}
-              className={`group relative inline-flex items-center gap-4 px-10 py-5 sm:py-6 rounded-full font-bold text-lg sm:text-xl shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95 ${getCtaClass()}`}
+              className={`group relative inline-flex items-center gap-4 px-10 py-5 sm:py-6 rounded-full font-bold text-lg sm:text-xl shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer ${getCtaClass()}`}
             >
-              <Heart className="w-6 h-6 fill-current text-rose-300 animate-bounce" />
+              {!isLoggedIn ? (
+                <Lock className="w-6 h-6 text-amber-200" />
+              ) : (
+                <Heart className="w-6 h-6 fill-current text-rose-300 animate-bounce" />
+              )}
               <span>{ctaText}</span>
             </button>
           </div>
@@ -143,9 +174,13 @@ export const StartScreen: React.FC<StartScreenProps> = ({
           <div className="pt-2">
             <button
               onClick={onStartPhotobooth}
-              className={`group relative inline-flex items-center gap-4 px-10 py-5 sm:py-6 rounded-2xl font-black text-lg sm:text-xl shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95 ${getCtaClass()}`}
+              className={`group relative inline-flex items-center gap-4 px-10 py-5 sm:py-6 rounded-2xl font-black text-lg sm:text-xl shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer ${getCtaClass()}`}
             >
-              <Flame className="w-7 h-7 text-amber-300 animate-pulse" />
+              {!isLoggedIn ? (
+                <Lock className="w-7 h-7 text-amber-300" />
+              ) : (
+                <Flame className="w-7 h-7 text-amber-300 animate-pulse" />
+              )}
               <span>{ctaText}</span>
             </button>
           </div>
@@ -184,9 +219,9 @@ export const StartScreen: React.FC<StartScreenProps> = ({
 
             <button
               onClick={onStartPhotobooth}
-              className={`w-full py-5 rounded-2xl font-black text-lg sm:text-xl shadow-xl transition-all duration-300 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 ${getCtaClass()}`}
+              className={`w-full py-5 rounded-2xl font-black text-lg sm:text-xl shadow-xl transition-all duration-300 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 cursor-pointer ${getCtaClass()}`}
             >
-              <Camera className="w-6 h-6" />
+              {!isLoggedIn ? <Lock className="w-6 h-6" /> : <Camera className="w-6 h-6" />}
               <span>{ctaText}</span>
             </button>
           </div>
@@ -220,9 +255,9 @@ export const StartScreen: React.FC<StartScreenProps> = ({
 
           <button
             onClick={onStartPhotobooth}
-            className={`w-full py-6 rounded-2xl font-black text-lg sm:text-xl shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95 flex items-center justify-center gap-3 ${getCtaClass()}`}
+            className={`w-full py-6 rounded-2xl font-black text-lg sm:text-xl shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95 flex items-center justify-center gap-3 cursor-pointer ${getCtaClass()}`}
           >
-            <Camera className="w-7 h-7" />
+            {!isLoggedIn ? <Lock className="w-7 h-7" /> : <Camera className="w-7 h-7" />}
             <span>{ctaText}</span>
           </button>
         </div>
@@ -252,7 +287,7 @@ export const StartScreen: React.FC<StartScreenProps> = ({
           <div>
             <button
               onClick={onStartPhotobooth}
-              className={`px-12 py-5 rounded-none border border-white text-white font-mono text-sm tracking-widest hover:bg-white hover:text-black transition-all ${getCtaClass()}`}
+              className={`px-12 py-5 rounded-none border border-white text-white font-mono text-sm tracking-widest hover:bg-white hover:text-black transition-all cursor-pointer ${getCtaClass()}`}
             >
               {ctaText}
             </button>
@@ -299,10 +334,14 @@ export const StartScreen: React.FC<StartScreenProps> = ({
           <div className="pt-2">
             <button
               onClick={onStartPhotobooth}
-              className={`group relative inline-flex items-center gap-4 px-10 sm:px-14 py-6 sm:py-7 rounded-3xl font-black text-xl sm:text-2xl shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 border ${getCtaClass()}`}
+              className={`group relative inline-flex items-center gap-4 px-10 sm:px-14 py-6 sm:py-7 rounded-3xl font-black text-xl sm:text-2xl shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 border cursor-pointer ${getCtaClass()}`}
             >
               <span className="relative z-10 flex items-center gap-3">
-                <Camera className="w-8 h-8 group-hover:rotate-12 transition-transform duration-300 text-amber-200" />
+                {!isLoggedIn ? (
+                  <Lock className="w-8 h-8 group-hover:rotate-12 transition-transform duration-300 text-amber-200" />
+                ) : (
+                  <Camera className="w-8 h-8 group-hover:rotate-12 transition-transform duration-300 text-amber-200" />
+                )}
                 <span>{ctaText}</span>
               </span>
             </button>

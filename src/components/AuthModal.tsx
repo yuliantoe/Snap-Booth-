@@ -2,26 +2,21 @@ import React, { useState } from 'react';
 import {
   X,
   ShieldCheck,
-  Crown,
   KeyRound,
   Mail,
   User,
   Building2,
   Phone,
-  Sparkles,
   CheckCircle2,
   AlertCircle,
   LogIn,
   LogOut,
   UserPlus,
-  ArrowRight,
-  Clock,
   Lock,
   Eye,
   EyeOff,
 } from 'lucide-react';
-import { UserAccount, SubscriptionPlanId } from '../types';
-import { SUBSCRIPTION_PLANS, DEFAULT_USERS, calculateRemainingDays } from '../services/subscriptionService';
+import { UserAccount } from '../types';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -42,7 +37,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   onRegisterClient,
   onLogout,
 }) => {
-  const [tab, setTab] = useState<'quick_switch' | 'login' | 'register'>('quick_switch');
+  const [tab, setTab] = useState<'login' | 'register'>('login');
   const [loginIdentifier, setLoginIdentifier] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -56,7 +51,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [regBusinessName, setRegBusinessName] = useState('');
   const [regEmail, setRegEmail] = useState('');
   const [regPhone, setRegPhone] = useState('');
-  const [regPlan, setRegPlan] = useState<SubscriptionPlanId>('pro_booth');
+  const [regDuration, setRegDuration] = useState<'trial_7' | 'trial_14' | 'month_1' | 'off'>('trial_7');
   const [regPin, setRegPin] = useState('1234');
   const [showRegPassword, setShowRegPassword] = useState(false);
 
@@ -98,11 +93,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     onClose();
   };
 
-  const handleQuickSelect = (user: UserAccount) => {
-    onLogin(user);
-    onClose();
-  };
-
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!regEmail || !regBusinessName) {
@@ -114,9 +104,28 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setErrorMsg('');
 
     try {
-      const durationDays = regPlan === 'lifetime' ? 36500 : 30;
       const startDate = new Date().toISOString().split('T')[0];
-      const endDate = new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      let endDate = '2099-12-31';
+      let status: any = 'trial';
+      let note = 'Pendaftaran akun baru';
+
+      if (regDuration === 'off') {
+        endDate = '2099-12-31';
+        status = 'active';
+        note = 'Pendaftaran mandiri (Durasi OFF / Unlimited)';
+      } else if (regDuration === 'trial_7') {
+        endDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+        status = 'trial';
+        note = 'Pendaftaran mandiri (Trial 7 Hari)';
+      } else if (regDuration === 'trial_14') {
+        endDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+        status = 'trial';
+        note = 'Pendaftaran mandiri (Trial 14 Hari)';
+      } else if (regDuration === 'month_1') {
+        endDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+        status = 'active';
+        note = 'Pendaftaran mandiri (1 Bulan)';
+      }
 
       const cleanUsername = (regUsername.trim() || regEmail.split('@')[0]).toLowerCase().replace(/[^a-z0-9_.-]/g, '');
 
@@ -127,13 +136,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         displayName: regDisplayName.trim() || regBusinessName.trim(),
         businessName: regBusinessName.trim(),
         role: 'client',
-        subscriptionStatus: 'active',
-        subscriptionPlan: regPlan,
+        subscriptionStatus: status,
+        subscriptionPlan: regDuration === 'off' ? 'lifetime' : 'pro_booth',
         subscriptionStartDate: startDate,
         subscriptionEndDate: endDate,
         phone: regPhone.trim() || '08123456789',
         boothAccessPin: regPin.trim() || '1234',
-        notes: `Pendaftaran mandiri paket ${SUBSCRIPTION_PLANS[regPlan].name}`,
+        notes: note,
       });
 
       onLogin(newAccount);
@@ -147,7 +156,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-slate-900 border border-slate-800 w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+      <div className="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
         {/* Modal Header */}
         <div className="p-4 sm:p-5 bg-gradient-to-r from-slate-900 via-slate-850 to-slate-900 border-b border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -159,13 +168,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 Akses Autentikasi & Akun
               </h2>
               <p className="text-xs text-slate-400">
-                Masuk sebagai Klien Berlangganan atau Super Admin
+                Masuk ke akun studio photobooth Anda
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+            className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-800 text-slate-400 hover:text-white transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -175,41 +184,28 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         <div className="flex border-b border-slate-800 bg-slate-950 p-1.5 gap-1.5">
           <button
             type="button"
-            onClick={() => { setTab('quick_switch'); setErrorMsg(''); }}
-            className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-              tab === 'quick_switch'
-                ? 'bg-gradient-to-r from-rose-500 to-amber-500 text-slate-950 shadow-md font-extrabold'
-                : 'text-slate-400 hover:text-white hover:bg-slate-900'
-            }`}
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Pilih Akun Demo</span>
-          </button>
-
-          <button
-            type="button"
             onClick={() => { setTab('login'); setErrorMsg(''); }}
-            className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+            className={`flex-1 py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
               tab === 'login'
                 ? 'bg-gradient-to-r from-rose-500 to-amber-500 text-slate-950 shadow-md font-extrabold'
                 : 'text-slate-400 hover:text-white hover:bg-slate-900'
             }`}
           >
-            <LogIn className="w-3.5 h-3.5" />
-            <span>Login Username / Pass</span>
+            <LogIn className="w-4 h-4" />
+            <span>Login Akun</span>
           </button>
 
           <button
             type="button"
             onClick={() => { setTab('register'); setErrorMsg(''); }}
-            className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+            className={`flex-1 py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
               tab === 'register'
                 ? 'bg-gradient-to-r from-rose-500 to-amber-500 text-slate-950 shadow-md font-extrabold'
                 : 'text-slate-400 hover:text-white hover:bg-slate-900'
             }`}
           >
-            <UserPlus className="w-3.5 h-3.5" />
-            <span>Daftar Baru</span>
+            <UserPlus className="w-4 h-4" />
+            <span>Daftar Akun Baru</span>
           </button>
         </div>
 
@@ -255,107 +251,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
         {/* Modal Body */}
         <div className="p-4 sm:p-6 overflow-y-auto space-y-4 flex-1">
-          {/* TAB 1: QUICK SWITCH WITH CREDENTIALS DISPLAY */}
-          {tab === 'quick_switch' && (
-            <div className="space-y-3 animate-in fade-in duration-150">
-              <p className="text-xs text-slate-400 mb-1">
-                Pilih salah satu akun demo untuk menguji akses login & dasboard dengan username/password masing-masing:
-              </p>
-
-              <div className="space-y-2.5">
-                {usersList.map((user) => {
-                  const isCurrent = currentUser?.id === user.id;
-                  const isSuperAdmin = user.role === 'super_admin';
-                  const remainingDays = calculateRemainingDays(user.subscriptionEndDate);
-                  const isExpired = user.subscriptionStatus === 'expired' || remainingDays < 0;
-
-                  return (
-                    <div
-                      key={user.id}
-                      onClick={() => handleQuickSelect(user)}
-                      className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between group ${
-                        isCurrent
-                          ? 'border-amber-500/80 bg-amber-500/10 ring-1 ring-amber-500/30 shadow-md'
-                          : isSuperAdmin
-                          ? 'border-amber-500/30 bg-slate-950 hover:border-amber-500/60 hover:bg-slate-900'
-                          : isExpired
-                          ? 'border-rose-900/50 bg-rose-950/20 hover:border-rose-700/60'
-                          : 'border-slate-800 bg-slate-950 hover:border-slate-700 hover:bg-slate-900'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`p-2.5 rounded-xl border shrink-0 ${
-                            isSuperAdmin
-                              ? 'bg-amber-500/20 border-amber-500/40 text-amber-300'
-                              : isExpired
-                              ? 'bg-rose-500/20 border-rose-500/30 text-rose-400'
-                              : 'bg-emerald-500/20 border-emerald-500/30 text-emerald-300'
-                          }`}
-                        >
-                          {isSuperAdmin ? <Crown className="w-5 h-5" /> : <Building2 className="w-5 h-5" />}
-                        </div>
-                        <div>
-                          <div className="flex flex-wrap items-center gap-2">
-                            <span className="text-sm font-bold text-white group-hover:text-amber-300 transition-colors">
-                              {user.displayName}
-                            </span>
-                            {isCurrent && (
-                              <span className="text-[9px] bg-amber-400 text-slate-950 px-1.5 py-0.2 rounded-md font-extrabold">
-                                Aktif Sekarang
-                              </span>
-                            )}
-                          </div>
-
-                          {/* Credentials Tag Pill */}
-                          <div className="flex flex-wrap items-center gap-2 mt-1">
-                            <span className="text-[11px] font-mono text-amber-300 font-bold bg-slate-900 px-2 py-0.5 rounded-lg border border-slate-800">
-                              User: @{user.username || user.email.split('@')[0]}
-                            </span>
-                            <span className="text-[11px] font-mono text-rose-300 bg-slate-900 px-2 py-0.5 rounded-lg border border-slate-800">
-                              Pass: {user.password || '123456'}
-                            </span>
-                            <span className="text-[11px] font-mono text-cyan-300 bg-slate-900 px-2 py-0.5 rounded-lg border border-slate-800">
-                              PIN: {user.boothAccessPin || '1234'}
-                            </span>
-                          </div>
-
-                          <div className="flex items-center gap-2 mt-1.5">
-                            <span
-                              className={`text-[9px] font-bold px-2 py-0.5 rounded-md border ${
-                                isSuperAdmin
-                                  ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
-                                  : isExpired
-                                  ? 'bg-rose-500/20 text-rose-400 border-rose-500/30'
-                                  : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
-                              }`}
-                            >
-                              {isSuperAdmin
-                                ? '👑 Super Admin'
-                                : isExpired
-                                ? '🔴 Langganan Expired'
-                                : `🟢 Aktif (${remainingDays} Hari)`}
-                            </span>
-                            <span className="text-[10px] text-slate-500">{user.email}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <button
-                        type="button"
-                        className="px-3 py-1.5 rounded-xl bg-slate-800 group-hover:bg-amber-500 group-hover:text-slate-950 text-slate-300 text-xs font-bold transition-all flex items-center gap-1 shrink-0"
-                      >
-                        <span>Pilih</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* TAB 2: USERNAME / EMAIL / PIN LOGIN */}
+          {/* TAB 1: USERNAME / EMAIL / PIN LOGIN */}
           {tab === 'login' && (
             <form onSubmit={handleManualLogin} className="space-y-4 animate-in fade-in duration-150">
               <div className="space-y-1.5">
@@ -368,7 +264,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   required
                   value={loginIdentifier}
                   onChange={(e) => setLoginIdentifier(e.target.value)}
-                  placeholder="Contoh: admin / lunabooth / luna.booth@gmail.com / 1234"
+                  placeholder="Masukkan Username, Email, atau PIN Booth"
                   className="w-full px-4 py-3 rounded-2xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:border-amber-500 transition-colors font-medium"
                 />
               </div>
@@ -394,9 +290,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
-                <p className="text-[11px] text-slate-500">
-                  Default akun demo: <code className="text-amber-400 font-mono">admin / admin123</code> atau <code className="text-amber-400 font-mono">lunabooth / luna123</code>
-                </p>
               </div>
 
               <button
@@ -409,7 +302,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </form>
           )}
 
-          {/* TAB 3: REGISTER NEW CLIENT */}
+          {/* TAB 2: REGISTER NEW CLIENT */}
           {tab === 'register' && (
             <form onSubmit={handleRegisterSubmit} className="space-y-4 animate-in fade-in duration-150">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -476,7 +369,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
                     <KeyRound className="w-3.5 h-3.5 text-cyan-400" />
-                    <span>PIN Akses Kiosk:</span>
+                    <span>PIN Akses Kiosk (4 Digit):</span>
                   </label>
                   <input
                     type="text"
@@ -520,34 +413,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-300">Pilih Paket Langganan:</label>
-                <div className="grid grid-cols-2 gap-2">
-                  {(Object.keys(SUBSCRIPTION_PLANS) as SubscriptionPlanId[]).map((planKey) => {
-                    const plan = SUBSCRIPTION_PLANS[planKey];
-                    const isSelected = regPlan === planKey;
-                    return (
-                      <button
-                        key={planKey}
-                        type="button"
-                        onClick={() => setRegPlan(planKey)}
-                        className={`p-3 rounded-2xl border text-left transition-all ${
-                          isSelected
-                            ? 'border-rose-500 bg-rose-500/10 text-white ring-1 ring-rose-500/40 shadow-md'
-                            : 'border-slate-800 bg-slate-950 text-slate-400 hover:border-slate-700'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-white">{plan.name}</span>
-                          {isSelected && <CheckCircle2 className="w-3.5 h-3.5 text-rose-400" />}
-                        </div>
-                        <p className="text-[11px] font-extrabold text-amber-400 mt-1">
-                          Rp {plan.pricePerMonth.toLocaleString('id-ID')} / bln
-                        </p>
-                      </button>
-                    );
-                  })}
-                </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-300">Pilihan Masa Aktif Awal:</label>
+                <select
+                  value={regDuration}
+                  onChange={(e) => setRegDuration(e.target.value as any)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-amber-500"
+                >
+                  <option value="trial_7">Trial 7 Hari (Gratis Uji Coba)</option>
+                  <option value="trial_14">Trial 14 Hari (2 Minggu)</option>
+                  <option value="month_1">Langganan 1 Bulan (30 Hari)</option>
+                  <option value="off">OFF / Unlimited (Tanpa Batas Waktu)</option>
+                </select>
               </div>
 
               <button
@@ -556,7 +433,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-rose-500 to-amber-500 hover:brightness-110 text-slate-950 font-extrabold text-sm flex items-center justify-center gap-2 shadow-lg shadow-rose-500/20 transition-all cursor-pointer disabled:opacity-50"
               >
                 <CheckCircle2 className="w-4 h-4" />
-                <span>{isLoading ? 'Menyimpan...' : 'Daftarkan & Mulai Langganan'}</span>
+                <span>{isLoading ? 'Menyimpan...' : 'Daftarkan Akun'}</span>
               </button>
             </form>
           )}

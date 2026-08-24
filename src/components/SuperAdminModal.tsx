@@ -34,9 +34,10 @@ import {
   Save,
   Check,
   LogOut,
+  Infinity as InfinityIcon,
 } from 'lucide-react';
 import { UserAccount, SubscriptionPlanId, SubscriptionStatus } from '../types';
-import { SUBSCRIPTION_PLANS, calculateRemainingDays } from '../services/subscriptionService';
+import { SUBSCRIPTION_PLANS, calculateRemainingDays, isDurationUnlimited } from '../services/subscriptionService';
 
 interface SuperAdminModalProps {
   isOpen: boolean;
@@ -63,10 +64,9 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
   onLogout,
   onOpenAuthModal,
 }) => {
-  const [activeTab, setActiveTab] = useState<'customers' | 'add_new' | 'admin_profile' | 'plans'>('customers');
+  const [activeTab, setActiveTab] = useState<'customers' | 'add_new' | 'admin_profile'>('customers');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
-  const [filterPlan, setFilterPlan] = useState<string>('all');
 
   // New Client Form State
   const [newUsername, setNewUsername] = useState('');
@@ -75,8 +75,9 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
   const [newOwnerName, setNewOwnerName] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [newPhone, setNewPhone] = useState('');
-  const [newPlan, setNewPlan] = useState<SubscriptionPlanId>('pro_booth');
-  const [newDurationMonths, setNewDurationMonths] = useState(1);
+  const [newDurationType, setNewDurationType] = useState<
+    'trial_3' | 'trial_7' | 'trial_14' | 'trial_30' | 'month_1' | 'month_3' | 'month_6' | 'year_1' | 'off'
+  >('trial_7');
   const [newPin, setNewPin] = useState('1234');
   const [newNotes, setNewNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -92,7 +93,6 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
   const [editPhone, setEditPhone] = useState('');
   const [editEndDate, setEditEndDate] = useState('');
   const [editStatus, setEditStatus] = useState<SubscriptionStatus>('active');
-  const [editPlan, setEditPlan] = useState<SubscriptionPlanId>('pro_booth');
   const [editPin, setEditPin] = useState('');
   const [showPasswordMap, setShowPasswordMap] = useState<Record<string, boolean>>({});
 
@@ -111,22 +111,23 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
   // Calculate Summary Metrics
   const clientsOnly = usersList.filter((u) => u.role === 'client');
   const totalClients = clientsOnly.length;
+  
   const activeClients = clientsOnly.filter((u) => {
+    const isUnl = isDurationUnlimited(u.subscriptionEndDate);
     const rem = calculateRemainingDays(u.subscriptionEndDate);
-    return u.subscriptionStatus === 'active' && rem >= 0;
-  }).length;
-  const expiredClients = clientsOnly.filter((u) => {
-    const rem = calculateRemainingDays(u.subscriptionEndDate);
-    return u.subscriptionStatus === 'expired' || rem < 0;
+    return (u.subscriptionStatus === 'active' || isUnl) && (isUnl || rem >= 0);
   }).length;
 
-  const estimatedMonthlyRevenue = clientsOnly.reduce((acc, user) => {
-    if (user.subscriptionStatus === 'active') {
-      const plan = SUBSCRIPTION_PLANS[user.subscriptionPlan];
-      return acc + (plan?.pricePerMonth || 0);
-    }
-    return acc;
-  }, 0);
+  const trialClients = clientsOnly.filter((u) => {
+    const rem = calculateRemainingDays(u.subscriptionEndDate);
+    return u.subscriptionStatus === 'trial' && rem >= 0;
+  }).length;
+
+  const expiredClients = clientsOnly.filter((u) => {
+    const isUnl = isDurationUnlimited(u.subscriptionEndDate);
+    const rem = calculateRemainingDays(u.subscriptionEndDate);
+    return !isUnl && (u.subscriptionStatus === 'expired' || rem < 0);
+  }).length;
 
   // Filtered List
   const filteredUsers = clientsOnly.filter((user) => {
@@ -137,23 +138,22 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
       user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (user.phone || '').includes(searchQuery);
 
+    const isUnl = isDurationUnlimited(user.subscriptionEndDate);
     const remaining = calculateRemainingDays(user.subscriptionEndDate);
-    const isExpired = user.subscriptionStatus === 'expired' || remaining < 0;
+    const isExpired = !isUnl && (user.subscriptionStatus === 'expired' || remaining < 0);
 
     let matchStatus = true;
-    if (filterStatus === 'active') matchStatus = user.subscriptionStatus === 'active' && !isExpired;
+    if (filterStatus === 'active') matchStatus = (user.subscriptionStatus === 'active' || isUnl) && !isExpired;
+    else if (filterStatus === 'trial') matchStatus = user.subscriptionStatus === 'trial' && !isExpired;
+    else if (filterStatus === 'unlimited') matchStatus = isUnl;
     else if (filterStatus === 'expired') matchStatus = isExpired;
     else if (filterStatus === 'suspended') matchStatus = user.subscriptionStatus === 'suspended';
-    else if (filterStatus === 'trial') matchStatus = user.subscriptionStatus === 'trial';
 
-    let matchPlan = true;
-    if (filterPlan !== 'all') matchPlan = user.subscriptionPlan === filterPlan;
-
-    return matchSearch && matchStatus && matchPlan;
+    return matchSearch && matchStatus;
   });
 
-  // Handle Quick Extend
-  const handleExtendDays = async (userId: string, currentEndDate: string, daysToAdd: number) => {
+  // Handle Quick Extend or Set Trial / OFF
+  const handleExtendDays = async (userId: string, currentEndDate: string, daysToAdd: number, asTrial = false) => {
     const baseTime = new Date(currentEndDate).getTime() > Date.now()
       ? new Date(currentEndDate).getTime()
       : Date.now();
@@ -161,10 +161,19 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
 
     await onUpdateUser(userId, {
       subscriptionEndDate: newEnd,
-      subscriptionStatus: 'active',
+      subscriptionStatus: asTrial ? 'trial' : 'active',
     });
 
-    setSuccessMessage(`Berhasil memperpanjang langganan +${daysToAdd} hari.`);
+    setSuccessMessage(asTrial ? `Berhasil set masa trial +${daysToAdd} hari.` : `Berhasil memperpanjang durasi +${daysToAdd} hari.`);
+    setTimeout(() => setSuccessMessage(''), 3500);
+  };
+
+  const handleSetUnlimited = async (userId: string) => {
+    await onUpdateUser(userId, {
+      subscriptionEndDate: '2099-12-31',
+      subscriptionStatus: 'active',
+    });
+    setSuccessMessage('Durasi berhasil di-set ke OFF / Tanpa Batas (Unlimited).');
     setTimeout(() => setSuccessMessage(''), 3500);
   };
 
@@ -179,7 +188,6 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
     setEditPhone(client.phone || '');
     setEditEndDate(client.subscriptionEndDate);
     setEditStatus(client.subscriptionStatus);
-    setEditPlan(client.subscriptionPlan);
     setEditPin(client.boothAccessPin || '1234');
   };
 
@@ -194,11 +202,10 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
       phone: editPhone.trim(),
       subscriptionEndDate: editEndDate,
       subscriptionStatus: editStatus,
-      subscriptionPlan: editPlan,
       boothAccessPin: editPin.trim(),
     });
     setEditingUserId(null);
-    setSuccessMessage('Username, password, dan status langganan klien berhasil diperbarui!');
+    setSuccessMessage('Kredensial dan pengaturan durasi klien berhasil diperbarui!');
     setTimeout(() => setSuccessMessage(''), 3500);
   };
 
@@ -219,9 +226,30 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
 
     setIsSubmitting(true);
     try {
-      const durationDays = newPlan === 'lifetime' ? 36500 : newDurationMonths * 30;
       const startDate = new Date().toISOString().split('T')[0];
-      const endDate = new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      let endDate = '2099-12-31';
+      let status: SubscriptionStatus = 'active';
+      let noteDuration = '';
+
+      if (newDurationType === 'off') {
+        endDate = '2099-12-31';
+        status = 'active';
+        noteDuration = 'Durasi OFF (Tanpa Batas)';
+      } else if (newDurationType.startsWith('trial_')) {
+        const days = parseInt(newDurationType.replace('trial_', ''), 10) || 7;
+        endDate = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+        status = 'trial';
+        noteDuration = `Masa Trial ${days} Hari`;
+      } else if (newDurationType.startsWith('month_')) {
+        const months = parseInt(newDurationType.replace('month_', ''), 10) || 1;
+        endDate = new Date(Date.now() + months * 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+        status = 'active';
+        noteDuration = `Durasi ${months} Bulan`;
+      } else if (newDurationType === 'year_1') {
+        endDate = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+        status = 'active';
+        noteDuration = 'Durasi 1 Tahun';
+      }
 
       const cleanUsername = (newUsername.trim() || newEmail.split('@')[0]).toLowerCase().replace(/[^a-z0-9_.-]/g, '');
 
@@ -232,13 +260,13 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
         displayName: newOwnerName.trim() || newBusinessName.trim(),
         businessName: newBusinessName.trim(),
         role: 'client',
-        subscriptionStatus: 'active',
-        subscriptionPlan: newPlan,
+        subscriptionStatus: status,
+        subscriptionPlan: newDurationType === 'off' ? 'lifetime' : 'pro_booth',
         subscriptionStartDate: startDate,
         subscriptionEndDate: endDate,
         phone: newPhone.trim() || '08123456789',
         boothAccessPin: newPin.trim() || '1234',
-        notes: newNotes,
+        notes: newNotes ? `${noteDuration} • ${newNotes}` : noteDuration,
       });
 
       setNewUsername('');
@@ -306,20 +334,6 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {onOpenAuthModal && (
-              <button
-                type="button"
-                onClick={() => {
-                  onClose();
-                  onOpenAuthModal();
-                }}
-                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold border border-slate-700 transition-all cursor-pointer"
-                title="Ganti User atau login akun lain"
-              >
-                <Users className="w-3.5 h-3.5 text-cyan-400" />
-                <span>Ganti User</span>
-              </button>
-            )}
             {onLogout && (
               <button
                 type="button"
@@ -380,18 +394,6 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
             <Crown className="w-4 h-4" />
             <span>Akun Super Admin (Ganti Password)</span>
           </button>
-
-          <button
-            onClick={() => setActiveTab('plans')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${
-              activeTab === 'plans'
-                ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-extrabold'
-                : 'text-slate-400 hover:text-white hover:bg-slate-900'
-            }`}
-          >
-            <Zap className="w-4 h-4" />
-            <span>Paket Langganan</span>
-          </button>
         </div>
 
         {/* Success Alert */}
@@ -420,11 +422,20 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
 
                 <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col justify-between">
                   <div className="flex items-center justify-between text-slate-400 text-xs">
-                    <span>Langganan Aktif</span>
+                    <span>Aktif & Unlimited</span>
                     <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                   </div>
                   <p className="text-2xl font-black text-emerald-400 mt-1.5">{activeClients}</p>
                   <span className="text-[10px] text-emerald-500/80">Akses Penuh Booth</span>
+                </div>
+
+                <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col justify-between">
+                  <div className="flex items-center justify-between text-slate-400 text-xs">
+                    <span>Masa Trial</span>
+                    <Zap className="w-4 h-4 text-amber-400" />
+                  </div>
+                  <p className="text-2xl font-black text-amber-300 mt-1.5">{trialClients}</p>
+                  <span className="text-[10px] text-amber-500/80">Uji Coba Berjalan</span>
                 </div>
 
                 <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col justify-between">
@@ -434,17 +445,6 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                   </div>
                   <p className="text-2xl font-black text-rose-400 mt-1.5">{expiredClients}</p>
                   <span className="text-[10px] text-rose-500/80">Perlu Follow-up</span>
-                </div>
-
-                <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col justify-between">
-                  <div className="flex items-center justify-between text-slate-400 text-xs">
-                    <span>Estimasi MRR</span>
-                    <DollarSign className="w-4 h-4 text-amber-400" />
-                  </div>
-                  <p className="text-xl font-black text-amber-300 mt-1.5 truncate">
-                    Rp {(estimatedMonthlyRevenue / 1000).toLocaleString('id-ID')}k
-                  </p>
-                  <span className="text-[10px] text-amber-500/80">Omset Bulanan Aktif</span>
                 </div>
               </div>
 
@@ -461,7 +461,7 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                   />
                 </div>
 
-                <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto">
+                <div className="flex items-center gap-2 w-full sm:w-auto">
                   <select
                     value={filterStatus}
                     onChange={(e) => setFilterStatus(e.target.value)}
@@ -469,20 +469,10 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                   >
                     <option value="all">Semua Status</option>
                     <option value="active">🟢 Hanya Aktif</option>
+                    <option value="trial">🟡 Hanya Trial</option>
+                    <option value="unlimited">♾️ Hanya Unlimited (OFF)</option>
                     <option value="expired">🔴 Hanya Expired</option>
                     <option value="suspended">⚫ Suspended</option>
-                  </select>
-
-                  <select
-                    value={filterPlan}
-                    onChange={(e) => setFilterPlan(e.target.value)}
-                    className="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-300 text-xs focus:outline-none"
-                  >
-                    <option value="all">Semua Paket</option>
-                    <option value="starter">Starter Kiosk</option>
-                    <option value="pro_booth">Pro Vendor</option>
-                    <option value="enterprise_vip">Enterprise VIP</option>
-                    <option value="lifetime">Lifetime</option>
                   </select>
                 </div>
               </div>
@@ -495,9 +485,10 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                   </div>
                 ) : (
                   filteredUsers.map((client) => {
+                    const isUnl = isDurationUnlimited(client.subscriptionEndDate);
                     const remainingDays = calculateRemainingDays(client.subscriptionEndDate);
-                    const isExpired = client.subscriptionStatus === 'expired' || remainingDays < 0;
-                    const planInfo = SUBSCRIPTION_PLANS[client.subscriptionPlan] || SUBSCRIPTION_PLANS.pro_booth;
+                    const isExpired = !isUnl && (client.subscriptionStatus === 'expired' || remainingDays < 0);
+                    const isTrial = client.subscriptionStatus === 'trial' && !isExpired;
                     const isEditing = editingUserId === client.id;
                     const showPassword = !!showPasswordMap[client.id];
 
@@ -507,6 +498,8 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                         className={`p-4 rounded-2xl border transition-all ${
                           isExpired
                             ? 'border-rose-900/50 bg-rose-950/10'
+                            : isTrial
+                            ? 'border-amber-900/50 bg-amber-950/10'
                             : 'border-slate-800 bg-slate-950/80 hover:border-slate-700'
                         }`}
                       >
@@ -517,10 +510,14 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                               className={`p-3 rounded-2xl border shrink-0 ${
                                 isExpired
                                   ? 'bg-rose-500/20 border-rose-500/30 text-rose-400'
+                                  : isTrial
+                                  ? 'bg-amber-500/20 border-amber-500/30 text-amber-400'
+                                  : isUnl
+                                  ? 'bg-cyan-500/20 border-cyan-500/30 text-cyan-300'
                                   : 'bg-gradient-to-br from-rose-500/20 to-amber-500/20 border-rose-500/30 text-amber-300'
                               }`}
                             >
-                              <Building2 className="w-5 h-5" />
+                              {isUnl ? <InfinityIcon className="w-5 h-5" /> : <Building2 className="w-5 h-5" />}
                             </div>
                             <div>
                               <div className="flex flex-wrap items-center gap-2">
@@ -534,13 +531,20 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                                   className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border ${
                                     isExpired
                                       ? 'bg-rose-500/20 text-rose-400 border-rose-500/30'
+                                      : isTrial
+                                      ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+                                      : isUnl
+                                      ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30'
                                       : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
                                   }`}
                                 >
-                                  {isExpired ? '🔴 Expired' : `🟢 Aktif (${remainingDays} Hari Lagi)`}
-                                </span>
-                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                                  {planInfo.name}
+                                  {isExpired
+                                    ? '🔴 Expired'
+                                    : isTrial
+                                    ? `🟡 Trial (${remainingDays} Hari Lagi)`
+                                    : isUnl
+                                    ? '♾️ Tanpa Batas (OFF)'
+                                    : `🟢 Aktif (${remainingDays} Hari Lagi)`}
                                 </span>
                               </div>
 
@@ -582,7 +586,7 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                                 </span>
                                 <span className="flex items-center gap-1 text-slate-500">
                                   <Calendar className="w-3.5 h-3.5" />
-                                  s/d: <strong className="text-slate-300 ml-1">{client.subscriptionEndDate}</strong>
+                                  s/d: <strong className="text-slate-300 ml-1">{isUnl ? 'Selamanya (OFF)' : client.subscriptionEndDate}</strong>
                                 </span>
                               </div>
                             </div>
@@ -590,29 +594,32 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
 
                           {/* Action Toolbar */}
                           <div className="flex flex-wrap items-center gap-2 pt-2 lg:pt-0 border-t lg:border-t-0 border-slate-800/80">
-                            {/* Quick Extend */}
+                            {/* Quick Extend / Trial / OFF */}
                             <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800">
-                              <span className="text-[10px] font-bold text-slate-400 px-1.5">Perpanjang:</span>
+                              <span className="text-[10px] font-bold text-slate-400 px-1.5">Aksi Cepat:</span>
                               <button
                                 type="button"
-                                onClick={() => handleExtendDays(client.id, client.subscriptionEndDate, 30)}
+                                onClick={() => handleExtendDays(client.id, client.subscriptionEndDate, 7, true)}
+                                className="px-2 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500 hover:text-slate-950 text-amber-300 text-[10px] font-bold transition-colors"
+                                title="Set/Perpanjang Trial 7 Hari"
+                              >
+                                +7 H Trial
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleExtendDays(client.id, client.subscriptionEndDate, 30, false)}
                                 className="px-2 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500 hover:text-slate-950 text-emerald-300 text-[10px] font-bold transition-colors"
+                                title="Perpanjang 30 Hari"
                               >
                                 +30 H
                               </button>
                               <button
                                 type="button"
-                                onClick={() => handleExtendDays(client.id, client.subscriptionEndDate, 90)}
-                                className="px-2 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500 hover:text-slate-950 text-amber-300 text-[10px] font-bold transition-colors"
-                              >
-                                +90 H
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleExtendDays(client.id, client.subscriptionEndDate, 365)}
+                                onClick={() => handleSetUnlimited(client.id)}
                                 className="px-2 py-1 rounded-lg bg-cyan-500/20 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 text-[10px] font-bold transition-colors"
+                                title="Set Durasi ke OFF (Tanpa Batas)"
                               >
-                                +1 Thn
+                                Set OFF
                               </button>
                             </div>
 
@@ -641,10 +648,10 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                                 }
                               }}
                               className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 text-xs font-bold flex items-center gap-1 transition-colors"
-                              title="Ganti Username, Password, & Detail Klien"
+                              title="Ganti Username, Password, & Durasi Klien"
                             >
                               <Edit className="w-3.5 h-3.5" />
-                              <span>Edit & Password</span>
+                              <span>Edit & Durasi</span>
                             </button>
 
                             {/* Delete button */}
@@ -668,7 +675,7 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                           <div className="mt-4 pt-4 border-t border-slate-800 bg-slate-900/90 p-4 sm:p-5 rounded-2xl space-y-4 animate-in fade-in">
                             <h4 className="text-xs font-black uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
                               <ShieldCheck className="w-4 h-4" />
-                              Edit Kredensial & Langganan: {client.businessName || client.displayName}
+                              Edit Kredensial & Pengaturan Durasi: {client.businessName || client.displayName}
                             </h4>
 
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -725,53 +732,73 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                               </div>
                             </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                               <div>
-                                <label className="block text-[11px] font-bold text-slate-400 mb-1">Status Langganan:</label>
+                                <label className="block text-[11px] font-bold text-slate-400 mb-1">Status Lisensi:</label>
                                 <select
                                   value={editStatus}
                                   onChange={(e) => setEditStatus(e.target.value as SubscriptionStatus)}
                                   className="w-full px-2.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white"
                                 >
-                                  <option value="active">🟢 Aktif</option>
+                                  <option value="active">🟢 Aktif (Reguler/OFF)</option>
+                                  <option value="trial">🟡 Trial (Masa Uji Coba)</option>
                                   <option value="expired">🔴 Expired</option>
-                                  <option value="trial">🟡 Trial</option>
                                   <option value="suspended">⚫ Suspended</option>
                                 </select>
                               </div>
 
-                              <div>
-                                <label className="block text-[11px] font-bold text-slate-400 mb-1">Paket:</label>
-                                <select
-                                  value={editPlan}
-                                  onChange={(e) => setEditPlan(e.target.value as SubscriptionPlanId)}
-                                  className="w-full px-2.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white"
-                                >
-                                  <option value="starter">Starter Kiosk</option>
-                                  <option value="pro_booth">Pro Vendor Booth</option>
-                                  <option value="enterprise_vip">Enterprise VIP</option>
-                                  <option value="lifetime">Lifetime</option>
-                                </select>
-                              </div>
-
-                              <div>
-                                <label className="block text-[11px] font-bold text-slate-400 mb-1">Tanggal Berakhir:</label>
+                              <div className="sm:col-span-2">
+                                <div className="flex items-center justify-between mb-1">
+                                  <label className="text-[11px] font-bold text-slate-400">Tanggal Berakhir / Masa Aktif:</label>
+                                  <div className="flex items-center gap-1.5 text-[10px]">
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        const d = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+                                        setEditEndDate(d);
+                                        setEditStatus('trial');
+                                      }}
+                                      className="text-amber-400 hover:underline"
+                                    >
+                                      +7 H Trial
+                                    </button>
+                                    <span className="text-slate-600">•</span>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        const d = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+                                        setEditEndDate(d);
+                                        setEditStatus('active');
+                                      }}
+                                      className="text-emerald-400 hover:underline"
+                                    >
+                                      +30 Hari
+                                    </button>
+                                    <span className="text-slate-600">•</span>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setEditEndDate('2099-12-31');
+                                        setEditStatus('active');
+                                      }}
+                                      className="text-cyan-400 hover:underline font-bold"
+                                    >
+                                      Set OFF (Tanpa Batas)
+                                    </button>
+                                  </div>
+                                </div>
                                 <input
                                   type="date"
                                   value={editEndDate}
                                   onChange={(e) => setEditEndDate(e.target.value)}
                                   className="w-full px-2.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white"
                                 />
-                              </div>
-
-                              <div>
-                                <label className="block text-[11px] font-bold text-slate-400 mb-1">Email Resmi:</label>
-                                <input
-                                  type="email"
-                                  value={editEmail}
-                                  onChange={(e) => setEditEmail(e.target.value)}
-                                  className="w-full px-2.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white"
-                                />
+                                {isDurationUnlimited(editEndDate) && (
+                                  <p className="text-[10px] text-cyan-400 mt-1 flex items-center gap-1">
+                                    <InfinityIcon className="w-3 h-3" />
+                                    Mode Durasi: OFF (Tanpa Batas Masa Berlaku / Selamanya Aktif)
+                                  </p>
+                                )}
                               </div>
                             </div>
 
@@ -789,7 +816,7 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                                 className="px-5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black text-xs hover:brightness-110 flex items-center gap-1.5 shadow"
                               >
                                 <Save className="w-3.5 h-3.5" />
-                                <span>Simpan Kredensial & Langganan</span>
+                                <span>Simpan Kredensial & Durasi</span>
                               </button>
                             </div>
                           </div>
@@ -906,40 +933,38 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-300">Paket Langganan</label>
-                    <select
-                      value={newPlan}
-                      onChange={(e) => setNewPlan(e.target.value as SubscriptionPlanId)}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs"
-                    >
-                      <option value="starter">Starter Kiosk (Rp 149k/bln)</option>
-                      <option value="pro_booth">Pro Vendor Booth (Rp 299k/bln)</option>
-                      <option value="enterprise_vip">Enterprise VIP (Rp 599k/bln)</option>
-                      <option value="lifetime">Lifetime License (Rp 2.499k)</option>
-                    </select>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-300">Durasi Awal</label>
-                    <select
-                      value={newDurationMonths}
-                      onChange={(e) => setNewDurationMonths(parseInt(e.target.value, 10))}
-                      disabled={newPlan === 'lifetime'}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs"
-                    >
-                      <option value={1}>1 Bulan (30 Hari)</option>
-                      <option value={3}>3 Bulan (90 Hari)</option>
-                      <option value={6}>6 Bulan (180 Hari)</option>
-                      <option value={12}>1 Tahun (365 Hari)</option>
-                    </select>
-                  </div>
+                {/* Pilihan Durasi / Trial / OFF */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-300 flex items-center justify-between">
+                    <span>Pilihan Masa Aktif / Trial / OFF</span>
+                    <span className="text-[11px] text-amber-400 font-normal">Fleksibel & Otomatis</span>
+                  </label>
+                  <select
+                    value={newDurationType}
+                    onChange={(e) => setNewDurationType(e.target.value as any)}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs focus:border-amber-500 outline-none"
+                  >
+                    <optgroup label="🟡 Pilihan Masa Trial (Uji Coba)">
+                      <option value="trial_3">Trial 3 Hari (Uji Coba Singkat)</option>
+                      <option value="trial_7">Trial 7 Hari (Uji Coba Rekomendasi)</option>
+                      <option value="trial_14">Trial 14 Hari (Uji Coba 2 Minggu)</option>
+                      <option value="trial_30">Trial 30 Hari (Uji Coba 1 Bulan)</option>
+                    </optgroup>
+                    <optgroup label="🟢 Pilihan Durasi Reguler">
+                      <option value="month_1">1 Bulan (30 Hari)</option>
+                      <option value="month_3">3 Bulan (90 Hari)</option>
+                      <option value="month_6">6 Bulan (180 Hari)</option>
+                      <option value="year_1">1 Tahun (365 Hari)</option>
+                    </optgroup>
+                    <optgroup label="♾️ Tanpa Batas / Durasi OFF">
+                      <option value="off">OFF / Tanpa Batas (Unlimited / Selamanya Aktif)</option>
+                    </optgroup>
+                  </select>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-300">PIN Akses Booth (4 Digit)</label>
+                    <label className="text-xs font-bold text-slate-300">PIN Akses Booth (4-6 Digit)</label>
                     <input
                       type="text"
                       value={newPin}
@@ -956,7 +981,7 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                       type="text"
                       value={newNotes}
                       onChange={(e) => setNewNotes(e.target.value)}
-                      placeholder="Contoh: DP lunas via transfer BCA"
+                      placeholder="Contoh: Klien paket wedding Bali"
                       className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs"
                     />
                   </div>
@@ -1096,46 +1121,6 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                 </button>
               </div>
             </form>
-          )}
-
-          {/* TAB 4: SUBSCRIPTION PLANS MASTER */}
-          {activeTab === 'plans' && (
-            <div className="space-y-4 animate-in fade-in duration-150">
-              <p className="text-xs text-slate-400">
-                Daftar paket fitur dan ketentuan yang didapatkan klien berlangganan website photobooth:
-              </p>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {(Object.keys(SUBSCRIPTION_PLANS) as SubscriptionPlanId[]).map((pKey) => {
-                  const p = SUBSCRIPTION_PLANS[pKey];
-                  return (
-                    <div key={pKey} className="p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-black uppercase tracking-wider text-amber-400">
-                          {p.badge}
-                        </span>
-                        <span className="text-base font-black text-white">
-                          Rp {p.pricePerMonth.toLocaleString('id-ID')}
-                          <span className="text-xs text-slate-400 font-normal"> / {pKey === 'lifetime' ? 'selamanya' : 'bln'}</span>
-                        </span>
-                      </div>
-
-                      <h3 className="text-lg font-bold text-white">{p.name}</h3>
-                      <p className="text-xs text-slate-400">{p.description}</p>
-
-                      <div className="pt-2 border-t border-slate-800 space-y-1.5">
-                        {p.features.map((feat, idx) => (
-                          <div key={idx} className="flex items-center gap-2 text-xs text-slate-300">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                            <span>{feat}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
           )}
         </div>
       </div>

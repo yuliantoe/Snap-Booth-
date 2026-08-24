@@ -18,7 +18,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { EventTheme, UserAccount } from '../types';
-import { calculateRemainingDays, SUBSCRIPTION_PLANS } from '../services/subscriptionService';
+import { calculateRemainingDays, SUBSCRIPTION_PLANS, isDurationUnlimited } from '../services/subscriptionService';
 
 interface HeaderProps {
   currentTheme: EventTheme;
@@ -46,8 +46,10 @@ export const Header: React.FC<HeaderProps> = ({
 
   const isLandscape = currentTheme.tabletOrientation === 'landscape';
   const isSuperAdmin = currentUser?.role === 'super_admin';
+  const isUnl = currentUser ? isDurationUnlimited(currentUser.subscriptionEndDate) : false;
   const remainingDays = currentUser ? calculateRemainingDays(currentUser.subscriptionEndDate) : 0;
-  const isExpired = currentUser?.subscriptionStatus === 'expired' || remainingDays < 0;
+  const isExpired = !isUnl && (currentUser?.subscriptionStatus === 'expired' || remainingDays < 0);
+  const isTrial = currentUser?.subscriptionStatus === 'trial' && !isExpired;
   const currentPlan = currentUser?.subscriptionPlan ? SUBSCRIPTION_PLANS[currentUser.subscriptionPlan] : null;
 
   // Close dropdown on click outside
@@ -105,9 +107,13 @@ export const Header: React.FC<HeaderProps> = ({
                     ? 'bg-amber-500/10 border-amber-500/40 text-amber-300 hover:bg-amber-500/20'
                     : isExpired
                     ? 'bg-rose-500/20 border-rose-500/40 text-rose-300 hover:bg-rose-500/30 ring-1 ring-rose-500/40'
+                    : isTrial
+                    ? 'bg-amber-500/10 border-amber-500/30 text-amber-300 hover:bg-amber-500/20'
+                    : isUnl
+                    ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20'
                     : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/20'
                 }`}
-                title="Menu Akun, Ganti User, dan Logout"
+                title="Menu Akun dan Logout"
               >
                 {isSuperAdmin ? (
                   <Crown className="w-3.5 h-3.5 text-amber-400 shrink-0" />
@@ -125,6 +131,10 @@ export const Header: React.FC<HeaderProps> = ({
                       ? 'Super Admin'
                       : isExpired
                       ? 'Expired'
+                      : isTrial
+                      ? `Trial (${remainingDays}h)`
+                      : isUnl
+                      ? 'Unlimited (OFF)'
                       : `Aktif (${remainingDays}h)`}
                   </span>
                 </div>
@@ -143,6 +153,10 @@ export const Header: React.FC<HeaderProps> = ({
                             ? 'bg-amber-500/20 border-amber-500/40 text-amber-300'
                             : isExpired
                             ? 'bg-rose-500/20 border-rose-500/40 text-rose-300'
+                            : isTrial
+                            ? 'bg-amber-500/20 border-amber-500/40 text-amber-300'
+                            : isUnl
+                            ? 'bg-cyan-500/20 border-cyan-500/40 text-cyan-300'
                             : 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300'
                         }`}
                       >
@@ -162,6 +176,10 @@ export const Header: React.FC<HeaderProps> = ({
                                 ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
                                 : isExpired
                                 ? 'bg-rose-500/20 text-rose-300 border-rose-500/30'
+                                : isTrial
+                                ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+                                : isUnl
+                                ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30'
                                 : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
                             }`}
                           >
@@ -169,6 +187,10 @@ export const Header: React.FC<HeaderProps> = ({
                               ? '👑 Super Admin'
                               : isExpired
                               ? '🔴 Langganan Berakhir'
+                              : isTrial
+                              ? `🟡 Masa Trial (${remainingDays} Hari)`
+                              : isUnl
+                              ? '♾️ Tanpa Batas (OFF)'
                               : `🟢 ${currentPlan?.name || 'Pro'} (${remainingDays} Hari)`}
                           </span>
                         </div>
@@ -178,24 +200,6 @@ export const Header: React.FC<HeaderProps> = ({
 
                   {/* Menu Items */}
                   <div className="p-1.5 space-y-1">
-                    {/* Switch User / Ganti User */}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsUserMenuOpen(false);
-                        onOpenAuthModal();
-                      }}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-200 hover:text-white hover:bg-slate-800 transition-colors text-left"
-                    >
-                      <div className="p-1.5 rounded-lg bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-                        <Users className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <div className="font-bold text-white">Ganti User / Switch Akun</div>
-                        <div className="text-[10px] text-slate-400">Pilih akun lain atau login kredensial baru</div>
-                      </div>
-                    </button>
-
                     {/* Open Super Admin if role is super_admin */}
                     {isSuperAdmin && (
                       <button
@@ -263,7 +267,7 @@ export const Header: React.FC<HeaderProps> = ({
               className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-rose-500 to-amber-500 hover:brightness-110 text-slate-950 text-xs font-extrabold shadow-md shadow-rose-500/20 transition-all cursor-pointer"
             >
               <LogIn className="w-3.5 h-3.5" />
-              <span>Login / Ganti User</span>
+              <span>Login</span>
             </button>
           )}
 
@@ -278,16 +282,6 @@ export const Header: React.FC<HeaderProps> = ({
               <span className="hidden sm:inline">Kelola Customer</span>
             </button>
           )}
-
-          {/* Quick Ganti User Button for rapid access */}
-          <button
-            onClick={onOpenAuthModal}
-            className="hidden sm:flex items-center gap-1 px-2.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold transition-all border border-slate-700"
-            title="Ganti User / Beralih Akun"
-          >
-            <Users className="w-3.5 h-3.5 text-cyan-400" />
-            <span>Ganti User</span>
-          </button>
 
           {/* Main Control Panel Setting Button */}
           <button

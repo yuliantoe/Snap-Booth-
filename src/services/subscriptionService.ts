@@ -159,9 +159,16 @@ export const DEFAULT_USERS: UserAccount[] = [
   },
 ];
 
+// Helper: Check if duration is OFF / Unlimited
+export const isDurationUnlimited = (endDateStr?: string): boolean => {
+  if (!endDateStr) return true;
+  return endDateStr === '2099-12-31' || endDateStr === 'unlimited' || endDateStr.startsWith('2099-');
+};
+
 // Helper: Calculate remaining days
 export const calculateRemainingDays = (endDateStr: string): number => {
-  if (!endDateStr) return 0;
+  if (!endDateStr) return 99999;
+  if (isDurationUnlimited(endDateStr)) return 99999;
   const target = new Date(endDateStr).getTime();
   const now = new Date().getTime();
   const diffTime = target - now;
