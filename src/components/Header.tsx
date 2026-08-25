@@ -17,9 +17,11 @@ import {
   KeyRound,
   ExternalLink,
   Sparkles,
+  Zap,
 } from 'lucide-react';
 import { EventTheme, UserAccount } from '../types';
 import { calculateRemainingDays, SUBSCRIPTION_PLANS, isDurationUnlimited } from '../services/subscriptionService';
+import { useScreenOrientation } from '../utils/useScreenOrientation';
 
 interface HeaderProps {
   currentTheme: EventTheme;
@@ -30,6 +32,7 @@ interface HeaderProps {
   onLogout: () => void;
   onResetSession: () => void;
   galleryCount: number;
+  onToggleOrientation?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -41,11 +44,12 @@ export const Header: React.FC<HeaderProps> = ({
   onLogout,
   onResetSession,
   galleryCount,
+  onToggleOrientation,
 }) => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement | null>(null);
 
-  const isLandscape = currentTheme.tabletOrientation === 'landscape';
+  const orientationState = useScreenOrientation(currentTheme.tabletOrientation || 'auto');
   const isSuperAdmin = currentUser?.role === 'super_admin';
   const isUnl = currentUser ? isDurationUnlimited(currentUser.subscriptionEndDate) : false;
   const remainingDays = currentUser ? calculateRemainingDays(currentUser.subscriptionEndDate) : 0;
@@ -66,28 +70,44 @@ export const Header: React.FC<HeaderProps> = ({
   }, []);
 
   return (
-    <header className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 text-white px-3 sm:px-4 py-2.5 shadow-lg">
-      <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
+    <header className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 text-white px-2.5 sm:px-4 py-2 sm:py-2.5 shadow-lg">
+      <div className="max-w-7xl mx-auto flex items-center justify-between gap-1.5 sm:gap-4">
         {/* Logo & Brand */}
-        <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-pink-500 via-rose-500 to-amber-400 flex items-center justify-center shadow-md shadow-rose-500/20 shrink-0">
-            <Camera className="w-5 h-5 text-white" />
+        <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-pink-500 via-rose-500 to-amber-400 flex items-center justify-center shadow-md shadow-rose-500/20 shrink-0">
+            <Camera className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
           </div>
-          <div>
+          <div className="min-w-0">
             <div className="flex items-center gap-1.5 sm:gap-2">
-              <h1 className="text-base sm:text-lg font-black tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent">
+              <h1 className="text-sm sm:text-lg font-black tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent truncate">
                 snapBoth<span className="text-rose-400"> Receipt</span>
               </h1>
-              <span
-                onClick={onOpenControlPanel}
-                className="hidden lg:inline-flex items-center gap-1 px-2 py-0.5 text-[9px] font-bold tracking-wide uppercase bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 rounded-full cursor-pointer hover:bg-cyan-500/30 transition-all"
-                title="Orientasi Layar Tablet"
+              {/* Orientation Mode Pill Badge */}
+              <button
+                type="button"
+                onClick={onToggleOrientation || onOpenControlPanel}
+                className="inline-flex items-center gap-1 px-2 py-0.5 text-[9px] sm:text-[10px] font-bold tracking-wide uppercase bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 hover:border-cyan-400 rounded-full cursor-pointer hover:bg-cyan-500/30 transition-all shrink-0 select-none active:scale-95"
+                title="Klik untuk ubah orientasi layar: Otomatis / Portrait / Landscape"
               >
-                {isLandscape ? <Tablet className="w-3 h-3 rotate-90" /> : <Smartphone className="w-3 h-3" />}
-                <span>{isLandscape ? 'Landscape' : 'Portrait'}</span>
-              </span>
+                {currentTheme.tabletOrientation === 'landscape' ? (
+                  <>
+                    <Tablet className="w-3 h-3 rotate-90 text-cyan-400" />
+                    <span className="hidden xs:inline">Landscape</span>
+                  </>
+                ) : currentTheme.tabletOrientation === 'portrait' ? (
+                  <>
+                    <Smartphone className="w-3 h-3 text-cyan-400" />
+                    <span className="hidden xs:inline">Portrait</span>
+                  </>
+                ) : (
+                  <>
+                    <Zap className="w-3 h-3 text-amber-400" />
+                    <span>Auto ({orientationState.isLandscape ? 'L' : 'P'})</span>
+                  </>
+                )}
+              </button>
             </div>
-            <p className="text-[11px] text-slate-400 truncate max-w-[150px] sm:max-w-xs">
+            <p className="text-[10px] sm:text-[11px] text-slate-400 truncate max-w-[120px] sm:max-w-xs">
               {currentUser?.businessName || currentTheme.eventTitle || 'snapBoth Receipt Event'}
             </p>
           </div>

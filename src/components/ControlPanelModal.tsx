@@ -1888,80 +1888,118 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                 </div>
               </div>
 
-              {/* Menu Orientasi Layar Tablet / Kiosk */}
+              {/* Menu Orientasi Layar Tablet / Handphone / Kiosk */}
               <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                    <Tablet className="w-4 h-4 text-cyan-400" /> Pengaturan Orientasi Layar Tablet / Kiosk
+                    <Tablet className="w-4 h-4 text-cyan-400" /> Pengaturan Orientasi Layar Tablet & Handphone
                   </h3>
                   <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 uppercase tracking-wider">
-                    {themeForm.tabletOrientation === 'landscape' ? '💻 Landscape (Miring)' : '📱 Portrait (Tegak)'}
+                    {themeForm.tabletOrientation === 'landscape'
+                      ? '💻 Landscape (Miring)'
+                      : themeForm.tabletOrientation === 'portrait'
+                      ? '📱 Portrait (Tegak)'
+                      : '⚡ Otomatis Layar (Auto-Detect)'}
                   </span>
                 </div>
 
                 <p className="text-xs text-slate-400 leading-relaxed">
-                  Pilih orientasi layar device tablet (iPad / Android Tablet) atau monitor kiosk yang Anda gunakan saat menjalankan Photobooth.
+                  Pilih bagaimana tampilan photobooth menyesuaikan layar device tablet (iPad / Android Tab), smartphone (HP), atau monitor kiosk yang Anda gunakan.
                 </p>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                  {/* Option 1: Auto-Detect */}
                   <button
                     type="button"
-                    onClick={() => setThemeForm({ ...themeForm, tabletOrientation: 'portrait' })}
-                    className={`p-4 rounded-2xl border text-left transition-all relative overflow-hidden flex items-start gap-3.5 ${
-                      (themeForm.tabletOrientation || 'portrait') === 'portrait'
+                    onClick={() => setThemeForm({ ...themeForm, tabletOrientation: 'auto' })}
+                    className={`p-4 rounded-2xl border text-left transition-all relative overflow-hidden flex flex-col gap-3 ${
+                      (themeForm.tabletOrientation || 'auto') === 'auto'
                         ? 'border-cyan-500 bg-cyan-500/10 text-white shadow-lg shadow-cyan-500/10 ring-1 ring-cyan-500/30'
                         : 'border-slate-800 bg-slate-900 text-slate-400 hover:border-slate-700'
                     }`}
                   >
-                    <div className={`p-3 rounded-xl border ${
-                      (themeForm.tabletOrientation || 'portrait') === 'portrait'
-                        ? 'bg-cyan-500 text-slate-950 border-cyan-400 font-bold'
-                        : 'bg-slate-800 text-slate-300 border-slate-700'
-                    }`}>
-                      <Smartphone className="w-6 h-6" />
-                    </div>
-                    <div className="flex-1 space-y-1">
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-sm text-white">Tablet Portrait (Tegak)</span>
-                        {(themeForm.tabletOrientation || 'portrait') === 'portrait' && (
-                          <span className="p-1 rounded-full bg-cyan-500 text-slate-950">
-                            <Check className="w-3 h-3" />
-                          </span>
-                        )}
+                    <div className="flex items-center justify-between w-full">
+                      <div className={`p-2.5 rounded-xl border ${
+                        (themeForm.tabletOrientation || 'auto') === 'auto'
+                          ? 'bg-cyan-500 text-slate-950 border-cyan-400 font-bold'
+                          : 'bg-slate-800 text-slate-300 border-slate-700'
+                      }`}>
+                        <Zap className="w-5 h-5" />
                       </div>
+                      {(themeForm.tabletOrientation || 'auto') === 'auto' && (
+                        <span className="p-1 rounded-full bg-cyan-500 text-slate-950">
+                          <Check className="w-3 h-3" />
+                        </span>
+                      )}
+                    </div>
+                    <div className="space-y-1">
+                      <span className="font-bold text-sm text-white block">⚡ Otomatis (Auto)</span>
                       <p className="text-xs text-slate-400 leading-relaxed">
-                        Layout Vertikal (Ratio 3:4 / 9:16). Sangat pas untuk standing kiosk tablet & penggunaan HP/Tablet tegak.
+                        Tampilan otomatis mengikuti orientasi layar HP/Tablet (otomatis saat diputar tegak atau miring).
                       </p>
                     </div>
                   </button>
 
+                  {/* Option 2: Portrait */}
+                  <button
+                    type="button"
+                    onClick={() => setThemeForm({ ...themeForm, tabletOrientation: 'portrait' })}
+                    className={`p-4 rounded-2xl border text-left transition-all relative overflow-hidden flex flex-col gap-3 ${
+                      themeForm.tabletOrientation === 'portrait'
+                        ? 'border-cyan-500 bg-cyan-500/10 text-white shadow-lg shadow-cyan-500/10 ring-1 ring-cyan-500/30'
+                        : 'border-slate-800 bg-slate-900 text-slate-400 hover:border-slate-700'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <div className={`p-2.5 rounded-xl border ${
+                        themeForm.tabletOrientation === 'portrait'
+                          ? 'bg-cyan-500 text-slate-950 border-cyan-400 font-bold'
+                          : 'bg-slate-800 text-slate-300 border-slate-700'
+                      }`}>
+                        <Smartphone className="w-5 h-5" />
+                      </div>
+                      {themeForm.tabletOrientation === 'portrait' && (
+                        <span className="p-1 rounded-full bg-cyan-500 text-slate-950">
+                          <Check className="w-3 h-3" />
+                        </span>
+                      )}
+                    </div>
+                    <div className="space-y-1">
+                      <span className="font-bold text-sm text-white block">📱 Portrait (Tegak)</span>
+                      <p className="text-xs text-slate-400 leading-relaxed">
+                        Kunci vertikal. Sangat pas untuk standing kiosk tablet & penggunaan HP/Tablet posisi tegak.
+                      </p>
+                    </div>
+                  </button>
+
+                  {/* Option 3: Landscape */}
                   <button
                     type="button"
                     onClick={() => setThemeForm({ ...themeForm, tabletOrientation: 'landscape' })}
-                    className={`p-4 rounded-2xl border text-left transition-all relative overflow-hidden flex items-start gap-3.5 ${
+                    className={`p-4 rounded-2xl border text-left transition-all relative overflow-hidden flex flex-col gap-3 ${
                       themeForm.tabletOrientation === 'landscape'
                         ? 'border-cyan-500 bg-cyan-500/10 text-white shadow-lg shadow-cyan-500/10 ring-1 ring-cyan-500/30'
                         : 'border-slate-800 bg-slate-900 text-slate-400 hover:border-slate-700'
                     }`}
                   >
-                    <div className={`p-3 rounded-xl border ${
-                      themeForm.tabletOrientation === 'landscape'
-                        ? 'bg-cyan-500 text-slate-950 border-cyan-400 font-bold'
-                        : 'bg-slate-800 text-slate-300 border-slate-700'
-                    }`}>
-                      <Tablet className="w-6 h-6 rotate-90" />
-                    </div>
-                    <div className="flex-1 space-y-1">
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-sm text-white">Tablet Landscape (Miring)</span>
-                        {themeForm.tabletOrientation === 'landscape' && (
-                          <span className="p-1 rounded-full bg-cyan-500 text-slate-950">
-                            <Check className="w-3 h-3" />
-                          </span>
-                        )}
+                    <div className="flex items-center justify-between w-full">
+                      <div className={`p-2.5 rounded-xl border ${
+                        themeForm.tabletOrientation === 'landscape'
+                          ? 'bg-cyan-500 text-slate-950 border-cyan-400 font-bold'
+                          : 'bg-slate-800 text-slate-300 border-slate-700'
+                      }`}>
+                        <Tablet className="w-5 h-5 rotate-90" />
                       </div>
+                      {themeForm.tabletOrientation === 'landscape' && (
+                        <span className="p-1 rounded-full bg-cyan-500 text-slate-950">
+                          <Check className="w-3 h-3" />
+                        </span>
+                      )}
+                    </div>
+                    <div className="space-y-1">
+                      <span className="font-bold text-sm text-white block">💻 Landscape (Miring)</span>
                       <p className="text-xs text-slate-400 leading-relaxed">
-                        Layout Horisontal (Ratio 4:3 / 16:9). Sangat pas untuk Tablet meja horizontal atau layar Monitor PC.
+                        Kunci horisontal. Sangat pas untuk tablet meja posisi miring atau layar monitor PC / Kiosk.
                       </p>
                     </div>
                   </button>

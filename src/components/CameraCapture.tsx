@@ -1,14 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, RefreshCw, FlipHorizontal, Upload, Trash2, ArrowRight, Play, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Camera, RefreshCw, FlipHorizontal, Upload, Trash2, ArrowRight, Play, CheckCircle2, AlertCircle, SwitchCamera, Sparkles } from 'lucide-react';
 import { PhotoSlot, LayoutType } from '../types';
 import { sounds } from '../utils/audio';
+import { useScreenOrientation } from '../utils/useScreenOrientation';
 
 interface CameraCaptureProps {
   layout: LayoutType;
   photos: PhotoSlot[];
   onPhotosChange: (updatedPhotos: PhotoSlot[]) => void;
   onContinueToLayout: () => void;
-  tabletOrientation?: 'portrait' | 'landscape';
+  tabletOrientation?: 'auto' | 'portrait' | 'landscape';
   autoPrintEnabled?: boolean;
 }
 
@@ -16,15 +17,19 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
   photos,
   onPhotosChange,
   onContinueToLayout,
-  tabletOrientation = 'portrait',
+  tabletOrientation = 'auto',
   autoPrintEnabled = false,
 }) => {
+  const orientationState = useScreenOrientation(tabletOrientation);
+  const isLandscape = orientationState.isLandscape;
+
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
   const [isMirrored, setIsMirrored] = useState<boolean>(true);
   const [countdownTimer, setCountdownTimer] = useState<number>(3); // 3, 5, 10
   const [activeCountdown, setActiveCountdown] = useState<number | null>(null);
@@ -113,7 +118,7 @@ const createDemoPosePhoto = (poseIndex: number): string => {
         const constraints: MediaStreamConstraints = {
           video: selectedDeviceId
             ? { deviceId: selectedDeviceId, width: { ideal: 1280 }, height: { ideal: 960 } }
-            : { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 960 } },
+            : { facingMode: facingMode, width: { ideal: 1280 }, height: { ideal: 960 } },
         };
         mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
       } catch (err1) {
@@ -122,7 +127,7 @@ const createDemoPosePhoto = (poseIndex: number): string => {
         // Tier 2: Flexible width/height
         try {
           mediaStream = await navigator.mediaDevices.getUserMedia({
-            video: { width: { ideal: 1280 }, height: { ideal: 960 } },
+            video: { facingMode: facingMode, width: { ideal: 1280 }, height: { ideal: 960 } },
           });
         } catch (err2) {
           console.warn('Camera level 2 constraint failed, trying basic video...', err2);
@@ -159,7 +164,7 @@ const createDemoPosePhoto = (poseIndex: number): string => {
         currentStream.getTracks().forEach((track) => track.stop());
       }
     };
-  }, [selectedDeviceId]);
+  }, [selectedDeviceId, facingMode]);
 
   const photosRef = useRef<PhotoSlot[]>(photos);
   useEffect(() => {
@@ -312,25 +317,25 @@ const createDemoPosePhoto = (poseIndex: number): string => {
   const isAllFilled = filledCount >= requiredCount;
 
   return (
-    <div className={`mx-auto p-3 sm:p-6 space-y-6 animate-in fade-in duration-300 ${
-      tabletOrientation === 'landscape' ? 'max-w-7xl' : 'max-w-5xl'
+    <div className={`mx-auto p-2.5 sm:p-4 md:p-6 space-y-4 sm:space-y-6 animate-in fade-in duration-300 w-full ${
+      isLandscape ? 'max-w-7xl' : 'max-w-3xl md:max-w-4xl'
     }`}>
-      <div className={`flex gap-6 ${
-        tabletOrientation === 'landscape' ? 'flex-row items-start' : 'flex-col md:flex-row'
+      <div className={`flex gap-4 sm:gap-6 ${
+        isLandscape ? 'flex-row items-start' : 'flex-col'
       }`}>
         {/* Left Column: Live Webcam Viewfinder */}
-        <div className="flex-1 space-y-4">
-          <div className="relative aspect-[4/3] rounded-2xl bg-slate-950 border border-slate-800 overflow-hidden shadow-2xl flex items-center justify-center">
+        <div className="flex-1 space-y-3 sm:space-y-4 min-w-0">
+          <div className="relative aspect-[4/3] rounded-2xl sm:rounded-3xl bg-slate-950 border border-slate-800 overflow-hidden shadow-2xl flex items-center justify-center">
             {/* Flash Overlay Effect */}
             {flashEffect && <div className="absolute inset-0 bg-white z-30 animate-ping opacity-90" />}
 
             {/* Countdown Overlay */}
             {activeCountdown !== null && (
               <div className="absolute inset-0 z-20 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center text-white">
-                <span className="text-8xl font-black tracking-tighter text-rose-400 animate-bounce">
+                <span className="text-7xl sm:text-8xl font-black tracking-tighter text-rose-400 animate-bounce">
                   {activeCountdown}
                 </span>
-                <span className="text-sm font-semibold tracking-wider text-slate-300 uppercase mt-2">
+                <span className="text-xs sm:text-sm font-semibold tracking-wider text-slate-300 uppercase mt-2">
                   Siap-siap Bergaya! 📸
                 </span>
               </div>
@@ -346,28 +351,28 @@ const createDemoPosePhoto = (poseIndex: number): string => {
                 className={`w-full h-full object-cover transition-transform ${isMirrored ? 'scale-x-[-1]' : ''}`}
               />
             ) : (
-              <div className="p-6 text-center space-y-4 max-w-md">
-                <AlertCircle className="w-10 h-10 text-amber-400 mx-auto animate-bounce" />
+              <div className="p-4 sm:p-6 text-center space-y-3 sm:space-y-4 max-w-md">
+                <AlertCircle className="w-8 h-8 sm:w-10 sm:h-10 text-amber-400 mx-auto animate-bounce" />
                 <div className="space-y-1">
-                  <p className="text-sm font-bold text-white">Kamera Fisik Tidak Aktif</p>
-                  <p className="text-xs text-slate-300 leading-relaxed">{cameraError}</p>
+                  <p className="text-xs sm:text-sm font-bold text-white">Kamera Fisik Tidak Aktif</p>
+                  <p className="text-[11px] sm:text-xs text-slate-300 leading-relaxed">{cameraError}</p>
                 </div>
-                <div className="flex flex-wrap items-center justify-center gap-2.5 pt-1">
+                <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
                   <button
                     onClick={handlePopulateDemoPhotos}
-                    className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-400 hover:to-pink-500 text-white font-bold text-xs shadow-md transition-all active:scale-95 flex items-center gap-1.5"
+                    className="px-3 py-2 rounded-xl bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-400 hover:to-pink-500 text-white font-bold text-xs shadow-md transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
                   >
                     <Camera className="w-3.5 h-3.5" /> Gunakan Foto Demo Studio
                   </button>
                   <button
                     onClick={() => fileInputRef.current?.click()}
-                    className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-slate-700 transition-all flex items-center gap-1.5"
+                    className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-slate-700 transition-all flex items-center gap-1.5 cursor-pointer"
                   >
                     <Upload className="w-3.5 h-3.5 text-rose-400" /> Unggah Foto
                   </button>
                   <button
                     onClick={() => setSelectedDeviceId((prev) => (prev ? '' : 'retry'))}
-                    className="px-3 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white font-medium text-xs transition-all flex items-center gap-1"
+                    className="px-3 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white font-medium text-xs transition-all flex items-center gap-1 cursor-pointer"
                   >
                     <RefreshCw className="w-3 h-3" /> Coba Lagi
                   </button>
@@ -376,96 +381,113 @@ const createDemoPosePhoto = (poseIndex: number): string => {
             )}
 
             {/* Top Toolbar Controls over video */}
-            <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10 pointer-events-auto">
-              <div className="flex items-center gap-2 bg-slate-900/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-slate-700/60 text-xs font-semibold text-slate-200">
+            <div className="absolute top-2.5 sm:top-3 left-2.5 sm:left-3 right-2.5 sm:right-3 flex items-center justify-between z-10 pointer-events-auto gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-2 bg-slate-900/85 backdrop-blur-md px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-slate-700/60 text-[11px] sm:text-xs font-semibold text-slate-200 shadow-md">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 <span>Foto #{activeSlotIndex + 1} dari {requiredCount}</span>
               </div>
 
-              <div className="flex items-center gap-2">
-                {/* Switch Device */}
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                {/* Switch Device dropdown */}
                 {devices.length > 1 && (
                   <select
                     value={selectedDeviceId}
                     onChange={(e) => setSelectedDeviceId(e.target.value)}
-                    className="bg-slate-900/80 backdrop-blur-md text-xs text-slate-200 border border-slate-700/60 rounded-full px-2.5 py-1 focus:outline-none"
+                    className="bg-slate-900/85 backdrop-blur-md text-[11px] sm:text-xs text-slate-200 border border-slate-700/60 rounded-full px-2 py-1 focus:outline-none max-w-[110px] sm:max-w-none truncate"
                   >
                     {devices.map((d, idx) => (
                       <option key={d.deviceId} value={d.deviceId}>
-                        Kamera {idx + 1}
+                        {d.label || `Kamera ${idx + 1}`}
                       </option>
                     ))}
                   </select>
                 )}
 
+                {/* Flip Camera Facing Mode (Front / Back camera toggle for tablet/mobile) */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFacingMode((prev) => (prev === 'user' ? 'environment' : 'user'));
+                    setIsMirrored((prev) => !prev);
+                  }}
+                  className="p-1.5 sm:p-2 rounded-full backdrop-blur-md bg-slate-900/85 text-slate-300 hover:text-white border border-slate-700/60 transition-all cursor-pointer shadow-md"
+                  title={facingMode === 'user' ? 'Ganti ke Kamera Belakang' : 'Ganti ke Kamera Depan (Selfie)'}
+                >
+                  <SwitchCamera className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
+                </button>
+
                 {/* Flip Camera Mirror */}
                 <button
+                  type="button"
                   onClick={() => setIsMirrored(!isMirrored)}
-                  className={`p-2 rounded-full backdrop-blur-md transition-all ${
-                    isMirrored ? 'bg-rose-500/80 text-white' : 'bg-slate-900/80 text-slate-300'
+                  className={`p-1.5 sm:p-2 rounded-full backdrop-blur-md transition-all border border-slate-700/60 shadow-md cursor-pointer ${
+                    isMirrored ? 'bg-rose-500/80 text-white' : 'bg-slate-900/85 text-slate-300'
                   }`}
                   title="Cermin Horizontal"
                 >
-                  <FlipHorizontal className="w-4 h-4" />
+                  <FlipHorizontal className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </button>
               </div>
             </div>
           </div>
 
           {/* Shutter & Timer Controls Toolbar */}
-          <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4">
+          <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-3 sm:p-4 flex flex-wrap items-center justify-between gap-3 shadow-lg">
             {/* Timer Options */}
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-medium text-slate-400">Timer:</span>
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <span className="text-xs font-semibold text-slate-400">Timer:</span>
               {[0, 3, 5, 10].map((sec) => (
                 <button
                   key={sec}
                   onClick={() => setCountdownTimer(sec)}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                  className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer select-none ${
                     countdownTimer === sec
-                      ? 'bg-rose-500 text-white shadow-sm'
+                      ? 'bg-rose-500 text-white shadow-sm ring-1 ring-rose-400'
                       : 'bg-slate-800 text-slate-400 hover:text-white'
                   }`}
                 >
-                  {sec === 0 ? 'Langsung' : `${sec}s`}
+                  {sec === 0 ? '0s' : `${sec}s`}
                 </button>
               ))}
             </div>
 
             {/* Shutter Trigger Buttons */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 flex-wrap sm:flex-nowrap">
               {/* Burst Mode Button */}
               <button
                 onClick={handleStartBurstMode}
                 disabled={isBurstMode || activeCountdown !== null}
-                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/40 text-xs font-semibold transition-all active:scale-95 disabled:opacity-50"
+                className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-purple-600/25 hover:bg-purple-600/40 text-purple-200 border border-purple-500/40 text-xs font-bold transition-all active:scale-95 disabled:opacity-50 cursor-pointer shadow-md"
               >
-                <Play className="w-3.5 h-3.5" /> Ambil 4 Foto Otomatis
+                <Play className="w-3.5 h-3.5 text-purple-400" />
+                <span className="hidden xs:inline">Ambil 4 Foto Auto</span>
+                <span className="xs:hidden">Auto 4x</span>
               </button>
 
               {/* Main Shutter Button */}
               <button
                 onClick={() => handleStartCapture(activeSlotIndex)}
                 disabled={isBurstMode || activeCountdown !== null}
-                className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-400 hover:to-pink-500 text-white font-bold text-sm shadow-lg shadow-rose-500/25 active:scale-95 transition-all disabled:opacity-50"
+                className="flex items-center gap-2 px-5 sm:px-6 py-2.5 rounded-xl bg-gradient-to-r from-rose-500 via-pink-600 to-amber-500 hover:brightness-110 text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-rose-500/25 active:scale-95 transition-all disabled:opacity-50 cursor-pointer"
               >
-                <Camera className="w-4 h-4" /> Ambil Foto #{activeSlotIndex + 1}
+                <Camera className="w-4 h-4" />
+                <span>Ambil Foto #{activeSlotIndex + 1}</span>
               </button>
             </div>
           </div>
         </div>
 
-        {/* Right Column: Photo Slots & Upload Option */}
-        <div className="w-full md:w-80 space-y-4 flex flex-col justify-between">
-          <div className="space-y-3">
+        {/* Right Column (or Bottom Column in Portrait): Photo Slots & Upload Option */}
+        <div className={`w-full ${isLandscape ? 'md:w-80' : 'w-full'} space-y-3 sm:space-y-4 flex flex-col justify-between`}>
+          <div className="space-y-2.5 sm:space-y-3">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+              <h3 className="text-xs sm:text-sm font-bold text-white flex items-center gap-2">
                 Foto Terkumpul ({filledCount}/{requiredCount})
               </h3>
 
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-1 text-xs text-rose-400 hover:text-rose-300 font-semibold"
+                className="flex items-center gap-1 text-xs text-rose-400 hover:text-rose-300 font-semibold cursor-pointer"
               >
                 <Upload className="w-3.5 h-3.5" /> Unggah Foto
               </button>
@@ -479,8 +501,8 @@ const createDemoPosePhoto = (poseIndex: number): string => {
               />
             </div>
 
-            {/* Photo Slots List */}
-            <div className="grid grid-cols-2 md:grid-cols-1 gap-3">
+            {/* Photo Slots List - responsive 4 cols on phone/portrait, 1 or 2 cols on landscape */}
+            <div className={`grid ${isLandscape ? 'grid-cols-2 md:grid-cols-1' : 'grid-cols-4'} gap-2 sm:gap-3`}>
               {Array.from({ length: requiredCount }).map((_, slotIdx) => {
                 const photo = photos[slotIdx];
                 const isActive = activeSlotIndex === slotIdx;
@@ -491,7 +513,7 @@ const createDemoPosePhoto = (poseIndex: number): string => {
                     onClick={() => setActiveSlotIndex(slotIdx)}
                     className={`relative group rounded-xl border overflow-hidden transition-all cursor-pointer aspect-[4/3] flex items-center justify-center bg-slate-950 ${
                       isActive
-                        ? 'border-rose-500 ring-2 ring-rose-500/30'
+                        ? 'border-rose-500 ring-2 ring-rose-500/40 shadow-md shadow-rose-500/20'
                         : photo
                         ? 'border-slate-800 hover:border-slate-700'
                         : 'border-dashed border-slate-800 hover:border-slate-700'
@@ -504,34 +526,34 @@ const createDemoPosePhoto = (poseIndex: number): string => {
                           alt={`Slot ${slotIdx + 1}`}
                           className="w-full h-full object-cover"
                         />
-                        <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                        <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
                               handleStartCapture(slotIdx);
                             }}
-                            className="p-2 rounded-lg bg-slate-800 text-white hover:bg-slate-700 text-xs font-semibold"
+                            className="p-1.5 rounded-lg bg-slate-800 text-white hover:bg-slate-700 text-xs font-semibold"
                             title="Foto Ulang"
                           >
-                            <RefreshCw className="w-4 h-4" />
+                            <RefreshCw className="w-3.5 h-3.5" />
                           </button>
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
                               handleRemovePhoto(slotIdx);
                             }}
-                            className="p-2 rounded-lg bg-rose-600 text-white hover:bg-rose-500 text-xs font-semibold"
+                            className="p-1.5 rounded-lg bg-rose-600 text-white hover:bg-rose-500 text-xs font-semibold"
                             title="Hapus Foto"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
                       </>
                     ) : (
-                      <div className="text-center p-3 space-y-1">
-                        <Camera className="w-6 h-6 text-slate-600 mx-auto" />
-                        <span className="block text-xs font-medium text-slate-500">
-                          Foto #{slotIdx + 1} Kosong
+                      <div className="text-center p-2 space-y-0.5">
+                        <Camera className="w-5 h-5 text-slate-600 mx-auto" />
+                        <span className="block text-[10px] font-medium text-slate-500 truncate">
+                          #{slotIdx + 1} Kosong
                         </span>
                       </div>
                     )}
@@ -545,15 +567,16 @@ const createDemoPosePhoto = (poseIndex: number): string => {
           <button
             onClick={onContinueToLayout}
             disabled={filledCount === 0}
-            className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-sm transition-all shadow-lg ${
+            className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-xs sm:text-sm transition-all shadow-lg cursor-pointer ${
               isAllFilled
-                ? 'bg-gradient-to-r from-rose-500 via-pink-600 to-rose-600 text-white shadow-rose-500/20 hover:opacity-95'
+                ? 'bg-gradient-to-r from-rose-500 via-pink-600 to-rose-600 text-white shadow-rose-500/20 hover:brightness-110 active:scale-98'
                 : filledCount > 0
                 ? 'bg-rose-600/80 text-white hover:bg-rose-600'
                 : 'bg-slate-800 text-slate-500 cursor-not-allowed'
             }`}
           >
-            Lanjut ke Tata Letak & Tema <ArrowRight className="w-4 h-4" />
+            <span>Lanjut ke Tata Letak & Tema</span>
+            <ArrowRight className="w-4 h-4" />
           </button>
         </div>
       </div>

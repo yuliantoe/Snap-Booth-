@@ -54,7 +54,7 @@ export interface EventTheme {
   homeCtaText?: string;
   homeCtaColor?: 'rose_amber' | 'cyber_neon' | 'royal_gold' | 'emerald' | 'slate_dark';
   homeBgBlur?: 'none' | 'light' | 'heavy';
-  tabletOrientation?: 'portrait' | 'landscape';
+  tabletOrientation?: 'auto' | 'portrait' | 'landscape';
   autoPrintEnabled?: boolean;
   autoPrintMode?: 'thermal_80mm' | 'thermal_58mm' | 'dual_4x6' | 'single';
   idleTimeoutMinutes?: number; // Inactivity auto-reset timeout in minutes (e.g., 3, 4, 5 s/d 10 menit, or 0/disabled)

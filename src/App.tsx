@@ -371,6 +371,13 @@ export default function App() {
     setCurrentStep('capture');
   };
 
+  const handleToggleOrientation = () => {
+    const current = currentTheme.tabletOrientation || 'auto';
+    const nextOrientation: 'auto' | 'portrait' | 'landscape' =
+      current === 'auto' ? 'portrait' : current === 'portrait' ? 'landscape' : 'auto';
+    handleSaveTheme({ ...currentTheme, tabletOrientation: nextOrientation });
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-rose-500 selection:text-white">
       {/* Navbar Header with Multi-Role Badges, User Dropdown, and Logout */}
@@ -383,6 +390,7 @@ export default function App() {
         onLogout={handleLogout}
         onResetSession={handleResetSession}
         galleryCount={gallery.length}
+        onToggleOrientation={handleToggleOrientation}
       />
 
       {/* Step Progress Wizard Bar */}
