@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { LayoutType, EventTheme, PhotoSlot, FilterType, ImageAdjustments, StickerItem, SavedPhotoStrip, UserAccount } from '../types';
+import { LayoutType, EventTheme, PhotoSlot, FilterType, ImageAdjustments, StickerItem, UserAccount } from '../types';
 import { generatePhotoStripCanvas } from '../utils/canvasRenderer';
 import { isDurationUnlimited, calculateRemainingDays } from '../services/subscriptionService';
 import {
@@ -93,7 +93,6 @@ interface PrintAndShareModalProps {
   filter: FilterType;
   adjustments: ImageAdjustments;
   stickers: StickerItem[];
-  onSaveToGallery: (strip: SavedPhotoStrip) => void;
   onResetSession: () => void;
   currentUser?: UserAccount | null;
 }
@@ -105,7 +104,6 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
   filter,
   adjustments,
   stickers,
-  onSaveToGallery,
   onResetSession,
   currentUser,
 }) => {
@@ -340,17 +338,6 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
           setDualStripDataUrl(dualDataUrl);
           setQrCodeDataUrl(qrUrl);
           setIsGenerating(false);
-
-          // Auto-save to gallery
-          const savedStrip: SavedPhotoStrip = {
-            id: `strip_${Date.now()}`,
-            createdAt: Date.now(),
-            dataUrl: singleDataUrl,
-            themeName: theme.name,
-            layout,
-            eventTitle: theme.eventTitle,
-          };
-          onSaveToGallery(savedStrip);
         }
       } catch (err) {
         console.error('Error generating photo strip exports:', err);

@@ -70,15 +70,6 @@ export interface PhotoSlot {
   capturedAt: number;
 }
 
-export interface SavedPhotoStrip {
-  id: string;
-  createdAt: number;
-  dataUrl: string;
-  themeName: string;
-  layout: LayoutType;
-  eventTitle: string;
-}
-
 export type StepType = 'welcome' | 'theme_layout' | 'capture' | 'export';
 
 export type UserRole = 'super_admin' | 'client' | 'guest';

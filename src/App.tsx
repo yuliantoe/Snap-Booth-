@@ -6,7 +6,6 @@ import {
   FilterType,
   ImageAdjustments,
   StickerItem,
-  SavedPhotoStrip,
   StepType,
   UserAccount,
 } from './types';
@@ -45,7 +44,6 @@ export default function App() {
     blur: 0,
   });
   const [stickers, setStickers] = useState<StickerItem[]>([]);
-  const [gallery, setGallery] = useState<SavedPhotoStrip[]>([]);
 
   // User Authentication & Subscription States
   const [usersList, setUsersList] = useState<UserAccount[]>(DEFAULT_USERS);
@@ -56,6 +54,15 @@ export default function App() {
   const [isSuperAdminOpen, setIsSuperAdminOpen] = useState<boolean>(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
   const [isExpiredModalOpen, setIsExpiredModalOpen] = useState<boolean>(false);
+
+  // Clean up legacy gallery storage
+  useEffect(() => {
+    try {
+      localStorage.removeItem('snapbooth_gallery_v1');
+    } catch {
+      // ignore
+    }
+  }, []);
 
   // 1. Subscribe to Firestore Real-time Users List
   useEffect(() => {
@@ -111,52 +118,6 @@ export default function App() {
       setCurrentTheme(DEFAULT_THEMES[0]);
     }
   }, [currentUser?.id]);
-
-  // Load saved session gallery from localStorage
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem('snapbooth_gallery_v1');
-      if (stored) {
-        setGallery(JSON.parse(stored));
-      }
-    } catch {
-      // ignore
-    }
-  }, []);
-
-  // Save gallery to localStorage
-  const handleSaveToGallery = (newStrip: SavedPhotoStrip) => {
-    setGallery((prev) => {
-      const exists = prev.some((item) => item.id === newStrip.id);
-      if (exists) return prev;
-      const updated = [newStrip, ...prev];
-      try {
-        localStorage.setItem('snapbooth_gallery_v1', JSON.stringify(updated));
-      } catch {
-        // storage quota fallback
-      }
-      return updated;
-    });
-  };
-
-  const handleDeleteFromGallery = (id: string) => {
-    const updated = gallery.filter((item) => item.id !== id);
-    setGallery(updated);
-    try {
-      localStorage.setItem('snapbooth_gallery_v1', JSON.stringify(updated));
-    } catch {
-      // ignore
-    }
-  };
-
-  const handleClearGallery = () => {
-    setGallery([]);
-    try {
-      localStorage.removeItem('snapbooth_gallery_v1');
-    } catch {
-      // ignore
-    }
-  };
 
   // Reset current session for new photos
   const handleResetSession = () => {
@@ -389,7 +350,6 @@ export default function App() {
         onOpenAuthModal={() => setIsAuthModalOpen(true)}
         onLogout={handleLogout}
         onResetSession={handleResetSession}
-        galleryCount={gallery.length}
         onToggleOrientation={handleToggleOrientation}
       />
 
@@ -445,7 +405,6 @@ export default function App() {
             filter={filter}
             adjustments={adjustments}
             stickers={stickers}
-            onSaveToGallery={handleSaveToGallery}
             onResetSession={handleResetSession}
             currentUser={currentUser}
           />
@@ -458,9 +417,6 @@ export default function App() {
         onClose={() => setIsControlPanelOpen(false)}
         currentTheme={currentTheme}
         onSaveTheme={handleSaveTheme}
-        gallery={gallery}
-        onDeleteFromGallery={handleDeleteFromGallery}
-        onClearGallery={handleClearGallery}
         onResetSession={handleResetSession}
         currentUser={currentUser}
         onLogout={handleLogout}

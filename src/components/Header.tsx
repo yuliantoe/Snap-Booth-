@@ -31,7 +31,6 @@ interface HeaderProps {
   onOpenAuthModal: () => void;
   onLogout: () => void;
   onResetSession: () => void;
-  galleryCount: number;
   onToggleOrientation?: () => void;
 }
 
@@ -43,7 +42,6 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenAuthModal,
   onLogout,
   onResetSession,
-  galleryCount,
   onToggleOrientation,
 }) => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -350,11 +348,6 @@ export const Header: React.FC<HeaderProps> = ({
           >
             <Sliders className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400" />
             <span>Dasboard</span>
-            {galleryCount > 0 && (
-              <span className="ml-0.5 px-1.5 py-0.2 text-[9px] font-black bg-rose-500 text-white rounded-full">
-                {galleryCount}
-              </span>
-            )}
           </button>
 
           {/* New Session Reset */}

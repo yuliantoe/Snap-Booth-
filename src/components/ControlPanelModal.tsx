@@ -5,7 +5,6 @@ import {
   Palette,
   Image as ImageIcon,
   Video,
-  Images,
   Settings,
   Check,
   Upload,
@@ -33,7 +32,7 @@ import {
   Lock,
   AlertCircle,
 } from 'lucide-react';
-import { EventTheme, SavedPhotoStrip, UserAccount } from '../types';
+import { EventTheme, UserAccount } from '../types';
 import { DEFAULT_THEMES } from '../utils/themePresets';
 import { isDurationUnlimited, calculateRemainingDays } from '../services/subscriptionService';
 
@@ -42,9 +41,6 @@ interface ControlPanelModalProps {
   onClose: () => void;
   currentTheme: EventTheme;
   onSaveTheme: (updatedTheme: EventTheme) => void;
-  gallery: SavedPhotoStrip[];
-  onDeleteFromGallery: (id: string) => void;
-  onClearGallery: () => void;
   onResetSession: () => void;
   currentUser?: UserAccount | null;
   onLogout?: () => void;
@@ -169,15 +165,12 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
   onClose,
   currentTheme,
   onSaveTheme,
-  gallery,
-  onDeleteFromGallery,
-  onClearGallery,
   onResetSession,
   currentUser,
   onLogout,
   onOpenAuthModal,
 }) => {
-  const [activeTab, setActiveTab] = useState<'home' | 'theme' | 'upload_custom' | 'media' | 'gallery' | 'system'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'theme' | 'upload_custom' | 'media' | 'system'>('home');
   const [themeForm, setThemeForm] = useState<EventTheme>({ ...currentTheme });
   const [themeCategoryFilter, setThemeCategoryFilter] = useState<string>('all');
   const logoFileInputRef = useRef<HTMLInputElement | null>(null);
@@ -307,36 +300,6 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
     }
   };
 
-  const handleDownloadItem = (strip: SavedPhotoStrip) => {
-    const link = document.createElement('a');
-    link.download = `SnapBooth_${strip.eventTitle.replace(/[^a-zA-Z0-9]/g, '_')}_${strip.createdAt}.png`;
-    link.href = strip.dataUrl;
-    link.click();
-  };
-
-  const handlePrintItem = (strip: SavedPhotoStrip) => {
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) return;
-
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>Cetak Photo Strip</title>
-          <style>
-            @page { size: 4in 6in; margin: 0; }
-            body { margin: 0; display: flex; items-center; justify-content: center; }
-            img { max-width: 100%; max-height: 100vh; object-fit: contain; }
-          </style>
-        </head>
-        <body>
-          <img src="${strip.dataUrl}" onload="window.print(); window.close();" />
-        </body>
-      </html>
-    `);
-    printWindow.document.close();
-  };
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md animate-in fade-in duration-200">
       <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden text-slate-100">
@@ -360,7 +323,7 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                   Cloud Synced
                 </span>
               </div>
-              <p className="text-xs text-slate-400">Atur Tema Home Custom, Desain Frame, Media Brand & Galeri Foto</p>
+              <p className="text-xs text-slate-400">Atur Tema Home Custom, Desain Frame, Media Brand & Sistem Kiosk</p>
             </div>
           </div>
 
@@ -388,9 +351,9 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
           </div>
         </div>
 
-        {/* Control Panel Tab Navigation - 6 Prominent Visible Tabs */}
+        {/* Control Panel Tab Navigation - 5 Prominent Visible Tabs */}
         <div className="p-3 bg-slate-950 border-b border-slate-800">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
             {/* Tab 1: Home */}
             <button
               onClick={() => setActiveTab('home')}
@@ -522,40 +485,7 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
               </div>
             </button>
 
-            {/* Tab 5: Galeri Foto */}
-            <button
-              onClick={() => setActiveTab('gallery')}
-              type="button"
-              className={`p-2.5 rounded-2xl border text-left transition-all flex flex-col justify-between gap-1.5 ${
-                activeTab === 'gallery'
-                  ? 'bg-rose-500 text-white border-rose-400 shadow-lg shadow-rose-500/25 ring-1 ring-rose-400'
-                  : 'bg-slate-900/90 text-slate-300 border-slate-800 hover:border-slate-700 hover:bg-slate-850'
-              }`}
-            >
-              <div className="flex items-center justify-between w-full">
-                <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-md ${
-                  activeTab === 'gallery' ? 'bg-white/20 text-white' : 'bg-slate-800 text-purple-400'
-                }`}>
-                  TAB 5
-                </span>
-                <div className="flex items-center gap-1">
-                  {gallery.length > 0 && (
-                    <span className="px-1.5 py-0.2 rounded-full text-[9px] font-extrabold bg-amber-400 text-slate-950">
-                      {gallery.length}
-                    </span>
-                  )}
-                  <Images className={`w-4 h-4 ${activeTab === 'gallery' ? 'text-white' : 'text-purple-400'}`} />
-                </div>
-              </div>
-              <div>
-                <p className="text-xs font-bold leading-tight truncate">5. Galeri Foto</p>
-                <p className={`text-[10px] leading-tight truncate ${activeTab === 'gallery' ? 'text-white/80' : 'text-slate-500'}`}>
-                  {gallery.length} Strip Tersimpan
-                </p>
-              </div>
-            </button>
-
-            {/* Tab 6: Sistem Kiosk */}
+            {/* Tab 5: Sistem Kiosk */}
             <button
               onClick={() => setActiveTab('system')}
               type="button"
@@ -569,12 +499,12 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                 <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-md ${
                   activeTab === 'system' ? 'bg-white/20 text-white' : 'bg-slate-800 text-emerald-400'
                 }`}>
-                  TAB 6
+                  TAB 5
                 </span>
                 <Settings className={`w-4 h-4 ${activeTab === 'system' ? 'text-amber-200' : 'text-emerald-400'}`} />
               </div>
               <div>
-                <p className="text-xs font-bold leading-tight truncate">6. Sistem Kiosk</p>
+                <p className="text-xs font-bold leading-tight truncate">5. Sistem Kiosk</p>
                 <p className={`text-[10px] leading-tight truncate ${activeTab === 'system' ? 'text-white/80' : 'text-slate-500'}`}>
                   Auto-Reset & Print
                 </p>
@@ -1586,86 +1516,6 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                   </div>
                 </div>
               </div>
-            </div>
-          )}
-
-          {/* TAB 4: GALERI FOTO */}
-          {activeTab === 'gallery' && (
-            <div className="space-y-4 animate-in fade-in duration-150">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                  <Images className="w-4 h-4 text-cyan-400" /> Koleksi Foto Strip Sesi Ini ({gallery.length})
-                </h3>
-                {gallery.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={onClearGallery}
-                    className="text-xs text-rose-400 hover:underline flex items-center gap-1 font-semibold"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" /> Bersihkan Semua Foto
-                  </button>
-                )}
-              </div>
-
-              {gallery.length === 0 ? (
-                <div className="py-16 text-center space-y-3 bg-slate-950 rounded-2xl border border-slate-800">
-                  <Images className="w-12 h-12 text-slate-600 mx-auto" />
-                  <p className="text-sm text-slate-400">Belum ada foto strip tersimpan.</p>
-                  <p className="text-xs text-slate-500">
-                    Foto strip yang kamu cetak atau bagikan akan tersimpan otomatis di galeri ini.
-                  </p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                  {gallery.map((strip) => (
-                    <div
-                      key={strip.id}
-                      className="bg-slate-950 border border-slate-800 rounded-2xl p-3 flex flex-col justify-between space-y-3 shadow-md hover:border-slate-700 transition-all"
-                    >
-                      <div className="bg-slate-900 p-2 rounded-xl flex justify-center items-center overflow-hidden max-h-[260px]">
-                        <img
-                          src={strip.dataUrl}
-                          alt={strip.eventTitle}
-                          className="max-h-[240px] w-auto object-contain rounded"
-                        />
-                      </div>
-
-                      <div className="space-y-1">
-                        <p className="text-xs font-bold text-white truncate">{strip.eventTitle}</p>
-                        <p className="text-[10px] text-slate-400">
-                          {new Date(strip.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </p>
-                      </div>
-
-                      <div className="flex items-center justify-between pt-2 border-t border-slate-800/80">
-                        <button
-                          onClick={() => handlePrintItem(strip)}
-                          className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs flex items-center gap-1"
-                          title="Cetak"
-                        >
-                          <Printer className="w-3.5 h-3.5" /> Cetak
-                        </button>
-
-                        <button
-                          onClick={() => handleDownloadItem(strip)}
-                          className="p-2 rounded-lg bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white text-xs flex items-center gap-1"
-                          title="Unduh"
-                        >
-                          <Download className="w-3.5 h-3.5" /> Unduh
-                        </button>
-
-                        <button
-                          onClick={() => onDeleteFromGallery(strip.id)}
-                          className="p-2 rounded-lg bg-slate-800 hover:bg-rose-900 text-slate-400 hover:text-rose-200 text-xs"
-                          title="Hapus"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
           )}
 
