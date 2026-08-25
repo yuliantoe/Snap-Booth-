@@ -157,6 +157,27 @@ export const DEFAULT_USERS: UserAccount[] = [
     notes: 'Perlu konfirmasi perpanjangan via WhatsApp',
     createdAt: new Date().toISOString(),
   },
+  {
+    id: 'client_pending_reg_1',
+    username: 'velvetbooth',
+    password: 'velvet123',
+    email: 'hello@velvetbooth.id',
+    displayName: 'Velvet Memory Studio',
+    businessName: 'Velvet Photobooth Bali',
+    role: 'client',
+    subscriptionStatus: 'pending_approval',
+    approvalStatus: 'pending',
+    registrationType: 'paid_registration',
+    requestedDuration: 'monthly_50k',
+    requestedPlanName: 'Langganan Bulanan (Rp 50.000 / 30 Hari)',
+    subscriptionPlan: 'pro_booth',
+    subscriptionStartDate: new Date().toISOString().split('T')[0],
+    subscriptionEndDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    phone: '081987654321',
+    boothAccessPin: '8899',
+    notes: 'Pendaftaran mandiri paket Bulanan Rp 50.000 - Menunggu verifikasi pembayaran & approval Super Admin',
+    createdAt: new Date().toISOString(),
+  },
 ];
 
 // Helper: Check if duration is OFF / Unlimited

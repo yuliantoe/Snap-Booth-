@@ -184,7 +184,7 @@ export default function App() {
     const remainingDays = calculateRemainingDays(currentUser.subscriptionEndDate);
     const isExpired = currentUser.subscriptionStatus === 'expired' || remainingDays < 0;
 
-    if (isExpired || currentUser.subscriptionStatus === 'suspended') {
+    if (isExpired || currentUser.subscriptionStatus === 'suspended' || currentUser.subscriptionStatus === 'pending_approval') {
       setIsExpiredModalOpen(true);
       return;
     }
@@ -363,7 +363,7 @@ export default function App() {
     const remainingDays = calculateRemainingDays(currentUser.subscriptionEndDate);
     const isExpired = currentUser.subscriptionStatus === 'expired' || remainingDays < 0;
 
-    if (isExpired || currentUser.subscriptionStatus === 'suspended') {
+    if (isExpired || currentUser.subscriptionStatus === 'suspended' || currentUser.subscriptionStatus === 'pending_approval') {
       setIsExpiredModalOpen(true);
       return;
     }

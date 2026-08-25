@@ -9,7 +9,7 @@
         "displayName": { "type": "string" },
         "businessName": { "type": "string" },
         "role": { "type": "string", "enum": ["super_admin", "client"] },
-        "subscriptionStatus": { "type": "string", "enum": ["active", "expired", "trial", "suspended"] },
+        "subscriptionStatus": { "type": "string", "enum": ["active", "expired", "trial", "suspended", "pending_approval"] },
         "subscriptionPlan": { "type": "string", "enum": ["Starter", "Pro Booth", "Enterprise VIP", "Lifetime"] },
         "subscriptionStartDate": { "type": "string" },
         "subscriptionEndDate": { "type": "string" },

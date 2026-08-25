@@ -15,6 +15,11 @@ import {
   Lock,
   Eye,
   EyeOff,
+  Clock,
+  MessageCircle,
+  Sparkles,
+  ArrowRight,
+  ShieldAlert,
 } from 'lucide-react';
 import { UserAccount } from '../types';
 
@@ -44,6 +49,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [errorMsg, setErrorMsg] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  // States for Approval & Pending Flow
+  const [pendingRegisteredUser, setPendingRegisteredUser] = useState<UserAccount | null>(null);
+  const [loginPendingUser, setLoginPendingUser] = useState<UserAccount | null>(null);
+
   // Register Form State
   const [regUsername, setRegUsername] = useState('');
   const [regPassword, setRegPassword] = useState('');
@@ -51,15 +60,37 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [regBusinessName, setRegBusinessName] = useState('');
   const [regEmail, setRegEmail] = useState('');
   const [regPhone, setRegPhone] = useState('');
-  const [regDuration, setRegDuration] = useState<'trial_3' | 'weekly_30k' | 'monthly_50k' | 'yearly_500k' | 'off'>('trial_3');
+  const [regDuration, setRegDuration] = useState<'trial_3' | 'weekly_30k' | 'monthly_50k' | 'yearly_500k' | 'off'>('monthly_50k');
   const [regPin, setRegPin] = useState('1234');
   const [showRegPassword, setShowRegPassword] = useState(false);
 
   if (!isOpen) return null;
 
+  // Super Admin WhatsApp contact info
+  const superAdmin = usersList.find((u) => u.role === 'super_admin');
+  const adminPhone = superAdmin?.phone || '081288889999';
+  const cleanAdminPhone = adminPhone.replace(/[^0-9]/g, '').replace(/^0/, '62');
+
+  const handleWhatsAppNotifyAdmin = (user: UserAccount) => {
+    const planName = user.requestedPlanName || user.subscriptionPlan || 'Paket Photobooth';
+    const message = encodeURIComponent(
+      `Halo Super Admin snapBoth Receipt! 👋\n\n` +
+      `Saya baru saja mendaftarkan akun studio photobooth baru:\n\n` +
+      `🏢 Nama Studio: *${user.businessName}*\n` +
+      `👤 Pemilik: *${user.displayName}*\n` +
+      `🔑 Username: *${user.username || user.email}*\n` +
+      `📧 Email: *${user.email}*\n` +
+      `📱 WhatsApp: *${user.phone || '-'}*\n` +
+      `🏷️ Paket Diajukan: *${planName}*\n\n` +
+      `Mohon untuk dilakukan verifikasi dan approval akun agar kami dapat segera login. Terima kasih!`
+    );
+    window.open(`https://wa.me/${cleanAdminPhone}?text=${message}`, '_blank');
+  };
+
   const handleManualLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
+    setLoginPendingUser(null);
 
     const query = loginIdentifier.trim().toLowerCase();
     if (!query) {
@@ -89,6 +120,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       }
     }
 
+    // Check Approval Status & Subscription Status
+    if (found.role === 'client') {
+      if (found.approvalStatus === 'rejected') {
+        setErrorMsg(`Pendaftaran akun ini ditolak oleh Super Admin. Alasan: ${found.rejectionReason || 'Silakan hubungi Super Admin'}.`);
+        return;
+      }
+
+      if (found.subscriptionStatus === 'pending_approval' || found.approvalStatus === 'pending') {
+        setLoginPendingUser(found);
+        return;
+      }
+    }
+
     onLogin(found);
     onClose();
   };
@@ -104,31 +148,32 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setErrorMsg('');
 
     try {
+      const isTrial = regDuration === 'trial_3';
       const startDate = new Date().toISOString().split('T')[0];
       let endDate = '2099-12-31';
-      let status: any = 'trial';
-      let note = 'Pendaftaran akun baru';
+      let planTitle = 'Trial 3 Hari - Gratis';
+      let note = 'Pendaftaran mandiri akun baru';
 
       if (regDuration === 'off') {
         endDate = '2099-12-31';
-        status = 'active';
-        note = 'Pendaftaran mandiri (Durasi OFF / Unlimited)';
+        planTitle = 'OFF / Unlimited — Tanpa Batas Masa Berlaku';
+        note = 'Pendaftaran mandiri (Durasi OFF / Unlimited) - Menunggu Approval Super Admin';
       } else if (regDuration === 'trial_3') {
         endDate = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-        status = 'trial';
-        note = 'Pendaftaran mandiri (Trial 3 Hari - Gratis)';
+        planTitle = 'Trial 3 Hari — Gratis Masa Uji Coba';
+        note = 'Pendaftaran mandiri (Trial 3 Hari - Otomatis Aktif)';
       } else if (regDuration === 'weekly_30k') {
         endDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-        status = 'active';
-        note = 'Pendaftaran mandiri (Langganan Mingguan - Rp 30.000 / 7 Hari)';
+        planTitle = 'Langganan Mingguan — Rp 30.000 / 7 Hari';
+        note = 'Pendaftaran mandiri (Langganan Mingguan Rp 30.000) - Menunggu Approval Super Admin';
       } else if (regDuration === 'monthly_50k') {
         endDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-        status = 'active';
-        note = 'Pendaftaran mandiri (Langganan Bulanan - Rp 50.000 / 30 Hari)';
+        planTitle = 'Langganan Bulanan — Rp 50.000 / 30 Hari';
+        note = 'Pendaftaran mandiri (Langganan Bulanan Rp 50.000) - Menunggu Approval Super Admin';
       } else if (regDuration === 'yearly_500k') {
         endDate = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-        status = 'active';
-        note = 'Pendaftaran mandiri (Langganan Tahunan - Rp 500.000 / 365 Hari)';
+        planTitle = 'Langganan Tahunan — Rp 500.000 / 365 Hari';
+        note = 'Pendaftaran mandiri (Langganan Tahunan Rp 500.000) - Menunggu Approval Super Admin';
       }
 
       const cleanUsername = (regUsername.trim() || regEmail.split('@')[0]).toLowerCase().replace(/[^a-z0-9_.-]/g, '');
@@ -140,7 +185,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         displayName: regDisplayName.trim() || regBusinessName.trim(),
         businessName: regBusinessName.trim(),
         role: 'client',
-        subscriptionStatus: status,
+        subscriptionStatus: isTrial ? 'trial' : 'pending_approval',
+        approvalStatus: isTrial ? 'approved' : 'pending',
+        registrationType: isTrial ? 'trial' : 'paid_registration',
+        requestedDuration: regDuration,
+        requestedPlanName: planTitle,
         subscriptionPlan: regDuration === 'off' ? 'lifetime' : 'pro_booth',
         subscriptionStartDate: startDate,
         subscriptionEndDate: endDate,
@@ -149,8 +198,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         notes: note,
       });
 
-      onLogin(newAccount);
-      onClose();
+      if (isTrial) {
+        // Trial users get instant activation without requiring Super Admin approval
+        onLogin(newAccount);
+        onClose();
+      } else {
+        // Paid registrations require Super Admin approval
+        setPendingRegisteredUser(newAccount);
+      }
     } catch (err: any) {
       setErrorMsg(err.message || 'Gagal mendaftarkan akun baru.');
     } finally {
@@ -184,37 +239,39 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           </button>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex border-b border-slate-800 bg-slate-950 p-1.5 gap-1.5">
-          <button
-            type="button"
-            onClick={() => { setTab('login'); setErrorMsg(''); }}
-            className={`flex-1 py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
-              tab === 'login'
-                ? 'bg-gradient-to-r from-rose-500 to-amber-500 text-slate-950 shadow-md font-extrabold'
-                : 'text-slate-400 hover:text-white hover:bg-slate-900'
-            }`}
-          >
-            <LogIn className="w-4 h-4" />
-            <span>Login Akun</span>
-          </button>
+        {/* Tab Navigation (Hidden when showing pending registration success) */}
+        {!pendingRegisteredUser && (
+          <div className="flex border-b border-slate-800 bg-slate-950 p-1.5 gap-1.5">
+            <button
+              type="button"
+              onClick={() => { setTab('login'); setErrorMsg(''); setLoginPendingUser(null); }}
+              className={`flex-1 py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                tab === 'login'
+                  ? 'bg-gradient-to-r from-rose-500 to-amber-500 text-slate-950 shadow-md font-extrabold'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-900'
+              }`}
+            >
+              <LogIn className="w-4 h-4" />
+              <span>Login Akun</span>
+            </button>
 
-          <button
-            type="button"
-            onClick={() => { setTab('register'); setErrorMsg(''); }}
-            className={`flex-1 py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
-              tab === 'register'
-                ? 'bg-gradient-to-r from-rose-500 to-amber-500 text-slate-950 shadow-md font-extrabold'
-                : 'text-slate-400 hover:text-white hover:bg-slate-900'
-            }`}
-          >
-            <UserPlus className="w-4 h-4" />
-            <span>Daftar Akun Baru</span>
-          </button>
-        </div>
+            <button
+              type="button"
+              onClick={() => { setTab('register'); setErrorMsg(''); setLoginPendingUser(null); }}
+              className={`flex-1 py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                tab === 'register'
+                  ? 'bg-gradient-to-r from-rose-500 to-amber-500 text-slate-950 shadow-md font-extrabold'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-900'
+              }`}
+            >
+              <UserPlus className="w-4 h-4" />
+              <span>Daftar Akun Baru</span>
+            </button>
+          </div>
+        )}
 
         {/* Active User Status & Quick Logout */}
-        {currentUser && (
+        {currentUser && !pendingRegisteredUser && (
           <div className="mx-4 sm:mx-6 mt-3 p-3 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 flex items-center justify-center text-xs font-bold shrink-0">
@@ -255,8 +312,133 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
         {/* Modal Body */}
         <div className="p-4 sm:p-6 overflow-y-auto space-y-4 flex-1">
-          {/* TAB 1: USERNAME / EMAIL / PIN LOGIN */}
-          {tab === 'login' && (
+          {/* SPECIAL VIEW: REGISTRATION SUCCESS - WAITING SUPER ADMIN APPROVAL */}
+          {pendingRegisteredUser ? (
+            <div className="space-y-4 animate-in zoom-in-95 duration-200 text-center">
+              <div className="w-16 h-16 rounded-3xl bg-amber-500/20 border-2 border-amber-500/50 text-amber-300 flex items-center justify-center mx-auto shadow-xl shadow-amber-500/10">
+                <Clock className="w-8 h-8 animate-pulse text-amber-400" />
+              </div>
+
+              <div className="space-y-1">
+                <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[11px] font-black uppercase tracking-wider inline-flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5" />
+                  Menunggu Persetujuan Super Admin
+                </span>
+                <h3 className="text-lg font-black text-white pt-2">
+                  Pendaftaran Berhasil Dicatat!
+                </h3>
+                <p className="text-xs text-slate-300 leading-relaxed max-w-md mx-auto">
+                  Karena Anda memilih paket berbayar, akun Anda saat ini sedang menunggu proses approval dan verifikasi dari Super Admin.
+                </p>
+              </div>
+
+              {/* Detail Ringkasan Akun */}
+              <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 text-left space-y-2.5 text-xs">
+                <div className="flex justify-between items-center text-slate-400">
+                  <span>Nama Studio / Bisnis:</span>
+                  <span className="font-bold text-white">{pendingRegisteredUser.businessName}</span>
+                </div>
+                <div className="flex justify-between items-center text-slate-400">
+                  <span>Pemilik:</span>
+                  <span className="font-semibold text-slate-200">{pendingRegisteredUser.displayName}</span>
+                </div>
+                <div className="flex justify-between items-center text-slate-400">
+                  <span>Username:</span>
+                  <span className="font-mono text-amber-300">@{pendingRegisteredUser.username}</span>
+                </div>
+                <div className="flex justify-between items-center text-slate-400">
+                  <span>Email:</span>
+                  <span className="font-mono text-slate-300">{pendingRegisteredUser.email}</span>
+                </div>
+                <div className="flex justify-between items-center text-slate-400">
+                  <span>Paket yang Diajukan:</span>
+                  <span className="font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">
+                    {pendingRegisteredUser.requestedPlanName}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-slate-400">
+                  <span>PIN Booth Kiosk:</span>
+                  <span className="font-mono font-bold text-cyan-300">{pendingRegisteredUser.boothAccessPin}</span>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="space-y-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => handleWhatsAppNotifyAdmin(pendingRegisteredUser)}
+                  className="w-full py-3.5 px-4 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 transition-all cursor-pointer"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  <span>Konfirmasi & Chat Super Admin via WhatsApp</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPendingRegisteredUser(null);
+                    setTab('login');
+                  }}
+                  className="w-full py-2.5 px-4 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
+                >
+                  <span>Selesai & Ke Halaman Login</span>
+                </button>
+              </div>
+            </div>
+          ) : loginPendingUser ? (
+            /* SPECIAL VIEW: LOGIN ATTEMPT FOR PENDING APPROVAL USER */
+            <div className="space-y-4 animate-in zoom-in-95 duration-200 text-center">
+              <div className="w-16 h-16 rounded-3xl bg-amber-500/20 border-2 border-amber-500/50 text-amber-300 flex items-center justify-center mx-auto shadow-xl shadow-amber-500/10">
+                <Clock className="w-8 h-8 animate-pulse text-amber-400" />
+              </div>
+
+              <div className="space-y-1">
+                <h3 className="text-lg font-black text-white">
+                  Akun Menunggu Persetujuan Super Admin
+                </h3>
+                <p className="text-xs text-slate-300 leading-relaxed max-w-md mx-auto">
+                  Akun <strong className="text-amber-300 font-bold">{loginPendingUser.businessName || loginPendingUser.displayName}</strong> belum di-approve oleh Super Admin. Setelah di-approve, Anda dapat langsung login.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 text-left space-y-2 text-xs">
+                <div className="flex justify-between items-center text-slate-400">
+                  <span>Status:</span>
+                  <span className="font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
+                    ⏳ Menunggu Approval
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-slate-400">
+                  <span>Username:</span>
+                  <span className="font-mono text-white">@{loginPendingUser.username}</span>
+                </div>
+                <div className="flex justify-between items-center text-slate-400">
+                  <span>Paket Diajukan:</span>
+                  <span className="font-bold text-slate-200">{loginPendingUser.requestedPlanName || 'Langganan Photobooth'}</span>
+                </div>
+              </div>
+
+              <div className="space-y-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => handleWhatsAppNotifyAdmin(loginPendingUser)}
+                  className="w-full py-3.5 px-4 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 transition-all cursor-pointer"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  <span>Hubungi Super Admin via WhatsApp untuk Aktivasi</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setLoginPendingUser(null)}
+                  className="w-full py-2.5 px-4 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
+                >
+                  <span>Kembali ke Login</span>
+                </button>
+              </div>
+            </div>
+          ) : tab === 'login' ? (
+            /* TAB 1: USERNAME / EMAIL / PIN LOGIN */
             <form onSubmit={handleManualLogin} className="space-y-4 animate-in fade-in duration-150">
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
@@ -289,7 +471,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white cursor-pointer"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -304,11 +486,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <span>Masuk Sekarang</span>
               </button>
             </form>
-          )}
-
-          {/* TAB 2: REGISTER NEW CLIENT */}
-          {tab === 'register' && (
+          ) : (
+            /* TAB 2: REGISTER NEW CLIENT */
             <form onSubmit={handleRegisterSubmit} className="space-y-4 animate-in fade-in duration-150">
+              <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs flex items-start gap-2.5">
+                <Clock className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                <div>
+                  <strong className="text-amber-300">Sistem Pendaftaran & Approval:</strong>
+                  <p className="text-[11px] text-slate-300 mt-0.5">
+                    Paket <strong>Trial 3 Hari</strong> akan aktif secara otomatis. Untuk paket berbayar (Mingguan, Bulanan, Tahunan, OFF), pendaftaran akan diproses dan di-approve terlebih dahulu oleh Super Admin.
+                  </p>
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
@@ -363,7 +553,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     <button
                       type="button"
                       onClick={() => setShowRegPassword(!showRegPassword)}
-                      className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-white"
+                      className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-white cursor-pointer"
                     >
                       {showRegPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                     </button>
@@ -373,7 +563,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
                     <KeyRound className="w-3.5 h-3.5 text-cyan-400" />
-                    <span>PIN Akses Kiosk (4 Digit):</span>
+                    <span>PIN Akses Kiosk (4-6 Digit):</span>
                   </label>
                   <input
                     type="text"
@@ -419,19 +609,21 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-300 flex items-center justify-between">
-                  <span>Pilihan Masa Aktif Awal:</span>
-                  <span className="text-[11px] text-amber-400 font-normal">Trial 3 Hari / Langganan</span>
+                  <span>Pilihan Paket / Masa Aktif:</span>
+                  <span className="text-[11px] text-amber-400 font-bold">
+                    {regDuration === 'trial_3' ? '⚡ Langsung Aktif' : '⏳ Butuh Approval Super Admin'}
+                  </span>
                 </label>
                 <select
                   value={regDuration}
                   onChange={(e) => setRegDuration(e.target.value as any)}
                   className="w-full px-3.5 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-amber-500 font-medium"
                 >
-                  <option value="trial_3">🟡 Trial 3 Hari — Gratis Masa Uji Coba</option>
+                  <option value="monthly_50k">🟢 Langganan Bulanan — Rp 50.000 / 30 Hari (Paling Populer)</option>
                   <option value="weekly_30k">🟢 Langganan Mingguan — Rp 30.000 / 7 Hari</option>
-                  <option value="monthly_50k">🟢 Langganan Bulanan — Rp 50.000 / 30 Hari (1 Bulan)</option>
-                  <option value="yearly_500k">💎 Langganan Tahunan — Rp 500.000 / 365 Hari (1 Tahun)</option>
+                  <option value="yearly_500k">💎 Langganan Tahunan — Rp 500.000 / 365 Hari (Hemat 2 Bulan)</option>
                   <option value="off">♾️ OFF / Unlimited — Tanpa Batas Masa Berlaku</option>
+                  <option value="trial_3">🟡 Trial 3 Hari — Gratis Masa Uji Coba (Otomatis Aktif)</option>
                 </select>
               </div>
 
@@ -441,7 +633,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-rose-500 to-amber-500 hover:brightness-110 text-slate-950 font-extrabold text-sm flex items-center justify-center gap-2 shadow-lg shadow-rose-500/20 transition-all cursor-pointer disabled:opacity-50"
               >
                 <CheckCircle2 className="w-4 h-4" />
-                <span>{isLoading ? 'Menyimpan...' : 'Daftarkan Akun'}</span>
+                <span>{isLoading ? 'Menyimpan...' : regDuration === 'trial_3' ? 'Daftar & Langsung Aktifkan Trial' : 'Daftarkan Akun & Ajukan Approval'}</span>
               </button>
             </form>
           )}
@@ -450,3 +642,4 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     </div>
   );
 };
+

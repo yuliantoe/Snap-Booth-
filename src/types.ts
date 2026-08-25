@@ -83,7 +83,9 @@ export type StepType = 'welcome' | 'theme_layout' | 'capture' | 'export';
 
 export type UserRole = 'super_admin' | 'client' | 'guest';
 
-export type SubscriptionStatus = 'active' | 'expired' | 'trial' | 'suspended';
+export type SubscriptionStatus = 'active' | 'expired' | 'trial' | 'suspended' | 'pending_approval';
+
+export type ApprovalStatus = 'approved' | 'pending' | 'rejected';
 
 export type SubscriptionPlanId = 'starter' | 'pro_booth' | 'enterprise_vip' | 'lifetime';
 
@@ -116,6 +118,14 @@ export interface UserAccount {
   boothAccessPin?: string;
   notes?: string;
   customTheme?: EventTheme;
+  approvalStatus?: ApprovalStatus;
+  registrationType?: 'trial' | 'paid_registration' | 'manual_admin';
+  requestedDuration?: 'trial_3' | 'weekly_30k' | 'monthly_50k' | 'yearly_500k' | 'off';
+  requestedPlanName?: string;
+  approvedAt?: string;
+  approvedBy?: string;
+  rejectedAt?: string;
+  rejectionReason?: string;
   createdAt: string;
   updatedAt?: string;
 }

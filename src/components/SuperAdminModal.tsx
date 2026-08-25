@@ -38,6 +38,7 @@ import {
 } from 'lucide-react';
 import { UserAccount, SubscriptionPlanId, SubscriptionStatus } from '../types';
 import { SUBSCRIPTION_PLANS, calculateRemainingDays, isDurationUnlimited } from '../services/subscriptionService';
+import { PendingApprovalsTab } from './superadmin/PendingApprovalsTab';
 
 interface SuperAdminModalProps {
   isOpen: boolean;
@@ -64,7 +65,7 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
   onLogout,
   onOpenAuthModal,
 }) => {
-  const [activeTab, setActiveTab] = useState<'customers' | 'add_new' | 'admin_profile'>('customers');
+  const [activeTab, setActiveTab] = useState<'customers' | 'approvals' | 'add_new' | 'admin_profile'>('customers');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
 
@@ -111,19 +112,27 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
   // Calculate Summary Metrics
   const clientsOnly = usersList.filter((u) => u.role === 'client');
   const totalClients = clientsOnly.length;
+
+  // Pending Approvals
+  const pendingApprovalClients = clientsOnly.filter(
+    (u) => u.subscriptionStatus === 'pending_approval' || u.approvalStatus === 'pending'
+  );
   
   const activeClients = clientsOnly.filter((u) => {
+    if (u.subscriptionStatus === 'pending_approval' || u.approvalStatus === 'pending') return false;
     const isUnl = isDurationUnlimited(u.subscriptionEndDate);
     const rem = calculateRemainingDays(u.subscriptionEndDate);
     return (u.subscriptionStatus === 'active' || isUnl) && (isUnl || rem >= 0);
   }).length;
 
   const trialClients = clientsOnly.filter((u) => {
+    if (u.subscriptionStatus === 'pending_approval' || u.approvalStatus === 'pending') return false;
     const rem = calculateRemainingDays(u.subscriptionEndDate);
     return u.subscriptionStatus === 'trial' && rem >= 0;
   }).length;
 
   const expiringSoonClients = clientsOnly.filter((u) => {
+    if (u.subscriptionStatus === 'pending_approval' || u.approvalStatus === 'pending') return false;
     const isUnl = isDurationUnlimited(u.subscriptionEndDate);
     const rem = calculateRemainingDays(u.subscriptionEndDate);
     const isExp = !isUnl && (u.subscriptionStatus === 'expired' || rem < 0);
@@ -131,6 +140,7 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
   });
 
   const expiredClients = clientsOnly.filter((u) => {
+    if (u.subscriptionStatus === 'pending_approval' || u.approvalStatus === 'pending') return false;
     const isUnl = isDurationUnlimited(u.subscriptionEndDate);
     const rem = calculateRemainingDays(u.subscriptionEndDate);
     return !isUnl && (u.subscriptionStatus === 'expired' || rem < 0);
@@ -145,20 +155,78 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
       user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (user.phone || '').includes(searchQuery);
 
+    const isPending = user.subscriptionStatus === 'pending_approval' || user.approvalStatus === 'pending';
     const isUnl = isDurationUnlimited(user.subscriptionEndDate);
     const remaining = calculateRemainingDays(user.subscriptionEndDate);
-    const isExpired = !isUnl && (user.subscriptionStatus === 'expired' || remaining < 0);
+    const isExpired = !isPending && !isUnl && (user.subscriptionStatus === 'expired' || remaining < 0);
 
     let matchStatus = true;
-    if (filterStatus === 'active') matchStatus = (user.subscriptionStatus === 'active' || isUnl) && !isExpired;
-    else if (filterStatus === 'expiring_soon') matchStatus = !isUnl && !isExpired && remaining < 3 && remaining >= 0;
-    else if (filterStatus === 'trial') matchStatus = user.subscriptionStatus === 'trial' && !isExpired;
-    else if (filterStatus === 'unlimited') matchStatus = isUnl;
+    if (filterStatus === 'pending') matchStatus = isPending;
+    else if (filterStatus === 'active') matchStatus = !isPending && (user.subscriptionStatus === 'active' || isUnl) && !isExpired;
+    else if (filterStatus === 'expiring_soon') matchStatus = !isPending && !isUnl && !isExpired && remaining < 3 && remaining >= 0;
+    else if (filterStatus === 'trial') matchStatus = !isPending && user.subscriptionStatus === 'trial' && !isExpired;
+    else if (filterStatus === 'unlimited') matchStatus = !isPending && isUnl;
     else if (filterStatus === 'expired') matchStatus = isExpired;
     else if (filterStatus === 'suspended') matchStatus = user.subscriptionStatus === 'suspended';
 
     return matchSearch && matchStatus;
   });
+
+  // Approval Handlers
+  const handleApproveUser = async (user: UserAccount, customDuration?: string) => {
+    const plan = customDuration || user.requestedDuration || 'monthly_50k';
+    let endDate = '2099-12-31';
+    let planId: SubscriptionPlanId = 'pro_booth';
+    let status: SubscriptionStatus = 'active';
+
+    if (plan === 'off') {
+      endDate = '2099-12-31';
+      planId = 'lifetime';
+      status = 'active';
+    } else if (plan === 'weekly_30k' || plan === 'week_1') {
+      endDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      planId = 'pro_booth';
+      status = 'active';
+    } else if (plan === 'monthly_50k' || plan === 'month_1') {
+      endDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      planId = 'pro_booth';
+      status = 'active';
+    } else if (plan === 'yearly_500k' || plan === 'year_1') {
+      endDate = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      planId = 'pro_booth';
+      status = 'active';
+    } else if (plan === 'trial_3') {
+      endDate = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      planId = 'starter';
+      status = 'trial';
+    }
+
+    await onUpdateUser(user.id, {
+      subscriptionStatus: status,
+      approvalStatus: 'approved',
+      subscriptionPlan: planId,
+      subscriptionStartDate: new Date().toISOString().split('T')[0],
+      subscriptionEndDate: endDate,
+      approvedAt: new Date().toISOString(),
+      approvedBy: superAdminAccount?.displayName || 'Super Admin',
+      notes: `Disetujui oleh Super Admin pada ${new Date().toLocaleDateString('id-ID')} • ${user.notes || ''}`,
+    });
+
+    setSuccessMessage(`Akun "${user.businessName || user.displayName}" berhasil DISETUJUI & DIAKTIFKAN!`);
+    setTimeout(() => setSuccessMessage(''), 5000);
+  };
+
+  const handleRejectUser = async (user: UserAccount, reason: string) => {
+    await onUpdateUser(user.id, {
+      subscriptionStatus: 'suspended',
+      approvalStatus: 'rejected',
+      rejectedAt: new Date().toISOString(),
+      rejectionReason: reason.trim() || 'Pembayaran belum terverifikasi atau data tidak sesuai.',
+    });
+
+    setSuccessMessage(`Pendaftaran akun "${user.businessName || user.displayName}" telah DITOLAK.`);
+    setTimeout(() => setSuccessMessage(''), 4000);
+  };
 
   // Handle Quick Extend or Set Trial / OFF
   const handleExtendDays = async (userId: string, currentEndDate: string, daysToAdd: number, asTrial = false) => {
@@ -384,6 +452,23 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
           </button>
 
           <button
+            onClick={() => setActiveTab('approvals')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap relative ${
+              activeTab === 'approvals'
+                ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-extrabold'
+                : 'text-amber-300 hover:text-amber-200 hover:bg-slate-900 border border-amber-500/30'
+            }`}
+          >
+            <Clock className="w-4 h-4 text-amber-400" />
+            <span>Persetujuan User Baru</span>
+            {pendingApprovalClients.length > 0 && (
+              <span className="ml-1 px-2 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-black font-mono animate-pulse shadow">
+                {pendingApprovalClients.length}
+              </span>
+            )}
+          </button>
+
+          <button
             onClick={() => setActiveTab('add_new')}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${
               activeTab === 'add_new'
@@ -458,7 +543,7 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
               )}
 
               {/* Metric Summary Cards */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
                 <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col justify-between">
                   <div className="flex items-center justify-between text-slate-400 text-xs">
                     <span>Total Klien</span>
@@ -467,6 +552,25 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                   <p className="text-2xl font-black text-white mt-1.5">{totalClients}</p>
                   <span className="text-[10px] text-slate-500">Customer Terdaftar</span>
                 </div>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('approvals')}
+                  className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                    pendingApprovalClients.length > 0
+                      ? 'bg-amber-500/10 border-amber-500/50 hover:bg-amber-500/20 shadow-lg shadow-amber-500/5'
+                      : 'bg-slate-950 border-slate-800'
+                  }`}
+                >
+                  <div className="flex items-center justify-between text-amber-300 text-xs font-bold">
+                    <span>Approval</span>
+                    <Clock className={`w-4 h-4 ${pendingApprovalClients.length > 0 ? 'text-amber-400 animate-pulse' : 'text-slate-500'}`} />
+                  </div>
+                  <p className="text-2xl font-black text-amber-400 mt-1.5">{pendingApprovalClients.length}</p>
+                  <span className="text-[10px] text-amber-300/90 font-medium">
+                    {pendingApprovalClients.length > 0 ? '⚡ Klik untuk Review' : 'Semua Beres'}
+                  </span>
+                </button>
 
                 <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col justify-between">
                   <div className="flex items-center justify-between text-slate-400 text-xs">
@@ -516,6 +620,7 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                     className="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-300 text-xs focus:outline-none font-bold"
                   >
                     <option value="all">Semua Status ({totalClients})</option>
+                    <option value="pending">⏳ Menunggu Approval ({pendingApprovalClients.length})</option>
                     <option value="expiring_soon">⚠️ Sisa Masa Aktif &lt; 3 Hari ({expiringSoonClients.length})</option>
                     <option value="active">🟢 Hanya Aktif ({activeClients})</option>
                     <option value="trial">🟡 Hanya Trial ({trialClients})</option>
@@ -534,11 +639,12 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                   </div>
                 ) : (
                   filteredUsers.map((client) => {
+                    const isPending = client.subscriptionStatus === 'pending_approval' || client.approvalStatus === 'pending';
                     const isUnl = isDurationUnlimited(client.subscriptionEndDate);
                     const remainingDays = calculateRemainingDays(client.subscriptionEndDate);
-                    const isExpired = !isUnl && (client.subscriptionStatus === 'expired' || remainingDays < 0);
-                    const isExpiringSoon = !isUnl && !isExpired && remainingDays < 3 && remainingDays >= 0;
-                    const isTrial = client.subscriptionStatus === 'trial' && !isExpired;
+                    const isExpired = !isPending && !isUnl && (client.subscriptionStatus === 'expired' || remainingDays < 0);
+                    const isExpiringSoon = !isPending && !isUnl && !isExpired && remainingDays < 3 && remainingDays >= 0;
+                    const isTrial = !isPending && client.subscriptionStatus === 'trial' && !isExpired;
                     const isEditing = editingUserId === client.id;
                     const showPassword = !!showPasswordMap[client.id];
 
@@ -546,7 +652,9 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                       <div
                         key={client.id}
                         className={`p-4 rounded-2xl border transition-all ${
-                          isExpired
+                          isPending
+                            ? 'border-amber-500/60 bg-amber-950/20 ring-1 ring-amber-500/30'
+                            : isExpired
                             ? 'border-rose-900/50 bg-rose-950/10'
                             : isExpiringSoon
                             ? 'border-amber-500/70 bg-amber-950/20 ring-1 ring-amber-500/40 shadow-lg shadow-amber-500/5'
@@ -560,7 +668,9 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                           <div className="flex items-start gap-3.5">
                             <div
                               className={`p-3 rounded-2xl border shrink-0 ${
-                                isExpired
+                                isPending
+                                  ? 'bg-amber-500/20 border-amber-500/40 text-amber-300'
+                                  : isExpired
                                   ? 'bg-rose-500/20 border-rose-500/30 text-rose-400'
                                   : isExpiringSoon
                                   ? 'bg-amber-500/20 border-amber-500/40 text-amber-300'
@@ -583,7 +693,9 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                                 </span>
                                 <span
                                   className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border flex items-center gap-1 ${
-                                    isExpired
+                                    isPending
+                                      ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 animate-pulse'
+                                      : isExpired
                                       ? 'bg-rose-500/20 text-rose-400 border-rose-500/30'
                                       : isExpiringSoon
                                       ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 animate-pulse font-mono'
@@ -594,7 +706,9 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                                       : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
                                   }`}
                                 >
-                                  {isExpired
+                                  {isPending
+                                    ? '⏳ Menunggu Approval'
+                                    : isExpired
                                     ? '🔴 Expired'
                                     : isExpiringSoon
                                     ? `⚠️ Sisa masa aktif: ${remainingDays === 0 ? 'Hari ini' : `${remainingDays} hari`}`
@@ -652,6 +766,19 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
 
                           {/* Action Toolbar */}
                           <div className="flex flex-wrap items-center gap-2 pt-2 lg:pt-0 border-t lg:border-t-0 border-slate-800/80">
+                            {/* If pending, show quick approve */}
+                            {isPending && (
+                              <button
+                                type="button"
+                                onClick={() => handleApproveUser(client)}
+                                className="px-3.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs flex items-center gap-1.5 shadow-md shadow-emerald-500/20 transition-all cursor-pointer animate-pulse"
+                                title="Setujui pendaftaran klien ini"
+                              >
+                                <CheckCircle2 className="w-3.5 h-3.5" />
+                                <span>Setujui</span>
+                              </button>
+                            )}
+
                             {/* Quick Extend / Trial / OFF */}
                             <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800">
                               <span className="text-[10px] font-bold text-slate-400 px-1.5">Aksi:</span>
@@ -895,7 +1022,18 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
             </div>
           )}
 
-          {/* TAB 2: ADD NEW CLIENT */}
+          {/* TAB 2: PENDING APPROVALS */}
+          {activeTab === 'approvals' && (
+            <PendingApprovalsTab
+              pendingUsers={pendingApprovalClients}
+              onApprove={handleApproveUser}
+              onReject={handleRejectUser}
+              onDelete={onDeleteUser}
+              superAdminAccount={superAdminAccount}
+            />
+          )}
+
+          {/* TAB 3: ADD NEW CLIENT */}
           {activeTab === 'add_new' && (
             <form onSubmit={handleCreateClient} className="space-y-5 max-w-2xl mx-auto animate-in fade-in duration-150">
               <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 space-y-4 shadow-xl">
