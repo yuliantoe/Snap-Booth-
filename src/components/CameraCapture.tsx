@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, RefreshCw, FlipHorizontal, Upload, Trash2, ArrowRight, Play, CheckCircle2, AlertCircle, SwitchCamera, Sparkles } from 'lucide-react';
+import { Camera, RefreshCw, FlipHorizontal, Trash2, ArrowRight, Play, CheckCircle2, AlertCircle, SwitchCamera, Sparkles } from 'lucide-react';
 import { PhotoSlot, LayoutType } from '../types';
 import { sounds } from '../utils/audio';
 import { useScreenOrientation } from '../utils/useScreenOrientation';
@@ -25,7 +25,6 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
@@ -151,7 +150,7 @@ const createDemoPosePhoto = (poseIndex: number): string => {
         setCameraError(null);
       } else if (isSubscribed) {
         setCameraError(
-          'Kamera tidak terdeteksi atau izin ditolak. Anda tetap dapat menggunakan Foto Demo otomatis atau mengunggah foto secara manual.'
+          'Kamera tidak terdeteksi atau izin ditolak. Anda dapat menggunakan Foto Demo studio otomatis atau memeriksa izin kamera browser.'
         );
       }
     }
@@ -282,30 +281,6 @@ const createDemoPosePhoto = (poseIndex: number): string => {
     setIsBurstMode(false);
   };
 
-  // Handle Manual File Uploads
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-
-    Array.from(files).forEach((file: File, idx: number) => {
-      const targetSlot = (activeSlotIndex + idx) % requiredCount;
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        if (event.target?.result) {
-          const updated = [...photosRef.current];
-          updated[targetSlot] = {
-            id: `photo_file_${Date.now()}_${idx}_${Math.random().toString(36).substring(2, 5)}`,
-            dataUrl: event.target.result as string,
-            capturedAt: Date.now(),
-          };
-          photosRef.current = updated;
-          onPhotosChange(updated);
-        }
-      };
-      reader.readAsDataURL(file);
-    });
-  };
-
   const handleRemovePhoto = (slotIdx: number) => {
     const updated = [...photosRef.current];
     updated.splice(slotIdx, 1);
@@ -363,12 +338,6 @@ const createDemoPosePhoto = (poseIndex: number): string => {
                     className="px-3 py-2 rounded-xl bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-400 hover:to-pink-500 text-white font-bold text-xs shadow-md transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
                   >
                     <Camera className="w-3.5 h-3.5" /> Gunakan Foto Demo Studio
-                  </button>
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-slate-700 transition-all flex items-center gap-1.5 cursor-pointer"
-                  >
-                    <Upload className="w-3.5 h-3.5 text-rose-400" /> Unggah Foto
                   </button>
                   <button
                     onClick={() => setSelectedDeviceId((prev) => (prev ? '' : 'retry'))}
@@ -477,28 +446,13 @@ const createDemoPosePhoto = (poseIndex: number): string => {
           </div>
         </div>
 
-        {/* Right Column (or Bottom Column in Portrait): Photo Slots & Upload Option */}
+        {/* Right Column (or Bottom Column in Portrait): Photo Slots */}
         <div className={`w-full ${isLandscape ? 'md:w-80' : 'w-full'} space-y-3 sm:space-y-4 flex flex-col justify-between`}>
           <div className="space-y-2.5 sm:space-y-3">
             <div className="flex items-center justify-between">
               <h3 className="text-xs sm:text-sm font-bold text-white flex items-center gap-2">
                 Foto Terkumpul ({filledCount}/{requiredCount})
               </h3>
-
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-1 text-xs text-rose-400 hover:text-rose-300 font-semibold cursor-pointer"
-              >
-                <Upload className="w-3.5 h-3.5" /> Unggah Foto
-              </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleFileUpload}
-                className="hidden"
-              />
             </div>
 
             {/* Photo Slots List - responsive 4 cols on phone/portrait, 1 or 2 cols on landscape */}
