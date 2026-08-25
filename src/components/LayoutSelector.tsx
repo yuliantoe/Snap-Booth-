@@ -60,21 +60,21 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
     {
       id: 'korean_receipt',
       title: 'Korean Receipt Photo (영수증)',
-      description: 'Struk kasir ala Korea Life 4-Cuts dengan rincian struk & barcode termal.',
+      description: 'Struk kasir ala Korea Life 4-Cuts dengan rincian struk & font termal vintage.',
       slotsCount: 4,
       badge: 'Tren Viral Korea 🇰🇷',
     },
     {
       id: 'magazine',
       title: 'Cover Majalah Fashion & Editorial',
-      description: 'Format cover majalah VOGUE / Editorial dengan judul besar, tanggal edisi, dan barcode.',
+      description: 'Format cover majalah VOGUE / Editorial dengan judul besar dan tanggal edisi.',
       slotsCount: 1,
       badge: 'Desain Editorial 📖',
     },
     {
       id: 'shopping_receipt',
       title: 'Struk Pembelian Kasir & Retail',
-      description: 'Format struk belanja supermarket & kafe lengkap dengan rincian total belanja & barcode.',
+      description: 'Format struk belanja supermarket & kafe lengkap dengan rincian total belanja.',
       slotsCount: 4,
       badge: 'Struk Belanja 🛒',
     },
@@ -252,13 +252,14 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
         </div>
       </div>
 
-      {/* Continue Button */}
-      <div className="flex justify-end pt-4">
+      {/* Continue Button Centered */}
+      <div className="flex flex-col items-center justify-center pt-6 pb-2">
         <button
           onClick={onContinueToExport}
-          className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-rose-500 via-pink-600 to-rose-600 hover:from-rose-400 hover:to-pink-500 text-white font-bold text-sm shadow-xl shadow-rose-500/20 active:scale-95 transition-all"
+          className="flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-2xl bg-gradient-to-r from-rose-500 via-pink-600 to-rose-600 hover:from-rose-400 hover:to-pink-500 text-white font-extrabold text-sm sm:text-base shadow-xl shadow-rose-500/25 active:scale-95 transition-all cursor-pointer w-full max-w-sm"
         >
-          Lanjut ke Cetak & Simpan <ChevronRight className="w-4 h-4" />
+          <span>Lanjut ke Cetak & Simpan</span>
+          <ChevronRight className="w-5 h-5" />
         </button>
       </div>
     </div>

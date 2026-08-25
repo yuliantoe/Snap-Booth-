@@ -507,7 +507,7 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
         )}
 
         <p className="text-slate-400 text-xs sm:text-sm max-w-lg mx-auto">
-          Tekan tombol <strong>Cetak Cepat</strong> untuk langsung mencetak struk/foto ke printer tanpa konfirmasi ulang, atau scan barcode untuk unduh ke ponsel.
+          Tekan tombol <strong>Cetak Cepat</strong> untuk langsung mencetak foto ke printer tanpa jeda, atau unduh file resolusi tinggi ke galeri perangkat.
         </p>
       </div>
 
@@ -716,49 +716,6 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
               >
                 <Download className="w-4 h-4 text-amber-400" /> Unduh File Foto (PNG)
               </button>
-            </div>
-          </div>
-
-          {/* Scan Barcode Section */}
-          <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-xl">
-            <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                <QrCode className="w-5 h-5" />
-              </div>
-              <div>
-                <h3 className="text-sm font-bold text-white">Barcode Cetak Frame Foto</h3>
-                <p className="text-xs text-slate-400">Pindai barcode ini langsung dari aplikasi pemindai HP Anda</p>
-              </div>
-            </div>
-
-            <div className="flex flex-col items-center justify-center gap-3 bg-slate-950 p-6 rounded-2xl border border-slate-800 text-center">
-              {/* Pure Barcode Graphic without white box */}
-              <div className="flex flex-col items-center justify-center py-2 px-4">
-                <div className="flex items-end gap-1 h-14 my-1">
-                  {[3, 1, 4, 1, 2, 3, 1, 2, 4, 1, 3, 2, 1, 4, 2, 3, 1, 2, 1, 3, 2, 3, 1, 2, 4, 1, 3].map((w, idx) => (
-                    <div
-                      key={idx}
-                      className={`rounded-xs ${idx % 2 === 0 ? 'bg-amber-400' : 'bg-transparent'}`}
-                      style={{ width: `${w * 2.8}px`, height: '100%' }}
-                    />
-                  ))}
-                </div>
-                <span className="font-mono text-sm font-bold text-slate-300 tracking-widest mt-2">
-                  * SNAPBOOTH-ID *
-                </span>
-                <span className="text-xs font-black text-rose-400 uppercase tracking-wider mt-1">
-                  SCAN BARCODE TO DOWNLOAD
-                </span>
-              </div>
-
-              <div className="space-y-1 pt-1 border-t border-slate-900 w-full">
-                <span className="inline-block px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-500/30">
-                  ⚡ Otomatis Terhubung ke Foto
-                </span>
-                <p className="text-xs text-slate-400 max-w-sm mx-auto">
-                  Barcode polos ini secara elegan dicetak pada bagian bawah frame foto.
-                </p>
-              </div>
             </div>
           </div>
 

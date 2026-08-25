@@ -389,30 +389,7 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
     drawAutoFitText(ctx, isCfd ? '★ TERIMA KASIH • NIKMATI CFD SEHAT ★' : '★ THANK YOU FOR MAKING MEMORIES ★', canvasWidth / 2, footerY, maxContentWidth, Math.round(canvasWidth * 0.028), monoFont, 'bold');
     footerY += Math.round(canvasWidth * 0.035);
 
-    drawAutoFitText(ctx, isCfd ? 'Nikmati Udara Segar & Bebas Polusi 🏃🚲' : '감사합니다! 좋은 하루 되세요 ✨', canvasWidth / 2, footerY, maxContentWidth, Math.round(canvasWidth * 0.026), monoFont, 'normal');
-    footerY += Math.round(canvasWidth * 0.04);
-
-    // Thermal Barcode at Bottom of Korean Receipt
-    const barcodeW = Math.round(canvasWidth * 0.55);
-    const barcodeH = Math.round(canvasWidth * 0.08);
-    const barcodeX = canvasWidth / 2 - barcodeW / 2;
-    const barcodeY = footerY;
-
-    ctx.fillStyle = textColor;
-    const barPattern = [3, 1, 4, 1, 2, 3, 1, 2, 4, 1, 3, 2, 1, 4, 2, 3, 1, 2, 1, 3, 2, 3, 1, 2, 4, 1, 3];
-    const totalUnits = barPattern.reduce((a, b) => a + b, 0);
-    const unitW = barcodeW / totalUnits;
-
-    let currX = barcodeX;
-    for (let i = 0; i < barPattern.length; i++) {
-      const w = barPattern[i] * unitW;
-      if (i % 2 === 0) {
-        ctx.fillRect(currX, barcodeY, Math.max(w * 0.85, 2), barcodeH);
-      }
-      currX += w;
-    }
-
-    drawAutoFitText(ctx, isCfd ? '* JAKARTA-CAR-FREE-DAY-RECEIPT *' : '* KR-RECEIPT-PHOTO-FOUR-CUTS *', canvasWidth / 2, barcodeY + barcodeH + Math.round(canvasWidth * 0.03), maxContentWidth, Math.round(canvasWidth * 0.024), monoFont, 'bold');
+    drawAutoFitText(ctx, isCfd ? 'Nikmati Udara Segar & Bebas Polusi 🏃🚲' : '감사합니다! 좋은 Hari 되세요 ✨', canvasWidth / 2, footerY, maxContentWidth, Math.round(canvasWidth * 0.026), monoFont, 'normal');
   } else if (layout === 'shopping_receipt') {
     // Top and Bottom Serrated / Paper Tear Edges
     drawSerratedPaperEdge(ctx, canvasWidth, 0, true);
@@ -542,29 +519,6 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
     footerY += Math.round(canvasWidth * 0.035);
 
     drawAutoFitText(ctx, 'Simpan Struk Ini Sebagai Kenangan Manis ✨', canvasWidth / 2, footerY, maxContentWidth, Math.round(canvasWidth * 0.026), monoFont, 'normal');
-    footerY += Math.round(canvasWidth * 0.04);
-
-    // Thermal Barcode at Bottom
-    const barcodeW = Math.round(canvasWidth * 0.55);
-    const barcodeH = Math.round(canvasWidth * 0.08);
-    const barcodeX = canvasWidth / 2 - barcodeW / 2;
-    const barcodeY = footerY;
-
-    ctx.fillStyle = textColor;
-    const barPattern = [3, 1, 4, 1, 2, 3, 1, 2, 4, 1, 3, 2, 1, 4, 2, 3, 1, 2, 1, 3, 2, 3, 1, 2, 4, 1, 3];
-    const totalUnits = barPattern.reduce((a, b) => a + b, 0);
-    const unitW = barcodeW / totalUnits;
-
-    let currX = barcodeX;
-    for (let i = 0; i < barPattern.length; i++) {
-      const w = barPattern[i] * unitW;
-      if (i % 2 === 0) {
-        ctx.fillRect(currX, barcodeY, Math.max(w * 0.85, 2), barcodeH);
-      }
-      currX += w;
-    }
-
-    drawAutoFitText(ctx, '* RETAIL-SHOPPING-RECEIPT-PHOTO *', canvasWidth / 2, barcodeY + barcodeH + Math.round(canvasWidth * 0.03), maxContentWidth, Math.round(canvasWidth * 0.024), monoFont, 'bold');
   } else if (layout === 'magazine') {
     const textColor = theme.textColor || '#FAF8F5';
     ctx.fillStyle = textColor;
@@ -648,31 +602,7 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
 
     const issueText = (theme.eventSubtitle || 'SPRING / SUMMER SPECIAL EDITORIAL • SNAPBOOTH').toUpperCase();
     ctx.fillStyle = textColor;
-    drawAutoFitText(ctx, issueText, padding, bottomY + 75, maxContentWidth * 0.65, 18, 'sans-serif', 'normal', 'left');
-
-    // Bottom Right Barcode & ISSN Code
-    const barcodeW = 260;
-    const barcodeH = 48;
-    const barcodeX = canvasWidth - padding - barcodeW;
-    const barcodeY = bottomY;
-
-    ctx.fillStyle = textColor;
-    const barPattern = [3, 1, 4, 1, 2, 3, 1, 2, 4, 1, 3, 2, 1, 4, 2, 3, 1, 2, 1, 3, 2, 3, 1, 2, 4, 1, 3];
-    const totalUnits = barPattern.reduce((a, b) => a + b, 0);
-    const unitW = barcodeW / totalUnits;
-
-    let currX = barcodeX;
-    for (let i = 0; i < barPattern.length; i++) {
-      const w = barPattern[i] * unitW;
-      if (i % 2 === 0) {
-        ctx.fillRect(currX, barcodeY, Math.max(w * 0.85, 2), barcodeH);
-      }
-      currX += w;
-    }
-
-    ctx.font = 'bold 13px "Courier New", monospace';
-    ctx.textAlign = 'right';
-    ctx.fillText('* VOGUE-MAGAZINE-COVER *', canvasWidth - padding, barcodeY + barcodeH + 18);
+    drawAutoFitText(ctx, issueText, padding, bottomY + 75, maxContentWidth, 18, 'sans-serif', 'normal', 'left');
   } else {
     // Normal non-receipt layout rendering
     ctx.textAlign = 'center';
@@ -699,82 +629,48 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
       }
     }
 
-    let headerY = canvasHeight - 400;
+    let headerY = canvasHeight - 240;
     if (layout === 'polaroid') {
       headerY = padding + topLogoHeight + photoHeight + 80;
     }
 
-  // Helper function to resolve Font Family name
-  const getFontFamilyName = (family?: EventTheme['fontFamily']) => {
-    switch (family) {
-      case 'serif':
-        return 'Georgia, "Times New Roman", serif';
-      case 'mono':
-        return '"Courier New", Courier, monospace';
-      case 'handwriting':
-        return '"Brush Script MT", "Caveat", cursive';
-      case 'display':
-        return 'Impact, "Arial Black", sans-serif';
-      case 'sans':
-      default:
-        return '"Plus Jakarta Sans", system-ui, sans-serif';
+    // Helper function to resolve Font Family name
+    const getFontFamilyName = (family?: EventTheme['fontFamily']) => {
+      switch (family) {
+        case 'serif':
+          return 'Georgia, "Times New Roman", serif';
+        case 'mono':
+          return '"Courier New", Courier, monospace';
+        case 'handwriting':
+          return '"Brush Script MT", "Caveat", cursive';
+        case 'display':
+          return 'Impact, "Arial Black", sans-serif';
+        case 'sans':
+        default:
+          return '"Plus Jakarta Sans", system-ui, sans-serif';
+      }
+    };
+
+    const titleFontFamilyName = getFontFamilyName(theme.fontFamily);
+    const dateFontFamilyName = getFontFamilyName(theme.dateFontFamily || theme.fontFamily);
+
+    // Event Title
+    ctx.font = `bold 56px ${titleFontFamilyName}`;
+    ctx.fillText(theme.eventTitle || 'snapBoth Receipt', canvasWidth / 2, headerY);
+
+    // Subtitle
+    if (theme.eventSubtitle) {
+      ctx.font = `32px ${dateFontFamilyName}`;
+      ctx.fillStyle = theme.textColor ? `${theme.textColor}CC` : '#444444';
+      ctx.fillText(theme.eventSubtitle, canvasWidth / 2, headerY + 65);
     }
-  };
 
-  const titleFontFamilyName = getFontFamilyName(theme.fontFamily);
-  const dateFontFamilyName = getFontFamilyName(theme.dateFontFamily || theme.fontFamily);
-
-  // Event Title
-  ctx.font = `bold 56px ${titleFontFamilyName}`;
-  ctx.fillText(theme.eventTitle || 'snapBoth Receipt', canvasWidth / 2, headerY);
-
-  // Subtitle
-  if (theme.eventSubtitle) {
-    ctx.font = `32px ${dateFontFamilyName}`;
-    ctx.fillStyle = theme.textColor ? `${theme.textColor}CC` : '#444444';
-    ctx.fillText(theme.eventSubtitle, canvasWidth / 2, headerY + 65);
-  }
-
-  // Date Badge or Event Date
-  if (theme.showDateBadge && theme.eventDate) {
-    ctx.font = `bold 28px ${dateFontFamilyName}`;
-    ctx.fillStyle = theme.accentColor || theme.textColor || '#000000';
-    ctx.fillText(theme.eventDate, canvasWidth / 2, headerY + 125);
-  }
-
-  // Draw Centered Standalone Barcode (No QR Code, No White Background Box)
-  ctx.save();
-
-  const barcodeW = 340;
-  const barcodeH = 50;
-  const barcodeX = canvasWidth / 2 - barcodeW / 2;
-  const barcodeY = canvasHeight - padding - barcodeH - 45;
-
-  ctx.fillStyle = theme.textColor || '#111111';
-
-  const barPattern = [3, 1, 4, 1, 2, 3, 1, 2, 4, 1, 3, 2, 1, 4, 2, 3, 1, 2, 1, 3, 2, 3, 1, 2, 4, 1, 3];
-  const totalUnits = barPattern.reduce((a, b) => a + b, 0);
-  const unitW = barcodeW / totalUnits;
-
-  let currX = barcodeX;
-  for (let i = 0; i < barPattern.length; i++) {
-    const w = barPattern[i] * unitW;
-    if (i % 2 === 0) {
-      ctx.fillRect(currX, barcodeY, Math.max(w * 0.85, 2), barcodeH);
+    // Date Badge or Event Date
+    if (theme.showDateBadge && theme.eventDate) {
+      ctx.font = `bold 28px ${dateFontFamilyName}`;
+      ctx.fillStyle = theme.accentColor || theme.textColor || '#000000';
+      ctx.fillText(theme.eventDate, canvasWidth / 2, headerY + 125);
     }
-    currX += w;
-  }
-
-  // Barcode Serial Text underneath lines
-  ctx.font = 'bold 16px "Courier New", monospace';
-  ctx.textAlign = 'center';
-  ctx.fillText('* SNAPBOOTH-ID *', canvasWidth / 2, barcodeY + barcodeH + 20);
-
-  // Footer Tagline
-  ctx.font = '900 12px sans-serif';
-  ctx.fillText('SCAN BARCODE TO DOWNLOAD', canvasWidth / 2, barcodeY + barcodeH + 38);
-
-  ctx.restore();
   }
 
   ctx.restore();
