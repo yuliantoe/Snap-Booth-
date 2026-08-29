@@ -20,8 +20,12 @@ import {
   Sparkles,
   ArrowRight,
   ShieldAlert,
+  CreditCard,
+  Copy,
+  Check,
 } from 'lucide-react';
 import { UserAccount } from '../types';
+import { OFFICIAL_PAYMENT_INFO, OFFICIAL_WHATSAPP_LINK } from '../services/subscriptionService';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -63,6 +67,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [regDuration, setRegDuration] = useState<'trial_3' | 'weekly_30k' | 'monthly_50k' | 'yearly_500k' | 'off'>('monthly_50k');
   const [regPin, setRegPin] = useState('1234');
   const [showRegPassword, setShowRegPassword] = useState(false);
+  const [copiedBca, setCopiedBca] = useState(false);
 
   if (!isOpen) return null;
 
@@ -71,20 +76,66 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const adminPhone = superAdmin?.phone || '081288889999';
   const cleanAdminPhone = adminPhone.replace(/[^0-9]/g, '').replace(/^0/, '62');
 
-  const handleWhatsAppNotifyAdmin = (user: UserAccount) => {
-    const planName = user.requestedPlanName || user.subscriptionPlan || 'Paket Photobooth';
-    const message = encodeURIComponent(
-      `Halo Super Admin snapBoth Receipt! 👋\n\n` +
-      `Saya baru saja mendaftarkan akun studio photobooth baru:\n\n` +
-      `🏢 Nama Studio: *${user.businessName}*\n` +
-      `👤 Pemilik: *${user.displayName}*\n` +
-      `🔑 Username: *${user.username || user.email}*\n` +
-      `📧 Email: *${user.email}*\n` +
-      `📱 WhatsApp: *${user.phone || '-'}*\n` +
-      `🏷️ Paket Diajukan: *${planName}*\n\n` +
-      `Mohon untuk dilakukan verifikasi dan approval akun agar kami dapat segera login. Terima kasih!`
-    );
-    window.open(`https://wa.me/${cleanAdminPhone}?text=${message}`, '_blank');
+  const handleCopyBca = () => {
+    navigator.clipboard.writeText(OFFICIAL_PAYMENT_INFO.accountNumber);
+    setCopiedBca(true);
+    setTimeout(() => setCopiedBca(false), 2500);
+  };
+
+  const renderBcaPaymentInfo = (customTitle?: string) => (
+    <div className="p-3.5 rounded-2xl bg-gradient-to-br from-blue-950/40 via-slate-950 to-amber-950/20 border border-amber-500/40 text-left space-y-2">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-1.5 text-amber-400 font-bold text-xs">
+          <CreditCard className="w-4 h-4 text-amber-400" />
+          <span>{customTitle || 'Rekening Tujuan Resmi Pembayaran:'}</span>
+        </div>
+        <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30 font-mono">
+          BCA Resmi
+        </span>
+      </div>
+
+      <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 space-y-1.5 text-xs">
+        <div className="flex justify-between items-center text-slate-300">
+          <span className="text-slate-400">Bank Tujuan:</span>
+          <span className="font-semibold text-white">{OFFICIAL_PAYMENT_INFO.bankName}</span>
+        </div>
+        <div className="flex justify-between items-center text-slate-300">
+          <span className="text-slate-400">Nomor Rekening:</span>
+          <div className="flex items-center gap-1.5">
+            <span className="font-mono font-black text-amber-300 text-sm tracking-wider">
+              {OFFICIAL_PAYMENT_INFO.accountNumber}
+            </span>
+            <button
+              type="button"
+              onClick={handleCopyBca}
+              className={`px-2 py-0.5 rounded-md text-[10px] font-bold flex items-center gap-1 cursor-pointer transition-all ${
+                copiedBca
+                  ? 'bg-emerald-500 text-slate-950 font-black'
+                  : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700'
+              }`}
+              title="Salin Nomor Rekening BCA"
+            >
+              {copiedBca ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+              <span>{copiedBca ? 'Tersalin!' : 'Salin'}</span>
+            </button>
+          </div>
+        </div>
+        <div className="flex justify-between items-center text-slate-300">
+          <span className="text-slate-400">Atas Nama (A/N):</span>
+          <span className="font-bold text-emerald-400 uppercase tracking-wide">
+            {OFFICIAL_PAYMENT_INFO.accountHolder}
+          </span>
+        </div>
+      </div>
+
+      <p className="text-[10px] text-amber-200/90 leading-relaxed italic bg-amber-500/10 p-2 rounded-lg border border-amber-500/20">
+        ⚠️ <strong>Penting:</strong> Hanya transfer ke <strong>{OFFICIAL_PAYMENT_INFO.fullLabel}</strong>. Kami tidak pernah menggunakan nomor rekening lain!
+      </p>
+    </div>
+  );
+
+  const handleWhatsAppNotifyAdmin = () => {
+    window.open(OFFICIAL_WHATSAPP_LINK, '_blank');
   };
 
   const handleManualLogin = (e: React.FormEvent) => {
@@ -362,15 +413,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 </div>
               </div>
 
+              {/* Official BCA Payment Transfer Info */}
+              {renderBcaPaymentInfo("Rekening Tujuan Resmi Transfer Pembayaran:")}
+
               {/* Action Buttons */}
               <div className="space-y-2 pt-2">
                 <button
                   type="button"
-                  onClick={() => handleWhatsAppNotifyAdmin(pendingRegisteredUser)}
+                  onClick={handleWhatsAppNotifyAdmin}
                   className="w-full py-3.5 px-4 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 transition-all cursor-pointer"
                 >
                   <MessageCircle className="w-4 h-4" />
-                  <span>Konfirmasi & Chat Super Admin via WhatsApp</span>
+                  <span>Konfirmasi & Chat via WhatsApp</span>
                 </button>
 
                 <button
@@ -418,14 +472,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 </div>
               </div>
 
+              {/* Official BCA Payment Transfer Info */}
+              {renderBcaPaymentInfo("Rekening Tujuan Resmi Pembayaran:")}
+
               <div className="space-y-2 pt-2">
                 <button
                   type="button"
-                  onClick={() => handleWhatsAppNotifyAdmin(loginPendingUser)}
+                  onClick={handleWhatsAppNotifyAdmin}
                   className="w-full py-3.5 px-4 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 transition-all cursor-pointer"
                 >
                   <MessageCircle className="w-4 h-4" />
-                  <span>Hubungi Super Admin via WhatsApp untuk Aktivasi</span>
+                  <span>Konfirmasi & Chat via WhatsApp</span>
                 </button>
 
                 <button
@@ -626,6 +683,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   <option value="trial_3">🟡 Trial 3 Hari — Gratis Masa Uji Coba (Otomatis Aktif)</option>
                 </select>
               </div>
+
+              {/* Show Official BCA Payment Info for Paid Package Registration */}
+              {regDuration !== 'trial_3' && renderBcaPaymentInfo('Rekening Tujuan Resmi Pembayaran:')}
 
               <button
                 type="submit"

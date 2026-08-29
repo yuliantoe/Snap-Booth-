@@ -34,7 +34,7 @@ import {
 } from 'lucide-react';
 import { EventTheme, UserAccount } from '../types';
 import { DEFAULT_THEMES } from '../utils/themePresets';
-import { isDurationUnlimited, calculateRemainingDays } from '../services/subscriptionService';
+import { isDurationUnlimited, calculateRemainingDays, OFFICIAL_PAYMENT_INFO } from '../services/subscriptionService';
 
 interface ControlPanelModalProps {
   isOpen: boolean;
@@ -532,7 +532,7 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                     </span>
                   </div>
                   <p className="text-xs text-slate-300 leading-relaxed max-w-2xl">
-                    Akun Anda <strong>({currentUser?.businessName || currentUser?.displayName})</strong> akan berakhir dalam kurun waktu <strong>{remainingDays === 0 ? 'hari ini' : `${remainingDays} hari lagi`}</strong> (Batas Aktif: <span className="text-amber-300 font-bold">{currentUser?.subscriptionEndDate}</span>). Segera perpanjang paket langganan Anda agar akses fitur booth tidak terhenti.
+                    Akun Anda <strong>({currentUser?.businessName || currentUser?.displayName})</strong> akan berakhir dalam kurun waktu <strong>{remainingDays === 0 ? 'hari ini' : `${remainingDays} hari lagi`}</strong> (Batas Aktif: <span className="text-amber-300 font-bold">{currentUser?.subscriptionEndDate}</span>). Perpanjangan langganan HANYA ditujukan ke Rekening Resmi: <span className="text-amber-300 font-bold underline decoration-amber-400/50">{OFFICIAL_PAYMENT_INFO.fullLabel}</span>.
                   </p>
                 </div>
               </div>

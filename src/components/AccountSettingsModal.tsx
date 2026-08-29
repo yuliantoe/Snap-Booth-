@@ -17,9 +17,12 @@ import {
   RefreshCw,
   Save,
   Check,
+  CreditCard,
+  Copy,
+  MessageCircle,
 } from 'lucide-react';
 import { UserAccount } from '../types';
-import { calculateRemainingDays, SUBSCRIPTION_PLANS } from '../services/subscriptionService';
+import { calculateRemainingDays, SUBSCRIPTION_PLANS, OFFICIAL_PAYMENT_INFO, OFFICIAL_WHATSAPP_LINK, isDurationUnlimited } from '../services/subscriptionService';
 
 interface AccountSettingsModalProps {
   isOpen: boolean;
@@ -36,7 +39,8 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({
   usersList,
   onUpdateUser,
 }) => {
-  const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'pin'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'pin' | 'billing'>('profile');
+  const [copiedBca, setCopiedBca] = useState(false);
   
   // Profile Fields
   const [username, setUsername] = useState('');
@@ -80,6 +84,16 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({
 
   const isSuperAdmin = currentUser.role === 'super_admin';
   const remainingDays = calculateRemainingDays(currentUser.subscriptionEndDate);
+
+  const handleCopyBca = () => {
+    navigator.clipboard.writeText(OFFICIAL_PAYMENT_INFO.accountNumber);
+    setCopiedBca(true);
+    setTimeout(() => setCopiedBca(false), 2500);
+  };
+
+  const handleWhatsAppContact = () => {
+    window.open(OFFICIAL_WHATSAPP_LINK, '_blank');
+  };
 
   // Generate strong random password
   const handleGenerateRandomPassword = () => {
@@ -332,6 +346,22 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({
           >
             <KeyRound className="w-3.5 h-3.5 text-cyan-400" />
             <span>PIN Akses Kiosk</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setActiveTab('billing');
+              setStatusMsg(null);
+            }}
+            className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+              activeTab === 'billing'
+                ? 'bg-slate-800 text-white shadow-md border border-slate-700'
+                : 'text-slate-400 hover:text-white hover:bg-slate-900'
+            }`}
+          >
+            <CreditCard className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Paket & Pembayaran</span>
           </button>
         </div>
 
@@ -669,6 +699,124 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({
                 </button>
               </div>
             </form>
+          )}
+
+          {/* TAB 4: PAKET & PEMBAYARAN */}
+          {activeTab === 'billing' && (
+            <div className="space-y-4 animate-in fade-in duration-200">
+              {/* Current Subscription Status */}
+              <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 space-y-2 text-xs">
+                <div className="flex justify-between items-center text-slate-400">
+                  <span>Paket Aktif:</span>
+                  <span className="font-bold text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20">
+                    {SUBSCRIPTION_PLANS[currentUser.subscriptionPlan]?.name || currentUser.subscriptionPlan}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-slate-400">
+                  <span>Masa Berlaku:</span>
+                  <span className="font-bold text-white">
+                    {isDurationUnlimited(currentUser.subscriptionEndDate)
+                      ? '♾️ Unlimited / Lifetime'
+                      : currentUser.subscriptionEndDate}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-slate-400">
+                  <span>Sisa Hari:</span>
+                  <span className={`font-bold ${remainingDays <= 3 ? 'text-rose-400' : 'text-emerald-400'}`}>
+                    {isDurationUnlimited(currentUser.subscriptionEndDate)
+                      ? 'Aktif Selamanya'
+                      : remainingDays <= 0
+                      ? '🔴 Expired (Kadaluarsa)'
+                      : `🟢 ${remainingDays} Hari Lagi`}
+                  </span>
+                </div>
+              </div>
+
+              {/* Official BCA Bank Account Information */}
+              <div className="p-4 rounded-2xl bg-gradient-to-br from-blue-950/40 via-slate-950 to-amber-950/20 border-2 border-amber-500/40 space-y-2.5 shadow-lg">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-amber-400 font-black text-xs">
+                    <CreditCard className="w-4 h-4 text-amber-400" />
+                    <span>Rekening Tujuan Resmi Pembayaran</span>
+                  </div>
+                  <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30 font-mono">
+                    BCA Resmi
+                  </span>
+                </div>
+
+                <div className="p-3 rounded-xl bg-slate-900/90 border border-slate-800 space-y-2 text-xs">
+                  <div className="flex justify-between items-center text-slate-300">
+                    <span className="text-slate-400">Bank Tujuan:</span>
+                    <span className="font-bold text-white tracking-wide">{OFFICIAL_PAYMENT_INFO.bankName}</span>
+                  </div>
+
+                  <div className="flex justify-between items-center text-slate-300">
+                    <span className="text-slate-400">Nomor Rekening:</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono font-black text-amber-300 text-sm tracking-wider">
+                        {OFFICIAL_PAYMENT_INFO.accountNumber}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={handleCopyBca}
+                        className={`px-2 py-1 rounded-lg text-[10px] font-bold flex items-center gap-1 cursor-pointer transition-all ${
+                          copiedBca
+                            ? 'bg-emerald-500 text-slate-950 font-black'
+                            : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700'
+                        }`}
+                        title="Salin Nomor Rekening BCA"
+                      >
+                        {copiedBca ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                        <span>{copiedBca ? 'Tersalin!' : 'Salin'}</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center text-slate-300">
+                    <span className="text-slate-400">Atas Nama (A/N):</span>
+                    <span className="font-bold text-emerald-400 uppercase tracking-wide">
+                      {OFFICIAL_PAYMENT_INFO.accountHolder}
+                    </span>
+                  </div>
+                </div>
+
+                <p className="text-[11px] text-amber-200/90 leading-relaxed italic bg-amber-500/10 p-2.5 rounded-lg border border-amber-500/20">
+                  ⚠️ <strong>Perhatian:</strong> Hanya lakukan pembayaran ke Rekening Resmi <strong>{OFFICIAL_PAYMENT_INFO.fullLabel}</strong>. snapBoth Studio tidak pernah menerima pembayaran di luar rekening resmi ini.
+                </p>
+              </div>
+
+              {/* Plans Summary */}
+              <div className="space-y-1.5">
+                <span className="text-[11px] font-bold text-slate-400">Pilihan Tarif Perpanjangan:</span>
+                <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                  <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-0.5">
+                    <div className="text-[10px] text-slate-400 font-bold">Mingguan</div>
+                    <div className="font-black text-white text-xs">Rp 30.000</div>
+                    <div className="text-[9px] text-slate-500">7 Hari</div>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 space-y-0.5 relative">
+                    <div className="text-[10px] text-amber-400 font-bold">Bulanan</div>
+                    <div className="font-black text-amber-300 text-xs">Rp 50.000</div>
+                    <div className="text-[9px] text-amber-300/70">30 Hari</div>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-0.5">
+                    <div className="text-[10px] text-cyan-400 font-bold">Tahunan</div>
+                    <div className="font-black text-cyan-300 text-xs">Rp 500.000</div>
+                    <div className="text-[9px] text-slate-500">365 Hari</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Button: WhatsApp */}
+              <button
+                type="button"
+                onClick={handleWhatsAppContact}
+                className="w-full py-3 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 transition-all cursor-pointer"
+              >
+                <MessageCircle className="w-4 h-4" />
+                <span>Konfirmasi & Chat via WhatsApp</span>
+              </button>
+            </div>
           )}
         </div>
       </div>

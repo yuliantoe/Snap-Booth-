@@ -12,6 +12,18 @@ import {
 import { db } from '../lib/firebase';
 import { UserAccount, SubscriptionPlanInfo, SubscriptionPlanId, EventTheme } from '../types';
 
+export const OFFICIAL_PAYMENT_INFO = {
+  bankName: 'Bank Central Asia (BCA)',
+  bankShortName: 'BCA',
+  accountNumber: '5820191546',
+  accountHolder: 'Yulianto',
+  fullLabel: 'Bank Central Asia (BCA) 5820191546 a/n Yulianto',
+  notice: 'Hanya transfer ke Rekening Tujuan Resmi Bank Central Asia (BCA) 5820191546 a/n Yulianto. Kami tidak pernah menggunakan nomor rekening bank lain.',
+};
+
+export const OFFICIAL_WHATSAPP_PHONE = '085159746119';
+export const OFFICIAL_WHATSAPP_LINK = 'https://wa.me/085159746119?text=Halo%20saya%20SnapBoth%20%0ATerimakasih%20telah%20menghubungi%20Layanan%20Kami%20%0Aada%20yang%20bisa%20kami%20bantu%20terimaksih%20';
+
 export const SUBSCRIPTION_PLANS: Record<SubscriptionPlanId, SubscriptionPlanInfo> = {
   starter: {
     id: 'starter',
@@ -101,7 +113,7 @@ export const DEFAULT_USERS: UserAccount[] = [
     subscriptionPlan: 'lifetime',
     subscriptionStartDate: '2025-01-01',
     subscriptionEndDate: '2099-12-31',
-    phone: '081288889999',
+    phone: '085159746119',
     boothAccessPin: '9988',
     notes: 'Super Administrator Utama Platform',
     createdAt: new Date().toISOString(),

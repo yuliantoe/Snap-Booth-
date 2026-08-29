@@ -21,9 +21,10 @@ import {
   X,
   AlertCircle,
   ChevronDown,
+  CreditCard,
 } from 'lucide-react';
 import { UserAccount } from '../../types';
-import { isDurationUnlimited } from '../../services/subscriptionService';
+import { isDurationUnlimited, OFFICIAL_PAYMENT_INFO } from '../../services/subscriptionService';
 
 interface PendingApprovalsTabProps {
   pendingUsers: UserAccount[];
@@ -71,7 +72,10 @@ export const PendingApprovalsTab: React.FC<PendingApprovalsTabProps> = ({
     const rawPhone = user.phone || '';
     const cleanPhone = rawPhone.replace(/[^0-9]/g, '').replace(/^0/, '62');
     const message = encodeURIComponent(
-      `Halo *${user.displayName || user.businessName}*, kami dari Super Admin snapBoth Receipt ingin mengonfirmasi pendaftaran akun studio Anda untuk paket *${user.requestedPlanName || 'Langganan'}*.`
+      `Halo *${user.displayName || user.businessName}*, kami dari Super Admin snapBoth Receipt ingin mengonfirmasi pendaftaran akun studio Anda untuk paket *${user.requestedPlanName || 'Langganan'}*.\n\n` +
+      `Silakan pastikan pembayaran telah ditransfer ke Rekening Resmi:\n` +
+      `*${OFFICIAL_PAYMENT_INFO.fullLabel}*\n\n` +
+      `Kirimkan bukti transfer di sini agar akun Anda dapat segera diaktifkan. Terima kasih!`
     );
     window.open(`https://wa.me/${cleanPhone}?text=${message}`, '_blank');
   };
@@ -130,6 +134,11 @@ export const PendingApprovalsTab: React.FC<PendingApprovalsTabProps> = ({
             <p className="text-xs text-slate-300 mt-1 leading-relaxed max-w-2xl">
               Berikut adalah daftar calon klien yang mendaftar secara mandiri untuk paket berbayar. Anda dapat memverifikasi pembayaran/data, menyesuaikan paket durasi, lalu klik <strong>Setujui & Aktifkan</strong>.
             </p>
+            <div className="mt-2.5 inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-950/80 border border-amber-500/30 text-xs">
+              <CreditCard className="w-3.5 h-3.5 text-amber-400" />
+              <span className="text-slate-400">Rekening Resmi:</span>
+              <strong className="text-amber-300 font-mono font-bold">{OFFICIAL_PAYMENT_INFO.fullLabel}</strong>
+            </div>
           </div>
         </div>
       </div>
