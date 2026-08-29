@@ -22,7 +22,16 @@ import {
   MessageCircle,
 } from 'lucide-react';
 import { UserAccount } from '../types';
-import { calculateRemainingDays, SUBSCRIPTION_PLANS, OFFICIAL_PAYMENT_INFO, OFFICIAL_WHATSAPP_LINK, isDurationUnlimited } from '../services/subscriptionService';
+import {
+  calculateRemainingDays,
+  SUBSCRIPTION_PLANS,
+  OFFICIAL_PAYMENT_INFO,
+  OFFICIAL_WHATSAPP_LINK,
+  isDurationUnlimited,
+  PRICING_PACKAGES,
+  generateUniqueCode,
+  formatRupiah,
+} from '../services/subscriptionService';
 
 interface AccountSettingsModalProps {
   isOpen: boolean;
@@ -41,6 +50,9 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<'profile' | 'password' | 'pin' | 'billing'>('profile');
   const [copiedBca, setCopiedBca] = useState(false);
+  const [selectedRenewalPackage, setSelectedRenewalPackage] = useState<string>('monthly_49k');
+  const [renewalUniqueCode] = useState<number>(() => generateUniqueCode());
+  const [copiedTotalPayable, setCopiedTotalPayable] = useState(false);
   
   // Profile Fields
   const [username, setUsername] = useState('');
@@ -89,6 +101,12 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({
     navigator.clipboard.writeText(OFFICIAL_PAYMENT_INFO.accountNumber);
     setCopiedBca(true);
     setTimeout(() => setCopiedBca(false), 2500);
+  };
+
+  const handleCopyTotalPayable = (amount: number) => {
+    navigator.clipboard.writeText(amount.toString());
+    setCopiedTotalPayable(true);
+    setTimeout(() => setCopiedTotalPayable(false), 2500);
   };
 
   const handleWhatsAppContact = () => {
@@ -785,26 +803,110 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({
                 </p>
               </div>
 
-              {/* Plans Summary */}
-              <div className="space-y-1.5">
-                <span className="text-[11px] font-bold text-slate-400">Pilihan Tarif Perpanjangan:</span>
-                <div className="grid grid-cols-3 gap-2 text-center text-xs">
-                  <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-0.5">
-                    <div className="text-[10px] text-slate-400 font-bold">Mingguan</div>
-                    <div className="font-black text-white text-xs">Rp 30.000</div>
-                    <div className="text-[9px] text-slate-500">7 Hari</div>
-                  </div>
-                  <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 space-y-0.5 relative">
-                    <div className="text-[10px] text-amber-400 font-bold">Bulanan</div>
-                    <div className="font-black text-amber-300 text-xs">Rp 50.000</div>
-                    <div className="text-[9px] text-amber-300/70">30 Hari</div>
-                  </div>
-                  <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-0.5">
-                    <div className="text-[10px] text-cyan-400 font-bold">Tahunan</div>
-                    <div className="font-black text-cyan-300 text-xs">Rp 500.000</div>
-                    <div className="text-[9px] text-slate-500">365 Hari</div>
-                  </div>
+              {/* Plans Summary & Dynamic Unique Code */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-slate-300">Pilihan Tarif Perpanjangan:</span>
+                  <span className="text-[10px] text-amber-400 font-medium">Klik paket untuk melihat rincian pembayaran</span>
                 </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
+                  {PRICING_PACKAGES.map((pkg) => {
+                    const isSelected = selectedRenewalPackage === pkg.id;
+                    return (
+                      <button
+                        key={pkg.id}
+                        type="button"
+                        onClick={() => setSelectedRenewalPackage(pkg.id)}
+                        className={`p-2.5 rounded-xl border transition-all text-left flex flex-col justify-between relative cursor-pointer ${
+                          isSelected
+                            ? 'bg-amber-500/20 border-amber-400 shadow-md shadow-amber-500/10'
+                            : 'bg-slate-950/80 border-slate-800 hover:border-slate-700'
+                        }`}
+                      >
+                        {pkg.discountBadge && (
+                          <span className="absolute -top-2 -right-1 px-1.5 py-0.5 rounded-full text-[9px] font-black bg-rose-500 text-white shadow-sm border border-rose-400/40">
+                            {pkg.discountBadge}
+                          </span>
+                        )}
+                        {pkg.popular && (
+                          <span className="absolute -top-2 -right-1 px-1.5 py-0.5 rounded-full text-[9px] font-black bg-amber-500 text-slate-950 shadow-sm border border-amber-300">
+                            Populer
+                          </span>
+                        )}
+                        <div>
+                          <div className={`text-[11px] font-bold ${isSelected ? 'text-amber-300' : 'text-slate-300'}`}>
+                            {pkg.name}
+                          </div>
+                          <div className="text-[10px] text-slate-400">{pkg.durationLabel}</div>
+                        </div>
+                        <div className="mt-2">
+                          <div className="font-black text-white text-xs">{formatRupiah(pkg.price)}</div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Selected Package Payment Calculation with Unique Transaction Code */}
+                {(() => {
+                  const selectedPkg = PRICING_PACKAGES.find((p) => p.id === selectedRenewalPackage) || PRICING_PACKAGES[1];
+                  const totalPayable = selectedPkg.price + renewalUniqueCode;
+
+                  return (
+                    <div className="p-3 rounded-2xl bg-slate-950 border border-amber-500/30 space-y-2 text-xs">
+                      <div className="flex justify-between items-center text-slate-300">
+                        <span className="text-slate-400">Paket yang Dipilih:</span>
+                        <span className="font-bold text-white flex items-center gap-1.5">
+                          <span>{selectedPkg.name} ({selectedPkg.durationLabel})</span>
+                          {selectedPkg.discountBadge && (
+                            <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                              {selectedPkg.discountBadge}
+                            </span>
+                          )}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center text-slate-300">
+                        <span className="text-slate-400">Harga Paket:</span>
+                        <span className="font-semibold text-slate-200">{formatRupiah(selectedPkg.price)}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-slate-300">
+                        <span className="text-slate-400 flex items-center gap-1">
+                          <span>Nomor Unik Transaksi:</span>
+                          <span className="text-[9px] text-amber-400/80">(Otomatis Sistem)</span>
+                        </span>
+                        <span className="font-mono font-black text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/20">
+                          +{renewalUniqueCode}
+                        </span>
+                      </div>
+
+                      <div className="pt-2 border-t border-slate-800 flex justify-between items-center bg-amber-500/10 -mx-1 px-2.5 py-2 rounded-xl border border-amber-500/30">
+                        <div>
+                          <div className="text-amber-300 font-black text-xs">Total yang Ditransfer:</div>
+                          <div className="text-[9px] text-slate-400">Transfer tepat 3 digit nomor unik di belakang</div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono font-black text-amber-300 text-sm tracking-wide">
+                            {formatRupiah(totalPayable)}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleCopyTotalPayable(totalPayable)}
+                            className={`px-2 py-1 rounded-lg text-[10px] font-black flex items-center gap-1 cursor-pointer transition-all ${
+                              copiedTotalPayable
+                                ? 'bg-emerald-500 text-slate-950'
+                                : 'bg-amber-500 hover:bg-amber-400 text-slate-950'
+                            }`}
+                            title="Salin Total Transfer"
+                          >
+                            {copiedTotalPayable ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                            <span>{copiedTotalPayable ? 'Tersalin' : 'Salin'}</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* Action Button: WhatsApp */}

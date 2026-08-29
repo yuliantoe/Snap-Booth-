@@ -319,16 +319,22 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
       } else if (newDurationType === 'week_1') {
         endDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
         status = 'active';
-        noteDuration = 'Langganan Mingguan (7 Hari - Rp 30.000)';
+        noteDuration = 'Langganan Mingguan (7 Hari - Rp 25.000)';
       } else if (newDurationType.startsWith('month_')) {
         const months = parseInt(newDurationType.replace('month_', ''), 10) || 1;
         endDate = new Date(Date.now() + months * 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
         status = 'active';
-        noteDuration = months === 1 ? 'Langganan Bulanan (30 Hari - Rp 50.000)' : `Durasi ${months} Bulan`;
+        if (months === 1) {
+          noteDuration = 'Langganan Bulanan (30 Hari - Rp 49.000)';
+        } else if (months === 3) {
+          noteDuration = 'Langganan 3 Bulan (90 Hari - Rp 135.000 - Hemat 8%)';
+        } else {
+          noteDuration = `Durasi ${months} Bulan`;
+        }
       } else if (newDurationType === 'year_1') {
         endDate = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
         status = 'active';
-        noteDuration = 'Langganan Tahunan (365 Hari - Rp 500.000)';
+        noteDuration = 'Langganan Tahunan (365 Hari - Rp 480.000 - Hemat 18%)';
       }
 
       const cleanUsername = (newUsername.trim() || newEmail.split('@')[0]).toLowerCase().replace(/[^a-z0-9_.-]/g, '');
@@ -1155,11 +1161,11 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                       <option value="trial_30">Trial 30 Hari (1 Bulan)</option>
                     </optgroup>
                     <optgroup label="🟢 Paket Langganan Reguler">
-                      <option value="week_1">Mingguan (7 Hari) — Rp 30.000</option>
-                      <option value="month_1">Bulanan (30 Hari) — Rp 50.000</option>
-                      <option value="month_3">3 Bulan (90 Hari) — Rp 140.000</option>
+                      <option value="week_1">Mingguan (7 Hari) — Rp 25.000</option>
+                      <option value="month_1">Bulanan (30 Hari) — Rp 49.000 (Populer)</option>
+                      <option value="month_3">3 Bulan (90 Hari) — Rp 135.000 (Hemat 8%)</option>
                       <option value="month_6">6 Bulan (180 Hari) — Rp 270.000</option>
-                      <option value="year_1">Tahunan (365 Hari) — Rp 500.000</option>
+                      <option value="year_1">Tahunan (365 Hari) — Rp 480.000 (Hemat 18%)</option>
                     </optgroup>
                     <optgroup label="♾️ Tanpa Batas / Durasi OFF">
                       <option value="off">OFF / Tanpa Batas (Unlimited / Selamanya Aktif)</option>

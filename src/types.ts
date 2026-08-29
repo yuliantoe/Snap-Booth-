@@ -111,8 +111,19 @@ export interface UserAccount {
   customTheme?: EventTheme;
   approvalStatus?: ApprovalStatus;
   registrationType?: 'trial' | 'paid_registration' | 'manual_admin';
-  requestedDuration?: 'trial_3' | 'weekly_30k' | 'monthly_50k' | 'yearly_500k' | 'off';
+  requestedDuration?:
+    | 'trial_3'
+    | 'weekly_25k'
+    | 'monthly_49k'
+    | 'quarterly_135k'
+    | 'yearly_480k'
+    | 'weekly_30k'
+    | 'monthly_50k'
+    | 'yearly_500k'
+    | 'off';
   requestedPlanName?: string;
+  uniqueCode?: number;
+  totalAmountPayable?: number;
   approvedAt?: string;
   approvedBy?: string;
   rejectedAt?: string;

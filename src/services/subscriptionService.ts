@@ -24,6 +24,78 @@ export const OFFICIAL_PAYMENT_INFO = {
 export const OFFICIAL_WHATSAPP_PHONE = '085159746119';
 export const OFFICIAL_WHATSAPP_LINK = 'https://wa.me/085159746119?text=Halo%20saya%20SnapBoth%20%0ATerimakasih%20telah%20menghubungi%20Layanan%20Kami%20%0Aada%20yang%20bisa%20kami%20bantu%20terimaksih%20';
 
+export interface PricingPackage {
+  id: 'weekly_25k' | 'monthly_49k' | 'quarterly_135k' | 'yearly_480k';
+  name: string;
+  durationDays: number;
+  durationLabel: string;
+  price: number;
+  discountPercent?: number;
+  discountBadge?: string;
+  savingsAmount?: number;
+  popular?: boolean;
+  tagline: string;
+}
+
+export const PRICING_PACKAGES: PricingPackage[] = [
+  {
+    id: 'weekly_25k',
+    name: 'Langganan Mingguan',
+    durationDays: 7,
+    durationLabel: '7 Hari',
+    price: 25000,
+    tagline: 'Cocok untuk event singkat atau sewa mingguan',
+  },
+  {
+    id: 'monthly_49k',
+    name: 'Langganan Bulanan',
+    durationDays: 30,
+    durationLabel: '30 Hari',
+    price: 49000,
+    popular: true,
+    tagline: 'Pilihan paling populer untuk vendor photobooth',
+  },
+  {
+    id: 'quarterly_135k',
+    name: 'Langganan 3 Bulan',
+    durationDays: 90,
+    durationLabel: '90 Hari (3 Bulan)',
+    price: 135000,
+    discountPercent: 8,
+    discountBadge: 'Hemat 8%',
+    savingsAmount: 12000,
+    tagline: 'Lebih hemat untuk musim event & wedding',
+  },
+  {
+    id: 'yearly_480k',
+    name: 'Langganan Tahunan',
+    durationDays: 365,
+    durationLabel: '365 Hari (1 Tahun)',
+    price: 480000,
+    discountPercent: 18,
+    discountBadge: 'Hemat 18%',
+    savingsAmount: 108000,
+    tagline: 'Super hemat, bebas pusing perpanjangan 1 tahun penuh',
+  },
+];
+
+// Helper to generate a 3-digit unique transaction code (100 - 998)
+export const generateUniqueCode = (seed?: string): number => {
+  if (seed) {
+    let hash = 0;
+    for (let i = 0; i < seed.length; i++) {
+      hash = (hash * 31 + seed.charCodeAt(i)) % 900;
+    }
+    return 100 + Math.abs(hash);
+  }
+  return Math.floor(100 + Math.random() * 899);
+};
+
+// Helper to format Rupiah currency
+export const formatRupiah = (amount: number): string => {
+  return 'Rp ' + amount.toLocaleString('id-ID');
+};
+
 export const SUBSCRIPTION_PLANS: Record<SubscriptionPlanId, SubscriptionPlanInfo> = {
   starter: {
     id: 'starter',
@@ -180,14 +252,16 @@ export const DEFAULT_USERS: UserAccount[] = [
     subscriptionStatus: 'pending_approval',
     approvalStatus: 'pending',
     registrationType: 'paid_registration',
-    requestedDuration: 'monthly_50k',
-    requestedPlanName: 'Langganan Bulanan (Rp 50.000 / 30 Hari)',
+    requestedDuration: 'monthly_49k',
+    requestedPlanName: 'Langganan Bulanan (Rp 49.000 / 30 Hari)',
+    uniqueCode: 342,
+    totalAmountPayable: 49342,
     subscriptionPlan: 'pro_booth',
     subscriptionStartDate: new Date().toISOString().split('T')[0],
     subscriptionEndDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     phone: '081987654321',
     boothAccessPin: '8899',
-    notes: 'Pendaftaran mandiri paket Bulanan Rp 50.000 - Menunggu verifikasi pembayaran & approval Super Admin',
+    notes: 'Pendaftaran mandiri paket Bulanan Rp 49.000 (Tagihan: Rp 49.342, Kode Unik: 342) - Menunggu verifikasi pembayaran & approval Super Admin',
     createdAt: new Date().toISOString(),
   },
 ];

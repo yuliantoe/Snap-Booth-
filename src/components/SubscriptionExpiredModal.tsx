@@ -15,7 +15,14 @@ import {
   Check,
 } from 'lucide-react';
 import { UserAccount } from '../types';
-import { SUBSCRIPTION_PLANS, OFFICIAL_PAYMENT_INFO, OFFICIAL_WHATSAPP_LINK } from '../services/subscriptionService';
+import {
+  SUBSCRIPTION_PLANS,
+  OFFICIAL_PAYMENT_INFO,
+  OFFICIAL_WHATSAPP_LINK,
+  PRICING_PACKAGES,
+  generateUniqueCode,
+  formatRupiah,
+} from '../services/subscriptionService';
 
 interface SubscriptionExpiredModalProps {
   isOpen: boolean;
@@ -31,6 +38,9 @@ export const SubscriptionExpiredModal: React.FC<SubscriptionExpiredModalProps> =
   onOpenAuth,
 }) => {
   const [copied, setCopied] = useState(false);
+  const [selectedPlanId, setSelectedPlanId] = useState<string>('monthly_49k');
+  const [expiredUniqueCode] = useState<number>(() => generateUniqueCode());
+  const [copiedTotal, setCopiedTotal] = useState(false);
 
   if (!isOpen || !currentUser) return null;
 
@@ -40,6 +50,12 @@ export const SubscriptionExpiredModal: React.FC<SubscriptionExpiredModalProps> =
     navigator.clipboard.writeText(OFFICIAL_PAYMENT_INFO.accountNumber);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
+  };
+
+  const handleCopyTotal = (amount: number) => {
+    navigator.clipboard.writeText(amount.toString());
+    setCopiedTotal(true);
+    setTimeout(() => setCopiedTotal(false), 2500);
   };
 
   const handleWhatsAppContact = () => {
@@ -129,6 +145,95 @@ export const SubscriptionExpiredModal: React.FC<SubscriptionExpiredModalProps> =
           <p className="text-[11px] text-amber-200/90 leading-relaxed italic bg-amber-500/10 p-2 rounded-lg border border-amber-500/20">
             ⚠️ <strong>Perhatian:</strong> Hanya lakukan transfer ke <strong>{OFFICIAL_PAYMENT_INFO.fullLabel}</strong>. Kami tidak bertanggung jawab atas transaksi di luar rekening resmi ini.
           </p>
+        </div>
+
+        {/* Package Renewal Selection with Savings Badges & Unique Transaction Code */}
+        <div className="space-y-2 text-left">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-bold text-slate-300">Pilih Paket Perpanjangan:</span>
+            <span className="text-[10px] text-amber-400 font-medium">Klik untuk lihat rincian transfer</span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            {PRICING_PACKAGES.map((pkg) => {
+              const isSelected = selectedPlanId === pkg.id;
+              return (
+                <button
+                  key={pkg.id}
+                  type="button"
+                  onClick={() => setSelectedPlanId(pkg.id)}
+                  className={`p-2.5 rounded-xl border text-left flex flex-col justify-between relative cursor-pointer transition-all ${
+                    isSelected
+                      ? 'bg-amber-500/20 border-amber-400 shadow-md shadow-amber-500/10'
+                      : 'bg-slate-950/80 border-slate-800 hover:border-slate-700'
+                  }`}
+                >
+                  {pkg.discountBadge && (
+                    <span className="absolute -top-2 -right-1 px-1.5 py-0.5 rounded-full text-[9px] font-black bg-rose-500 text-white shadow-sm border border-rose-400/40">
+                      {pkg.discountBadge}
+                    </span>
+                  )}
+                  {pkg.popular && (
+                    <span className="absolute -top-2 -right-1 px-1.5 py-0.5 rounded-full text-[9px] font-black bg-amber-500 text-slate-950 shadow-sm border border-amber-300">
+                      Populer
+                    </span>
+                  )}
+                  <div>
+                    <div className={`font-bold text-[11px] ${isSelected ? 'text-amber-300' : 'text-slate-200'}`}>
+                      {pkg.name}
+                    </div>
+                    <div className="text-[10px] text-slate-400">{pkg.durationLabel}</div>
+                  </div>
+                  <div className="mt-1 font-black text-white text-xs">{formatRupiah(pkg.price)}</div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Breakdown with Unique Code */}
+          {(() => {
+            const pkg = PRICING_PACKAGES.find((p) => p.id === selectedPlanId) || PRICING_PACKAGES[1];
+            const total = pkg.price + expiredUniqueCode;
+
+            return (
+              <div className="p-3 rounded-xl bg-slate-950 border border-amber-500/30 space-y-1.5 text-xs">
+                <div className="flex justify-between items-center text-slate-400 text-[11px]">
+                  <span>Harga Paket:</span>
+                  <span className="font-semibold text-slate-200">{formatRupiah(pkg.price)}</span>
+                </div>
+                <div className="flex justify-between items-center text-[11px]">
+                  <span className="text-slate-400">Nomor Unik Transaksi:</span>
+                  <span className="font-mono font-black text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/20">
+                    +{expiredUniqueCode}
+                  </span>
+                </div>
+                <div className="pt-1.5 border-t border-slate-800 flex justify-between items-center bg-amber-500/10 -mx-1 px-2 py-1.5 rounded-lg border border-amber-500/30">
+                  <div>
+                    <div className="text-amber-300 font-bold text-xs">Total Pembayaran:</div>
+                    <div className="text-[9px] text-slate-400">Transfer tepat 3 digit nomor unik di belakang</div>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-mono font-black text-amber-300 text-sm tracking-wide">
+                      {formatRupiah(total)}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleCopyTotal(total)}
+                      className={`px-2 py-0.5 rounded-md text-[10px] font-black flex items-center gap-1 cursor-pointer transition-all ${
+                        copiedTotal
+                          ? 'bg-emerald-500 text-slate-950'
+                          : 'bg-amber-500 hover:bg-amber-400 text-slate-950'
+                      }`}
+                      title="Salin Total Pembayaran"
+                    >
+                      {copiedTotal ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                      <span>{copiedTotal ? 'Tersalin' : 'Salin'}</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
         </div>
 
         <div className="space-y-2.5 pt-1">

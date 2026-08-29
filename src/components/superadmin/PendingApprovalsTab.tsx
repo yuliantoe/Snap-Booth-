@@ -24,7 +24,7 @@ import {
   CreditCard,
 } from 'lucide-react';
 import { UserAccount } from '../../types';
-import { isDurationUnlimited, OFFICIAL_PAYMENT_INFO } from '../../services/subscriptionService';
+import { isDurationUnlimited, OFFICIAL_PAYMENT_INFO, formatRupiah } from '../../services/subscriptionService';
 
 interface PendingApprovalsTabProps {
   pendingUsers: UserAccount[];
@@ -149,7 +149,7 @@ export const PendingApprovalsTab: React.FC<PendingApprovalsTabProps> = ({
           const showPassword = !!showPasswordMap[user.id];
           const isRejecting = rejectingUserId === user.id;
           const isProcessing = processingId === user.id;
-          const currentChosenDuration = selectedDurationMap[user.id] || user.requestedDuration || 'monthly_50k';
+          const currentChosenDuration = selectedDurationMap[user.id] || user.requestedDuration || 'monthly_49k';
 
           return (
             <div
@@ -240,15 +240,29 @@ export const PendingApprovalsTab: React.FC<PendingApprovalsTabProps> = ({
                   <span className="text-[10px] text-slate-500 block">Kiosk Passcode</span>
                 </div>
 
-                {/* Requested Plan */}
+                {/* Requested Plan & Unique Code */}
                 <div className="p-3 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-1">
                   <span className="text-[11px] text-amber-400 font-bold block flex items-center gap-1">
                     <Zap className="w-3.5 h-3.5 text-amber-400" />
-                    Paket yang Diajukan:
+                    Paket & Mutasi Transfer:
                   </span>
                   <div className="font-bold text-white text-[11px] leading-tight">
                     {user.requestedPlanName || 'Langganan Photobooth'}
                   </div>
+                  {user.totalAmountPayable ? (
+                    <div className="text-[11px] font-mono font-bold text-amber-300 flex items-center gap-1">
+                      <span>Tagihan: {formatRupiah(user.totalAmountPayable)}</span>
+                      {user.uniqueCode && (
+                        <span className="px-1.5 py-0.2 rounded bg-amber-400/20 text-amber-400 text-[10px]">
+                          (Kode: {user.uniqueCode})
+                        </span>
+                      )}
+                    </div>
+                  ) : user.uniqueCode ? (
+                    <div className="text-[10px] font-mono text-amber-400">
+                      Kode Unik: {user.uniqueCode}
+                    </div>
+                  ) : null}
                   <span className="text-[10px] text-slate-400 block font-mono">
                     Tipe: {user.registrationType || 'Pendaftaran Mandiri'}
                   </span>
@@ -273,11 +287,15 @@ export const PendingApprovalsTab: React.FC<PendingApprovalsTabProps> = ({
                     }
                     className="px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs font-bold focus:outline-none focus:border-amber-500"
                   >
-                    <option value="monthly_50k">🟢 Bulanan (30 Hari) — Rp 50.000</option>
-                    <option value="weekly_30k">🟢 Mingguan (7 Hari) — Rp 30.000</option>
-                    <option value="yearly_500k">💎 Tahunan (365 Hari) — Rp 500.000</option>
+                    <option value="monthly_49k">🟢 Bulanan (30 Hari) — Rp 49.000 (Populer)</option>
+                    <option value="weekly_25k">🟢 Mingguan (7 Hari) — Rp 25.000</option>
+                    <option value="quarterly_135k">🔥 3 Bulan (90 Hari) — Rp 135.000 (Hemat 8%)</option>
+                    <option value="yearly_480k">💎 Tahunan (365 Hari) — Rp 480.000 (Hemat 18%)</option>
                     <option value="off">♾️ OFF / Unlimited (Tanpa Batas)</option>
                     <option value="trial_3">🟡 Set sebagai Trial 3 Hari</option>
+                    <option value="monthly_50k">🟢 [Legacy] Bulanan — Rp 50.000</option>
+                    <option value="weekly_30k">🟢 [Legacy] Mingguan — Rp 30.000</option>
+                    <option value="yearly_500k">💎 [Legacy] Tahunan — Rp 500.000</option>
                   </select>
                 </div>
 

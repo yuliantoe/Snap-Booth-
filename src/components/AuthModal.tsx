@@ -25,7 +25,12 @@ import {
   Check,
 } from 'lucide-react';
 import { UserAccount } from '../types';
-import { OFFICIAL_PAYMENT_INFO, OFFICIAL_WHATSAPP_LINK } from '../services/subscriptionService';
+import {
+  OFFICIAL_PAYMENT_INFO,
+  OFFICIAL_WHATSAPP_LINK,
+  generateUniqueCode,
+  formatRupiah,
+} from '../services/subscriptionService';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -64,12 +69,53 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [regBusinessName, setRegBusinessName] = useState('');
   const [regEmail, setRegEmail] = useState('');
   const [regPhone, setRegPhone] = useState('');
-  const [regDuration, setRegDuration] = useState<'trial_3' | 'weekly_30k' | 'monthly_50k' | 'yearly_500k' | 'off'>('monthly_50k');
+  const [regDuration, setRegDuration] = useState<
+    | 'trial_3'
+    | 'weekly_25k'
+    | 'monthly_49k'
+    | 'quarterly_135k'
+    | 'yearly_480k'
+    | 'weekly_30k'
+    | 'monthly_50k'
+    | 'yearly_500k'
+    | 'off'
+  >('monthly_49k');
+  const [regUniqueCode] = useState<number>(() => generateUniqueCode());
   const [regPin, setRegPin] = useState('1234');
   const [showRegPassword, setShowRegPassword] = useState(false);
   const [copiedBca, setCopiedBca] = useState(false);
+  const [copiedAmount, setCopiedAmount] = useState(false);
 
   if (!isOpen) return null;
+
+  // Package pricing details helper
+  const getPackagePricing = (durationKey: string) => {
+    if (durationKey === 'weekly_25k' || durationKey === 'weekly_30k') {
+      return { name: 'Langganan Mingguan', days: 7, basePrice: 25000, label: 'Mingguan (7 Hari)' };
+    }
+    if (durationKey === 'monthly_49k' || durationKey === 'monthly_50k') {
+      return { name: 'Langganan Bulanan', days: 30, basePrice: 49000, label: 'Bulanan (30 Hari)' };
+    }
+    if (durationKey === 'quarterly_135k' || durationKey === 'month_3') {
+      return {
+        name: 'Langganan 3 Bulan',
+        days: 90,
+        basePrice: 135000,
+        discountBadge: 'Hemat 8%',
+        label: '3 Bulan (90 Hari)',
+      };
+    }
+    if (durationKey === 'yearly_480k' || durationKey === 'yearly_500k' || durationKey === 'year_1') {
+      return {
+        name: 'Langganan Tahunan',
+        days: 365,
+        basePrice: 480000,
+        discountBadge: 'Hemat 18%',
+        label: 'Tahunan (365 Hari)',
+      };
+    }
+    return null;
+  };
 
   // Super Admin WhatsApp contact info
   const superAdmin = usersList.find((u) => u.role === 'super_admin');
@@ -82,8 +128,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setTimeout(() => setCopiedBca(false), 2500);
   };
 
-  const renderBcaPaymentInfo = (customTitle?: string) => (
-    <div className="p-3.5 rounded-2xl bg-gradient-to-br from-blue-950/40 via-slate-950 to-amber-950/20 border border-amber-500/40 text-left space-y-2">
+  const handleCopyAmount = (amount: number) => {
+    navigator.clipboard.writeText(amount.toString());
+    setCopiedAmount(true);
+    setTimeout(() => setCopiedAmount(false), 2500);
+  };
+
+  const renderBcaPaymentInfo = (
+    customTitle?: string,
+    amountDetails?: { basePrice?: number; uniqueCode?: number; total?: number; planName?: string }
+  ) => (
+    <div className="p-3.5 rounded-2xl bg-gradient-to-br from-blue-950/40 via-slate-950 to-amber-950/20 border border-amber-500/40 text-left space-y-2.5">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5 text-amber-400 font-bold text-xs">
           <CreditCard className="w-4 h-4 text-amber-400" />
@@ -94,7 +149,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         </span>
       </div>
 
-      <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 space-y-1.5 text-xs">
+      <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 space-y-2 text-xs">
         <div className="flex justify-between items-center text-slate-300">
           <span className="text-slate-400">Bank Tujuan:</span>
           <span className="font-semibold text-white">{OFFICIAL_PAYMENT_INFO.bankName}</span>
@@ -126,10 +181,57 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             {OFFICIAL_PAYMENT_INFO.accountHolder}
           </span>
         </div>
+
+        {/* Unique Transaction Code & Total Payable Amount */}
+        {amountDetails && amountDetails.total && amountDetails.total > 0 && (
+          <div className="pt-2 border-t border-slate-800 space-y-1.5">
+            {amountDetails.basePrice && (
+              <div className="flex justify-between items-center text-slate-300 text-[11px]">
+                <span className="text-slate-400">Harga Paket ({amountDetails.planName || 'Langganan'}):</span>
+                <span className="font-medium text-slate-300">{formatRupiah(amountDetails.basePrice)}</span>
+              </div>
+            )}
+            {amountDetails.uniqueCode && (
+              <div className="flex justify-between items-center text-[11px]">
+                <span className="text-slate-400 flex items-center gap-1">
+                  <span>Nomor Unik Transaksi:</span>
+                  <span className="text-[9px] text-amber-400/80">(Otomatis Sistem)</span>
+                </span>
+                <span className="font-mono font-black text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/20">
+                  +{amountDetails.uniqueCode}
+                </span>
+              </div>
+            )}
+            <div className="pt-1.5 border-t border-slate-800/80 flex justify-between items-center bg-amber-500/10 -mx-1 px-2.5 py-1.5 rounded-lg border border-amber-500/30">
+              <div>
+                <div className="text-amber-300 font-black text-xs">Total Pembayaran:</div>
+                <div className="text-[9px] text-slate-400">Transfer tepat hingga 3 digit terakhir</div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="font-mono font-black text-amber-300 text-sm sm:text-base tracking-wide">
+                  {formatRupiah(amountDetails.total)}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => handleCopyAmount(amountDetails.total!)}
+                  className={`px-2 py-1 rounded-md text-[10px] font-black flex items-center gap-1 cursor-pointer transition-all ${
+                    copiedAmount
+                      ? 'bg-emerald-500 text-slate-950'
+                      : 'bg-amber-500 hover:bg-amber-400 text-slate-950'
+                  }`}
+                  title="Salin Total Pembayaran"
+                >
+                  {copiedAmount ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                  <span>{copiedAmount ? 'Tersalin' : 'Salin'}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <p className="text-[10px] text-amber-200/90 leading-relaxed italic bg-amber-500/10 p-2 rounded-lg border border-amber-500/20">
-        ⚠️ <strong>Penting:</strong> Hanya transfer ke <strong>{OFFICIAL_PAYMENT_INFO.fullLabel}</strong>. Kami tidak pernah menggunakan nomor rekening lain!
+        ⚠️ <strong>Penting:</strong> Mohon transfer tepat hingga 3 digit nomor unik di belakang ke <strong>{OFFICIAL_PAYMENT_INFO.fullLabel}</strong> agar proses verifikasi transaksi berlangsung otomatis & instan!
       </p>
     </div>
   );
@@ -203,6 +305,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       const startDate = new Date().toISOString().split('T')[0];
       let endDate = '2099-12-31';
       let planTitle = 'Trial 3 Hari - Gratis';
+      let basePrice = 0;
       let note = 'Pendaftaran mandiri akun baru';
 
       if (regDuration === 'off') {
@@ -213,18 +316,29 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         endDate = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
         planTitle = 'Trial 3 Hari — Gratis Masa Uji Coba';
         note = 'Pendaftaran mandiri (Trial 3 Hari - Otomatis Aktif)';
-      } else if (regDuration === 'weekly_30k') {
+      } else if (regDuration === 'weekly_25k' || regDuration === 'weekly_30k') {
         endDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-        planTitle = 'Langganan Mingguan — Rp 30.000 / 7 Hari';
-        note = 'Pendaftaran mandiri (Langganan Mingguan Rp 30.000) - Menunggu Approval Super Admin';
-      } else if (regDuration === 'monthly_50k') {
+        planTitle = 'Langganan Mingguan — Rp 25.000 / 7 Hari';
+        basePrice = 25000;
+      } else if (regDuration === 'monthly_49k' || regDuration === 'monthly_50k') {
         endDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-        planTitle = 'Langganan Bulanan — Rp 50.000 / 30 Hari';
-        note = 'Pendaftaran mandiri (Langganan Bulanan Rp 50.000) - Menunggu Approval Super Admin';
-      } else if (regDuration === 'yearly_500k') {
+        planTitle = 'Langganan Bulanan — Rp 49.000 / 30 Hari';
+        basePrice = 49000;
+      } else if (regDuration === 'quarterly_135k') {
+        endDate = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+        planTitle = 'Langganan 3 Bulan — Rp 135.000 / 90 Hari (Hemat 8%)';
+        basePrice = 135000;
+      } else if (regDuration === 'yearly_480k' || regDuration === 'yearly_500k') {
         endDate = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-        planTitle = 'Langganan Tahunan — Rp 500.000 / 365 Hari';
-        note = 'Pendaftaran mandiri (Langganan Tahunan Rp 500.000) - Menunggu Approval Super Admin';
+        planTitle = 'Langganan Tahunan — Rp 480.000 / 365 Hari (Hemat 18%)';
+        basePrice = 480000;
+      }
+
+      const assignedUniqueCode = basePrice > 0 ? regUniqueCode : undefined;
+      const assignedTotalPayable = basePrice > 0 ? basePrice + regUniqueCode : undefined;
+
+      if (!isTrial && regDuration !== 'off') {
+        note = `Pendaftaran mandiri (${planTitle} - Tagihan: ${formatRupiah(assignedTotalPayable || basePrice)}, Kode Unik: ${assignedUniqueCode}) - Menunggu Approval Super Admin`;
       }
 
       const cleanUsername = (regUsername.trim() || regEmail.split('@')[0]).toLowerCase().replace(/[^a-z0-9_.-]/g, '');
@@ -241,6 +355,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         registrationType: isTrial ? 'trial' : 'paid_registration',
         requestedDuration: regDuration,
         requestedPlanName: planTitle,
+        uniqueCode: assignedUniqueCode,
+        totalAmountPayable: assignedTotalPayable,
         subscriptionPlan: regDuration === 'off' ? 'lifetime' : 'pro_booth',
         subscriptionStartDate: startDate,
         subscriptionEndDate: endDate,
@@ -414,7 +530,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               </div>
 
               {/* Official BCA Payment Transfer Info */}
-              {renderBcaPaymentInfo("Rekening Tujuan Resmi Transfer Pembayaran:")}
+              {(() => {
+                const pkg = pendingRegisteredUser.requestedDuration ? getPackagePricing(pendingRegisteredUser.requestedDuration) : null;
+                const basePrice = pkg?.basePrice || 49000;
+                const uniqueCode = pendingRegisteredUser.uniqueCode || 342;
+                const total = pendingRegisteredUser.totalAmountPayable || (basePrice + uniqueCode);
+                return renderBcaPaymentInfo("Rekening Tujuan Resmi Transfer Pembayaran:", {
+                  basePrice,
+                  uniqueCode,
+                  total,
+                  planName: pendingRegisteredUser.requestedPlanName || 'Langganan Photobooth',
+                });
+              })()}
 
               {/* Action Buttons */}
               <div className="space-y-2 pt-2">
@@ -473,7 +600,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               </div>
 
               {/* Official BCA Payment Transfer Info */}
-              {renderBcaPaymentInfo("Rekening Tujuan Resmi Pembayaran:")}
+              {(() => {
+                const pkg = loginPendingUser.requestedDuration ? getPackagePricing(loginPendingUser.requestedDuration) : null;
+                const basePrice = pkg?.basePrice || 49000;
+                const uniqueCode = loginPendingUser.uniqueCode || 342;
+                const total = loginPendingUser.totalAmountPayable || (basePrice + uniqueCode);
+                return renderBcaPaymentInfo("Rekening Tujuan Resmi Pembayaran:", {
+                  basePrice,
+                  uniqueCode,
+                  total,
+                  planName: loginPendingUser.requestedPlanName || 'Langganan Photobooth',
+                });
+              })()}
 
               <div className="space-y-2 pt-2">
                 <button
@@ -676,16 +814,27 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   onChange={(e) => setRegDuration(e.target.value as any)}
                   className="w-full px-3.5 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-amber-500 font-medium"
                 >
-                  <option value="monthly_50k">🟢 Langganan Bulanan — Rp 50.000 / 30 Hari (Paling Populer)</option>
-                  <option value="weekly_30k">🟢 Langganan Mingguan — Rp 30.000 / 7 Hari</option>
-                  <option value="yearly_500k">💎 Langganan Tahunan — Rp 500.000 / 365 Hari (Hemat 2 Bulan)</option>
+                  <option value="monthly_49k">🟢 Langganan Bulanan — Rp 49.000 / 30 Hari (Paling Populer)</option>
+                  <option value="weekly_25k">🟢 Langganan Mingguan — Rp 25.000 / 7 Hari</option>
+                  <option value="quarterly_135k">🔥 Langganan 3 Bulan — Rp 135.000 / 90 Hari (Hemat 8%)</option>
+                  <option value="yearly_480k">💎 Langganan Tahunan — Rp 480.000 / 365 Hari (Hemat 18%)</option>
                   <option value="off">♾️ OFF / Unlimited — Tanpa Batas Masa Berlaku</option>
                   <option value="trial_3">🟡 Trial 3 Hari — Gratis Masa Uji Coba (Otomatis Aktif)</option>
                 </select>
               </div>
 
-              {/* Show Official BCA Payment Info for Paid Package Registration */}
-              {regDuration !== 'trial_3' && renderBcaPaymentInfo('Rekening Tujuan Resmi Pembayaran:')}
+              {/* Show Official BCA Payment Info for Paid Package Registration with Unique Transaction Code */}
+              {regDuration !== 'trial_3' && regDuration !== 'off' && (() => {
+                const pkg = getPackagePricing(regDuration);
+                const basePrice = pkg?.basePrice || 49000;
+                return renderBcaPaymentInfo('Rekening Tujuan Resmi Pembayaran:', {
+                  basePrice,
+                  uniqueCode: regUniqueCode,
+                  total: basePrice + regUniqueCode,
+                  planName: pkg?.name || 'Langganan',
+                });
+              })()}
+              {regDuration === 'off' && renderBcaPaymentInfo('Rekening Tujuan Resmi Pembayaran:')}
 
               <button
                 type="submit"
