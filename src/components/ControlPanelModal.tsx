@@ -1089,6 +1089,8 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                 <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-3 scrollbar-none">
                   {[
                     { id: 'all', label: 'Semua Tema' },
+                    { id: 'newspaper', label: '📰 Koran Harian' },
+                    { id: 'calendar', label: '🗓️ Kalender' },
                     { id: 'magazine', label: '📖 Majalah Cover' },
                     { id: 'receipt', label: '🛒 Struk Pembelian' },
                     { id: 'cafe', label: '☕ Cafe & Kopi' },

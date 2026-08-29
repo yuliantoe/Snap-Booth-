@@ -1,4 +1,4 @@
-export type LayoutType = 'strip4' | 'strip3' | 'grid2x2' | 'polaroid' | 'photocard' | 'korean_receipt' | 'magazine' | 'shopping_receipt';
+export type LayoutType = 'strip4' | 'strip3' | 'grid2x2' | 'polaroid' | 'photocard' | 'korean_receipt' | 'magazine' | 'shopping_receipt' | 'newspaper' | 'calendar' | 'calendar_single';
 
 export type FilterType = 
   | 'normal' 
@@ -33,7 +33,7 @@ export interface StickerItem {
 export interface EventTheme {
   id: string;
   name: string;
-  category: 'wedding' | 'birthday' | 'party' | 'retro' | 'corporate' | 'minimal' | 'cafe' | 'restaurant' | 'magazine' | 'receipt';
+  category: 'wedding' | 'birthday' | 'party' | 'retro' | 'corporate' | 'minimal' | 'cafe' | 'restaurant' | 'magazine' | 'receipt' | 'newspaper' | 'calendar';
   frameColor: string; // hex
   textColor: string; // hex
   backgroundColor: string; // hex or CSS gradient

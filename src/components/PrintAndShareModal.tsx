@@ -20,6 +20,7 @@ import {
   Check,
   HardDrive,
   Info,
+  Home,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import QRCode from 'qrcode';
@@ -472,7 +473,7 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
       <div className="text-center space-y-2">
         <div className="flex flex-wrap items-center justify-center gap-2">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-semibold border border-emerald-500/30">
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Hasil Foto Siap Dicetak & Disimpan!
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Halaman Utama Preview Foto Strip
           </div>
 
           {theme.autoPrintEnabled && (
@@ -483,7 +484,7 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
         </div>
 
         <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
-          Cetak & Simpan Foto
+          Preview, Cetak & Simpan Foto
         </h2>
 
         {autoPrintNotice && (
@@ -494,7 +495,7 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
         )}
 
         <p className="text-slate-400 text-xs sm:text-sm max-w-lg mx-auto">
-          Tekan tombol <strong>Cetak Cepat</strong> untuk langsung mencetak foto ke printer tanpa jeda, atau unduh file resolusi tinggi ke galeri perangkat.
+          Lihat pratinjau hasil foto di bawah ini. Tekan <strong>⚡ Cetak Cepat</strong> untuk langsung mencetak, unduh file HD, atau scan QR code dari smartphone Anda.
         </p>
       </div>
 
@@ -706,13 +707,22 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
             </div>
           </div>
 
-          {/* Start New Session Button */}
-          <div className="pt-2">
+          {/* Start New Session & Back to Home Action Buttons */}
+          <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
             <button
               onClick={onResetSession}
-              className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs sm:text-sm border border-slate-700 transition-all cursor-pointer"
+              className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-emerald-600/20 active:scale-98 transition-all cursor-pointer"
             >
-              <RefreshCw className="w-4 h-4 text-rose-400" /> Mulai Sesi Foto Baru
+              <Home className="w-4 h-4 text-emerald-100" />
+              <span>Selesai & Ke Halaman Utama</span>
+            </button>
+
+            <button
+              onClick={onResetSession}
+              className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-bold text-xs sm:text-sm border border-slate-700 transition-all active:scale-98 cursor-pointer"
+            >
+              <RefreshCw className="w-4 h-4 text-rose-400" />
+              <span>Mulai Sesi Foto Baru</span>
             </button>
           </div>
         </div>

@@ -60,6 +60,106 @@ function drawReceiptDashedLine(
   ctx.restore();
 }
 
+// Helper to draw realistic simulated barcodes
+function drawSimulatedBarcode(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  color: string = '#000000'
+) {
+  ctx.save();
+  ctx.fillStyle = color;
+  const barPattern = [2, 1, 3, 1, 2, 4, 1, 2, 3, 1, 2, 1, 4, 2, 1, 3, 2, 1, 2, 3, 1, 4, 1, 2, 1, 3, 2];
+  const totalUnits = barPattern.reduce((a, b) => a + b, 0);
+  const unitW = width / totalUnits;
+  let curX = x;
+  barPattern.forEach((units, idx) => {
+    const w = units * unitW;
+    if (idx % 2 === 0) {
+      ctx.fillRect(curX, y, w, height);
+    }
+    curX += w;
+  });
+  ctx.restore();
+}
+
+// Helper to parse calendar date info (year, month, highlight day)
+function parseCalendarDateInfo(eventDateStr?: string) {
+  const monthNamesId = [
+    'JANUARI', 'FEBRUARI', 'MARET', 'APRIL', 'MEI', 'JUNI',
+    'JULI', 'AGUSTUS', 'SEPTEMBER', 'OKTOBER', 'NOVEMBER', 'DESEMBER'
+  ];
+  const monthNamesEn = [
+    'JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE',
+    'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'
+  ];
+
+  let year = 2026;
+  let month = 7; // August (0-indexed)
+  let day = 8;
+
+  if (eventDateStr) {
+    const s = eventDateStr.toUpperCase();
+
+    // 1. Check for 4-digit year (e.g. 2025 - 2035)
+    const yearMatch = s.match(/\b(20\d\d)\b/);
+    if (yearMatch) {
+      year = parseInt(yearMatch[1], 10);
+    }
+
+    // 2. Check for month by name
+    let foundMonth = false;
+    for (let i = 0; i < 12; i++) {
+      if (
+        s.includes(monthNamesId[i]) ||
+        s.includes(monthNamesEn[i]) ||
+        s.includes(monthNamesId[i].substring(0, 3))
+      ) {
+        month = i;
+        foundMonth = true;
+        break;
+      }
+    }
+
+    // 3. Numeric patterns like DD.MM.YYYY, DD/MM/YYYY, YYYY-MM-DD
+    const numParts = s.match(/\b(\d{1,2})[./\-](\d{1,2})[./\-](\d{2,4})\b/);
+    if (numParts) {
+      const p1 = parseInt(numParts[1], 10);
+      const p2 = parseInt(numParts[2], 10);
+      const p3 = parseInt(numParts[3], 10);
+      if (p3 > 1000) {
+        if (p2 <= 12 && p1 <= 31) {
+          day = p1;
+          if (!foundMonth) month = p2 - 1;
+        }
+      } else if (p1 > 1000) {
+        if (!foundMonth && p2 <= 12) month = p2 - 1;
+        if (p3 <= 31) day = p3;
+      }
+    } else {
+      const dayMatch = s.match(/\b([1-9]|[12]\d|3[01])\b/);
+      if (dayMatch) {
+        day = parseInt(dayMatch[1], 10);
+      }
+    }
+  }
+
+  const monthName = monthNamesId[month];
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const firstDayOfWeek = new Date(year, month, 1).getDay(); // 0 = Sunday
+
+  return {
+    year,
+    month,
+    day,
+    monthName,
+    daysInMonth,
+    firstDayOfWeek,
+  };
+}
+
 export async function generatePhotoStripCanvas(options: RenderOptions): Promise<HTMLCanvasElement> {
   const {
     photos,
@@ -118,6 +218,54 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
     const magazineHeaderHeight = 360 + topLogoExtra;
     const magazineFooterHeight = 360;
     canvasHeight = padding + magazineHeaderHeight + photoHeight + magazineFooterHeight + padding;
+  } else if (layout === 'newspaper') {
+    photoCount = 4;
+    canvasWidth = targetWidth; // 1200
+    padding = Math.round(canvasWidth * 0.05); // 60px
+    gap = Math.round(canvasWidth * 0.02); // 24px
+    const topLogoExtra = theme.logoUrl ? Math.round(canvasWidth * 0.20) : 0;
+    const mastheadTotal = 240 + topLogoExtra;
+    const breakingBanner = 110;
+    const mainPhotoW = canvasWidth - padding * 2;
+    const mainPhotoH = Math.round(mainPhotoW * 0.52); // ~562px
+    const mainCaption = 55;
+    const secondaryBar = 55;
+    const colW = Math.round((canvasWidth - padding * 2 - gap * 2) / 3);
+    const colH = Math.round(colW * 0.72); // ~248px
+    const colText = 125;
+    const bottomFooter = 105;
+    canvasHeight = padding * 2 + mastheadTotal + breakingBanner + mainPhotoH + mainCaption + secondaryBar + colH + colText + bottomFooter;
+  } else if (layout === 'calendar') {
+    photoCount = 4;
+    canvasWidth = targetWidth; // 1200
+    padding = Math.round(canvasWidth * 0.05); // 60px
+    gap = Math.round(canvasWidth * 0.02); // 24px
+    const topLogoExtra = theme.logoUrl ? Math.round(canvasWidth * 0.20) : 0;
+    const headerTotal = 185 + topLogoExtra;
+    const colW = Math.round((canvasWidth - padding * 2 - gap) / 2);
+    const colH = Math.round(colW * 0.68); // ~360px
+    const photosGridHeight = colH * 2 + gap; // ~744px
+    const quoteHeight = 35;
+    const daysBarHeight = 45;
+    const calendarGridHeight = 320;
+    const bottomFooter = 80;
+    canvasHeight = padding * 2 + headerTotal + photosGridHeight + quoteHeight + daysBarHeight + calendarGridHeight + bottomFooter;
+  } else if (layout === 'calendar_single') {
+    photoCount = 1;
+    canvasWidth = targetWidth; // 1200
+    padding = Math.round(canvasWidth * 0.05); // 60px
+    gap = 0;
+    const topLogoExtra = theme.logoUrl ? Math.round(canvasWidth * 0.20) : 0;
+    const headerTotal = 195 + topLogoExtra;
+    const photoW = canvasWidth - padding * 2; // 1080px
+    const photoH = Math.round(photoW * 0.72); // ~778px
+    const captionH = 46;
+    const quoteHeight = 46;
+    const daysBarHeight = 40;
+    const calendarGridHeight = 295;
+    const memoBoxHeight = 115;
+    const bottomFooter = 85;
+    canvasHeight = padding * 2 + headerTotal + photoH + captionH + quoteHeight + daysBarHeight + calendarGridHeight + memoBoxHeight + bottomFooter;
   } else if (layout === 'strip3') {
     photoCount = 3;
     canvasWidth = targetWidth;
@@ -194,6 +342,8 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
     const slotPhoto = photos[i];
     let x = padding;
     let y = startPhotoY;
+    let slotW = photoWidth;
+    let slotH = photoHeight;
 
     if (layout === 'strip4' || layout === 'strip3' || layout === 'photocard') {
       x = padding;
@@ -208,6 +358,45 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
       const topLogoExtra = theme.logoUrl ? Math.round(canvasWidth * 0.24) : 0;
       const magazineHeaderHeight = 360 + topLogoExtra;
       y = padding + magazineHeaderHeight;
+    } else if (layout === 'newspaper') {
+      const topLogoExtra = theme.logoUrl ? Math.round(canvasWidth * 0.20) : 0;
+      const mastheadEndY = padding + 240 + topLogoExtra + 110;
+      if (i === 0) {
+        slotW = canvasWidth - padding * 2;
+        slotH = Math.round(slotW * 0.52);
+        x = padding;
+        y = mastheadEndY;
+      } else {
+        const colIdx = i - 1;
+        const availableW = canvasWidth - padding * 2 - gap * 2;
+        const colW = Math.round(availableW / 3);
+        const colH = Math.round(colW * 0.72);
+        const mainH = Math.round((canvasWidth - padding * 2) * 0.52);
+        const colStartY = mastheadEndY + mainH + 55 + 55;
+        slotW = colW;
+        slotH = colH;
+        x = padding + colIdx * (colW + gap);
+        y = colStartY;
+      }
+    } else if (layout === 'calendar') {
+      const topLogoExtra = theme.logoUrl ? Math.round(canvasWidth * 0.20) : 0;
+      const calPhotoStartY = padding + 185 + topLogoExtra;
+      const availableW = canvasWidth - padding * 2 - gap;
+      const colW = Math.round(availableW / 2);
+      const colH = Math.round(colW * 0.68);
+      const col = i % 2;
+      const row = Math.floor(i / 2);
+      slotW = colW;
+      slotH = colH;
+      x = padding + col * (colW + gap);
+      y = calPhotoStartY + row * (colH + gap);
+    } else if (layout === 'calendar_single') {
+      const topLogoExtra = theme.logoUrl ? Math.round(canvasWidth * 0.20) : 0;
+      const calPhotoStartY = padding + 195 + topLogoExtra;
+      slotW = canvasWidth - padding * 2;
+      slotH = Math.round(slotW * 0.72);
+      x = padding;
+      y = calPhotoStartY;
     } else if (layout === 'grid2x2') {
       const col = i % 2;
       const row = Math.floor(i / 2);
@@ -220,7 +409,7 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
 
     // Photo slot background box / placeholder
     ctx.fillStyle = '#E2E8F0';
-    ctx.fillRect(x, y, photoWidth, photoHeight);
+    ctx.fillRect(x, y, slotW, slotH);
 
     if (slotPhoto && slotPhoto.dataUrl) {
       try {
@@ -229,7 +418,7 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
 
         // Clip photo area
         ctx.beginPath();
-        ctx.rect(x, y, photoWidth, photoHeight);
+        ctx.rect(x, y, slotW, slotH);
         ctx.clip();
 
         // Apply Photo Filters & Color Adjustments
@@ -237,22 +426,37 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
 
         // Draw image cropped cleanly (object-fit cover)
         const imgRatio = img.width / img.height;
-        const slotRatio = photoWidth / photoHeight;
-        let drawW = photoWidth;
-        let drawH = photoHeight;
+        const slotRatio = slotW / slotH;
+        let drawW = slotW;
+        let drawH = slotH;
         let drawX = x;
         let drawY = y;
 
         if (imgRatio > slotRatio) {
-          drawW = photoHeight * imgRatio;
-          drawX = x - (drawW - photoWidth) / 2;
+          drawW = slotH * imgRatio;
+          drawX = x - (drawW - slotW) / 2;
         } else {
-          drawH = photoWidth / imgRatio;
-          drawY = y - (drawH - photoHeight) / 2;
+          drawH = slotW / imgRatio;
+          drawY = y - (drawH - slotH) / 2;
         }
 
         ctx.drawImage(img, drawX, drawY, drawW, drawH);
         ctx.restore();
+
+        // Decorative borders on photo if requested by layout
+        if (layout === 'newspaper') {
+          ctx.save();
+          ctx.strokeStyle = '#18181B';
+          ctx.lineWidth = 1.5;
+          ctx.strokeRect(x, y, slotW, slotH);
+          ctx.restore();
+        } else if (layout === 'calendar' || layout === 'calendar_single') {
+          ctx.save();
+          ctx.strokeStyle = 'rgba(0,0,0,0.15)';
+          ctx.lineWidth = 1.5;
+          ctx.strokeRect(x, y, slotW, slotH);
+          ctx.restore();
+        }
       } catch (err) {
         console.error('Failed drawing photo slot', err);
       }
@@ -262,7 +466,15 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
       ctx.font = '36px sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(`Foto ${i + 1}`, x + photoWidth / 2, y + photoHeight / 2);
+      ctx.fillText(`Foto ${i + 1}`, x + slotW / 2, y + slotH / 2);
+
+      if (layout === 'newspaper') {
+        ctx.save();
+        ctx.strokeStyle = '#18181B';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(x, y, slotW, slotH);
+        ctx.restore();
+      }
     }
   }
 
@@ -603,6 +815,669 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
     const issueText = (theme.eventSubtitle || 'SPRING / SUMMER SPECIAL EDITORIAL • SNAPBOOTH').toUpperCase();
     ctx.fillStyle = textColor;
     drawAutoFitText(ctx, issueText, padding, bottomY + 75, maxContentWidth, 18, 'sans-serif', 'normal', 'left');
+  } else if (layout === 'newspaper') {
+    const textColor = theme.textColor || '#18181B';
+    ctx.fillStyle = textColor;
+    const maxContentWidth = canvasWidth - padding * 2;
+    const serifFont = 'Georgia, "Times New Roman", Times, serif';
+    const sansFont = '"Plus Jakarta Sans", system-ui, sans-serif';
+
+    // 1. Newspaper Outer Margin Borders (Double hairline rule)
+    ctx.save();
+    ctx.strokeStyle = textColor;
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(padding - 12, padding - 12, canvasWidth - (padding - 12) * 2, canvasHeight - (padding - 12) * 2);
+    ctx.lineWidth = 0.5;
+    ctx.strokeRect(padding - 8, padding - 8, canvasWidth - (padding - 8) * 2, canvasHeight - (padding - 8) * 2);
+    ctx.restore();
+
+    let curY = padding + 10;
+
+    // 2. Top Logo if available
+    if (theme.logoUrl) {
+      try {
+        const logoImg = await loadImage(theme.logoUrl);
+        const maxLogoWidth = Math.round(canvasWidth * 0.6);
+        const maxLogoHeight = Math.round(canvasWidth * 0.18);
+        let logoW = logoImg.width;
+        let logoH = logoImg.height;
+        const scale = Math.min(maxLogoWidth / logoW, maxLogoHeight / logoH, 1);
+        logoW *= scale;
+        logoH *= scale;
+        const logoX = canvasWidth / 2 - logoW / 2;
+        ctx.drawImage(logoImg, logoX, curY, logoW, logoH);
+        curY += logoH + 15;
+      } catch (err) {
+        console.warn('Unable to render theme logoUrl on newspaper header:', err);
+      }
+    }
+
+    // 3. Top Ear Pieces Left & Right
+    const earWidth = 240;
+    const earHeight = 40;
+    ctx.save();
+    ctx.strokeStyle = textColor;
+    ctx.lineWidth = 1;
+    // Left Ear Box
+    ctx.strokeRect(padding, curY, earWidth, earHeight);
+    ctx.font = `bold 13px ${sansFont}`;
+    ctx.textAlign = 'center';
+    ctx.fillText('VOL. LXXVIII • NO. 2026', padding + earWidth / 2, curY + 16);
+    ctx.font = `11px ${sansFont}`;
+    ctx.fillText('★ EDISI KHUSUS HARI INI ★', padding + earWidth / 2, curY + 32);
+
+    // Right Ear Box
+    ctx.strokeRect(canvasWidth - padding - earWidth, curY, earWidth, earHeight);
+    ctx.font = `bold 13px ${sansFont}`;
+    ctx.fillText('HARGA: KENANGAN ABADI', canvasWidth - padding - earWidth / 2, curY + 16);
+    ctx.font = `11px ${sansFont}`;
+    ctx.fillText('CUACA: CERAH BERAWAN 28°C ☀️', canvasWidth - padding - earWidth / 2, curY + 32);
+    ctx.restore();
+
+    // 4. Masthead Big Title (Center)
+    const mastheadTitle = (theme.eventTitle || 'THE DAILY CHRONICLE').toUpperCase();
+    drawAutoFitText(ctx, mastheadTitle, canvasWidth / 2, curY + 36, maxContentWidth - (earWidth * 2 + 30), 64, serifFont, '900', 'center');
+    curY += earHeight + 14;
+
+    // Subtitle under Masthead
+    const mastheadSub = (theme.eventSubtitle || 'KORAN INDEPENDEN TERPERCAYA • MEREKAM JEJAK MOMEN TERINDAH').toUpperCase();
+    drawAutoFitText(ctx, mastheadSub, canvasWidth / 2, curY, maxContentWidth, 16, sansFont, '600', 'center');
+    curY += 22;
+
+    // Double Horizontal Rules (Thick 3.5px line + Thin 1px line)
+    ctx.save();
+    ctx.strokeStyle = textColor;
+    ctx.lineWidth = 3.5;
+    ctx.beginPath();
+    ctx.moveTo(padding, curY);
+    ctx.lineTo(canvasWidth - padding, curY);
+    ctx.stroke();
+    curY += 6;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(padding, curY);
+    ctx.lineTo(canvasWidth - padding, curY);
+    ctx.stroke();
+    curY += 18;
+
+    // Dateline Bar (Left, Center, Right)
+    ctx.font = `bold 14px ${serifFont}`;
+    ctx.textAlign = 'left';
+    ctx.fillText('JAKARTA, INDONESIA', padding, curY);
+    ctx.textAlign = 'center';
+    ctx.font = `bold 15px ${sansFont}`;
+    ctx.fillText((theme.eventDate || 'MINGGU, 08 AGUSTUS 2026').toUpperCase(), canvasWidth / 2, curY);
+    ctx.textAlign = 'right';
+    ctx.font = `bold 14px ${serifFont}`;
+    ctx.fillText('EDISI NASIONAL • NO. 01', canvasWidth - padding, curY);
+    curY += 8;
+
+    // Thin Rule under Dateline
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(padding, curY);
+    ctx.lineTo(canvasWidth - padding, curY);
+    ctx.stroke();
+    ctx.restore();
+    curY += 25;
+
+    // 5. Breaking News Headline Banner
+    ctx.save();
+    // Badge pill
+    ctx.fillStyle = textColor;
+    const badgeW = 260;
+    const badgeH = 24;
+    ctx.fillRect(padding, curY, badgeW, badgeH);
+    ctx.fillStyle = theme.frameColor || '#FFFFFF';
+    ctx.font = `bold 12px ${sansFont}`;
+    ctx.textAlign = 'center';
+    ctx.fillText('★ BERITA UTAMA / HEADLINE ★', padding + badgeW / 2, curY + 16);
+
+    curY += 42;
+    ctx.fillStyle = textColor;
+    const headlineText = 'MOMEN SPESIAL HARI INI MENCURI PERHATIAN PUBLIK!';
+    drawAutoFitText(ctx, headlineText, padding, curY, maxContentWidth, 38, serifFont, '900', 'left');
+    curY += 28;
+
+    const deckText = 'Detik-detik penuh kegembiraan dan tawa ceria terekam abadi di hadapan lensa kamera para jurnalis dalam momen istimewa.';
+    drawAutoFitText(ctx, deckText, padding, curY, maxContentWidth, 18, serifFont, 'italic', 'left');
+    ctx.restore();
+
+    // Main photo is drawn in loop 3
+    const mainPhotoW = canvasWidth - padding * 2;
+    const mainPhotoH = Math.round(mainPhotoW * 0.52);
+    const mainPhotoCaptionY = curY + 18 + mainPhotoH + 20;
+
+    // Caption below Main Photo
+    ctx.save();
+    ctx.fillStyle = textColor;
+    ctx.font = `italic 14px ${serifFont}`;
+    ctx.textAlign = 'left';
+    ctx.fillText('■ FOTO PERS UTAMA: Potret kebahagiaan terekam di studio. Senyuman tulus para tamu menyemarakkan suasana perhelatan. (Foto: Biro Pers SnapBooth)', padding, mainPhotoCaptionY);
+    ctx.restore();
+
+    // Secondary Section Divider Line with Diamond
+    const secDividerY = mainPhotoCaptionY + 28;
+    ctx.save();
+    ctx.strokeStyle = textColor;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(padding, secDividerY);
+    ctx.lineTo(canvasWidth / 2 - 25, secDividerY);
+    ctx.moveTo(canvasWidth / 2 + 25, secDividerY);
+    ctx.lineTo(canvasWidth - padding, secDividerY);
+    ctx.stroke();
+
+    ctx.font = '16px serif';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = textColor;
+    ctx.fillText('◆', canvasWidth / 2, secDividerY + 5);
+
+    // Secondary Section Title
+    const secTitleY = secDividerY + 28;
+    ctx.font = `bold 16px ${sansFont}`;
+    ctx.textAlign = 'left';
+    ctx.fillText('■ SOROTAN & KABAR BERITA LAINNYA HARI INI', padding, secTitleY);
+    ctx.restore();
+
+    // 3 Column Photo Captions and Text
+    const colW = Math.round((canvasWidth - padding * 2 - gap * 2) / 3);
+    const colH = Math.round(colW * 0.72);
+    const colPhotoStartY = secTitleY + 14;
+    const colTextStartY = colPhotoStartY + colH + 22;
+
+    const columnStories = [
+      {
+        tag: 'KOLOM 1 • KECERIAAN',
+        text: 'Tawa lepas dan senyuman merekah tanpa henti sepanjang perhelatan istimewa ini berlangsung.',
+      },
+      {
+        tag: 'KOLOM 2 • POSE TERBAIK',
+        text: 'Gaya memukau mencerminkan kehangatan, keceriaan, dan kebersamaan sejati para sahabat.',
+      },
+      {
+        tag: 'KOLOM 3 • KENANGAN ABADI',
+        text: 'Potret ini dicetak sebagai arsip kenangan sejarah bahwa hari ini adalah momen luar biasa.',
+      },
+    ];
+
+    ctx.save();
+    for (let c = 0; c < 3; c++) {
+      const colX = padding + c * (colW + gap);
+      const colStory = columnStories[c];
+
+      // Tag
+      ctx.fillStyle = textColor;
+      ctx.font = `bold 13px ${sansFont}`;
+      ctx.textAlign = 'left';
+      ctx.fillText(colStory.tag, colX, colTextStartY);
+
+      // Paragraph
+      ctx.font = `13px ${serifFont}`;
+      ctx.fillStyle = `${textColor}DF`;
+      drawAutoFitText(ctx, colStory.text, colX, colTextStartY + 20, colW, 13, serifFont, 'normal', 'left');
+
+      // Draw vertical column divider rule between columns
+      if (c < 2) {
+        const divX = colX + colW + gap / 2;
+        ctx.strokeStyle = `${textColor}40`;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(divX, colPhotoStartY - 5);
+        ctx.lineTo(divX, colTextStartY + 60);
+        ctx.stroke();
+      }
+    }
+    ctx.restore();
+
+    // Newspaper Bottom Press Footer
+    const footerY = canvasHeight - padding - 45;
+    ctx.save();
+    ctx.strokeStyle = textColor;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(padding, footerY);
+    ctx.lineTo(canvasWidth - padding, footerY);
+    ctx.stroke();
+
+    // Barcode on left
+    drawSimulatedBarcode(ctx, padding, footerY + 14, 180, 28, textColor);
+
+    // Text on center/right
+    ctx.fillStyle = textColor;
+    ctx.font = `bold 13px ${sansFont}`;
+    ctx.textAlign = 'right';
+    ctx.fillText('THE DAILY CHRONICLE • DITERBITKAN OLEH REDAKSI PERS SNAPBOOTH', canvasWidth - padding, footerY + 22);
+    ctx.font = `11px ${sansFont}`;
+    ctx.fillText('Dicetak dengan teknologi kualitas tinggi • Arsip Kenangan Sejarah Abadi', canvasWidth - padding, footerY + 38);
+    ctx.restore();
+  } else if (layout === 'calendar') {
+    const textColor = theme.textColor || '#1E293B';
+    const accentColor = theme.accentColor || '#E11D48';
+    ctx.fillStyle = textColor;
+    const maxContentWidth = canvasWidth - padding * 2;
+    const sansFont = '"Plus Jakarta Sans", system-ui, sans-serif';
+
+    const calInfo = parseCalendarDateInfo(theme.eventDate);
+
+    // 1. Top Spiral Binder Rings / Hanging Hole Accent
+    ctx.save();
+    const ringCount = 7;
+    const ringSpacing = maxContentWidth / (ringCount - 1);
+    for (let r = 0; r < ringCount; r++) {
+      const ringX = padding + r * ringSpacing;
+      const ringY = padding - 8;
+      // Shadow / hole
+      ctx.fillStyle = '#CBD5E1';
+      ctx.beginPath();
+      ctx.arc(ringX, ringY, 7, 0, Math.PI * 2);
+      ctx.fill();
+      // Metallic clip loop
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(ringX, ringY, 5, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    let curY = padding + 25;
+
+    // 2. Top Logo if provided
+    if (theme.logoUrl) {
+      try {
+        const logoImg = await loadImage(theme.logoUrl);
+        const maxLogoWidth = Math.round(canvasWidth * 0.55);
+        const maxLogoHeight = Math.round(canvasWidth * 0.16);
+        let logoW = logoImg.width;
+        let logoH = logoImg.height;
+        const scale = Math.min(maxLogoWidth / logoW, maxLogoHeight / logoH, 1);
+        logoW *= scale;
+        logoH *= scale;
+        const logoX = canvasWidth / 2 - logoW / 2;
+        ctx.drawImage(logoImg, logoX, curY, logoW, logoH);
+        curY += logoH + 15;
+      } catch (err) {
+        console.warn('Unable to render theme logoUrl on calendar header:', err);
+      }
+    }
+
+    // 3. Calendar Month & Year Big Display
+    ctx.save();
+    ctx.fillStyle = accentColor;
+    ctx.font = `900 62px ${sansFont}`;
+    ctx.textAlign = 'center';
+    ctx.fillText(`${calInfo.monthName} ${calInfo.year}`, canvasWidth / 2, curY + 45);
+
+    curY += 75;
+
+    // Event Title & Subtitle
+    const calTitle = (theme.eventTitle || 'OUR SPECIAL MEMORIES 2026').toUpperCase();
+    ctx.fillStyle = textColor;
+    drawAutoFitText(ctx, calTitle, canvasWidth / 2, curY, maxContentWidth, 24, sansFont, 'bold', 'center');
+    curY += 28;
+
+    const calSub = theme.eventSubtitle || 'Kenangan Manis Sepanjang Tahun • Simpan Setiap Detik Bahagia 🗓️';
+    ctx.fillStyle = `${textColor}B3`;
+    drawAutoFitText(ctx, calSub, canvasWidth / 2, curY, maxContentWidth, 16, sansFont, 'normal', 'center');
+    curY += 22;
+
+    // Subtle Header Divider Line
+    ctx.strokeStyle = `${textColor}26`;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(padding, curY);
+    ctx.lineTo(canvasWidth - padding, curY);
+    ctx.stroke();
+    ctx.restore();
+
+    // Photos (4 photos in 2x2 grid) are rendered in loop 3
+    const calColW = Math.round((canvasWidth - padding * 2 - gap) / 2);
+    const calColH = Math.round(calColW * 0.68);
+    const calPhotosStartY = padding + 185 + (theme.logoUrl ? Math.round(canvasWidth * 0.20) : 0);
+    const calPhotosEndY = calPhotosStartY + calColH * 2 + gap;
+
+    // 4. Inspiring Quote Banner below photos
+    let calGridSectionY = calPhotosEndY + 25;
+    ctx.save();
+    ctx.font = `italic 15px ${sansFont}`;
+    ctx.textAlign = 'center';
+    ctx.fillStyle = `${textColor}CC`;
+    ctx.fillText('“Setiap hari adalah berkah baru, nikmati setiap detik bersama orang tersayang.”', canvasWidth / 2, calGridSectionY);
+    ctx.restore();
+
+    calGridSectionY += 20;
+
+    // 5. Days of Week Header Bar (MIN, SEN, SEL, RAB, KAM, JUM, SAB)
+    const dayNames = ['MIN', 'SEN', 'SEL', 'RAB', 'KAM', 'JUM', 'SAB'];
+    const dayColW = maxContentWidth / 7;
+    const daysBarH = 34;
+
+    ctx.save();
+    ctx.fillStyle = `${textColor}0D`;
+    ctx.beginPath();
+    if (ctx.roundRect) {
+      ctx.roundRect(padding, calGridSectionY, maxContentWidth, daysBarH, 8);
+    } else {
+      ctx.rect(padding, calGridSectionY, maxContentWidth, daysBarH);
+    }
+    ctx.fill();
+
+    ctx.font = `bold 14px ${sansFont}`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    for (let d = 0; d < 7; d++) {
+      const dayX = padding + d * dayColW + dayColW / 2;
+      ctx.fillStyle = d === 0 ? '#EF4444' : textColor;
+      ctx.fillText(dayNames[d], dayX, calGridSectionY + daysBarH / 2);
+    }
+    ctx.restore();
+
+    // 6. Monthly Days Grid
+    const gridStartY = calGridSectionY + daysBarH + 12;
+    const totalSlots = calInfo.firstDayOfWeek + calInfo.daysInMonth;
+    const totalRows = Math.ceil(totalSlots / 7);
+    const rowHeight = Math.min(52, Math.round(270 / totalRows));
+
+    ctx.save();
+    for (let dayNum = 1; dayNum <= calInfo.daysInMonth; dayNum++) {
+      const slotIndex = calInfo.firstDayOfWeek + dayNum - 1;
+      const col = slotIndex % 7;
+      const row = Math.floor(slotIndex / 7);
+      const cellCenterX = padding + col * dayColW + dayColW / 2;
+      const cellCenterY = gridStartY + row * rowHeight + rowHeight / 2;
+
+      const isHighlight = dayNum === calInfo.day;
+      const isSunday = col === 0;
+
+      if (isHighlight) {
+        // Highlight Badge (Circle/Pill)
+        ctx.fillStyle = accentColor;
+        ctx.beginPath();
+        ctx.arc(cellCenterX, cellCenterY - 4, 17, 0, Math.PI * 2);
+        ctx.fill();
+
+        // White Day Number
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = `bold 16px ${sansFont}`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(String(dayNum), cellCenterX, cellCenterY - 4);
+
+        // Mini Label under highlight badge
+        ctx.fillStyle = accentColor;
+        ctx.font = `bold 9px ${sansFont}`;
+        ctx.fillText('★ SPESIAL', cellCenterX, cellCenterY + 17);
+      } else {
+        ctx.fillStyle = isSunday ? '#EF4444' : textColor;
+        ctx.font = `bold 15px ${sansFont}`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(String(dayNum), cellCenterX, cellCenterY);
+      }
+    }
+    ctx.restore();
+
+    // 7. Calendar Bottom Footer
+    const calFooterY = canvasHeight - padding - 35;
+    ctx.save();
+    ctx.strokeStyle = `${textColor}26`;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(padding, calFooterY);
+    ctx.lineTo(canvasWidth - padding, calFooterY);
+    ctx.stroke();
+
+    ctx.fillStyle = textColor;
+    ctx.font = `bold 13px ${sansFont}`;
+    ctx.textAlign = 'left';
+    ctx.fillText('🗓️ SNAPBOOTH MEMORIES CALENDAR', padding, calFooterY + 24);
+
+    ctx.textAlign = 'center';
+    ctx.font = `12px ${sansFont}`;
+    ctx.fillStyle = `${textColor}A6`;
+    ctx.fillText('Dicetak Khusus • Koleksi Foto Kalender Pribadi', canvasWidth / 2, calFooterY + 24);
+
+    ctx.textAlign = 'right';
+    ctx.font = `bold 13px ${sansFont}`;
+    ctx.fillStyle = accentColor;
+    ctx.fillText(`TAHUN ${calInfo.year}`, canvasWidth - padding, calFooterY + 24);
+    ctx.restore();
+  } else if (layout === 'calendar_single') {
+    const textColor = theme.textColor || '#1E293B';
+    const accentColor = theme.accentColor || '#E11D48';
+    ctx.fillStyle = textColor;
+    const maxContentWidth = canvasWidth - padding * 2;
+    const sansFont = '"Plus Jakarta Sans", system-ui, sans-serif';
+
+    const calInfo = parseCalendarDateInfo(theme.eventDate);
+
+    // 1. Top Spiral Binder Rings / Hanging Hole Accent
+    ctx.save();
+    const ringCount = 9;
+    const ringSpacing = maxContentWidth / (ringCount - 1);
+    for (let r = 0; r < ringCount; r++) {
+      const ringX = padding + r * ringSpacing;
+      const ringY = padding - 8;
+      // Shadow / hole
+      ctx.fillStyle = '#CBD5E1';
+      ctx.beginPath();
+      ctx.arc(ringX, ringY, 8, 0, Math.PI * 2);
+      ctx.fill();
+      // Metallic clip loop
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 3.5;
+      ctx.beginPath();
+      ctx.arc(ringX, ringY, 6, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    let curY = padding + 25;
+
+    // 2. Top Logo if provided
+    if (theme.logoUrl) {
+      try {
+        const logoImg = await loadImage(theme.logoUrl);
+        const maxLogoWidth = Math.round(canvasWidth * 0.55);
+        const maxLogoHeight = Math.round(canvasWidth * 0.16);
+        let logoW = logoImg.width;
+        let logoH = logoImg.height;
+        const scale = Math.min(maxLogoWidth / logoW, maxLogoHeight / logoH, 1);
+        logoW *= scale;
+        logoH *= scale;
+        const logoX = canvasWidth / 2 - logoW / 2;
+        ctx.drawImage(logoImg, logoX, curY, logoW, logoH);
+        curY += logoH + 15;
+      } catch (err) {
+        console.warn('Unable to render theme logoUrl on calendar_single header:', err);
+      }
+    }
+
+    // 3. Calendar Month & Year Big Display
+    ctx.save();
+    ctx.fillStyle = accentColor;
+    ctx.font = `900 64px ${sansFont}`;
+    ctx.textAlign = 'center';
+    ctx.fillText(`${calInfo.monthName} ${calInfo.year}`, canvasWidth / 2, curY + 46);
+
+    curY += 78;
+
+    // Event Title & Subtitle
+    const calTitle = (theme.eventTitle || 'OUR SPECIAL MEMORIES 2026').toUpperCase();
+    ctx.fillStyle = textColor;
+    drawAutoFitText(ctx, calTitle, canvasWidth / 2, curY, maxContentWidth, 25, sansFont, 'bold', 'center');
+    curY += 28;
+
+    const calSub = theme.eventSubtitle || 'Kenangan Manis Sepanjang Tahun • Simpan Setiap Detik Bahagia 🗓️';
+    ctx.fillStyle = `${textColor}B3`;
+    drawAutoFitText(ctx, calSub, canvasWidth / 2, curY, maxContentWidth, 16, sansFont, 'normal', 'center');
+    curY += 22;
+
+    // Subtle Header Divider Line
+    ctx.strokeStyle = `${textColor}26`;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(padding, curY);
+    ctx.lineTo(canvasWidth - padding, curY);
+    ctx.stroke();
+    ctx.restore();
+
+    // The single photo is drawn at y = padding + 195 + topLogoExtra
+    const photoW = canvasWidth - padding * 2;
+    const photoH = Math.round(photoW * 0.72);
+    const photoEndY = curY + 20 + photoH;
+
+    // 4. Photo Caption & Date Tag under single photo
+    let subPhotoY = photoEndY + 24;
+    ctx.save();
+    ctx.fillStyle = textColor;
+    ctx.font = `italic 14px ${sansFont}`;
+    ctx.textAlign = 'left';
+    ctx.fillText('■ FOTO KENANGAN UTAMA • SNAPBOOTH EXCLUSIVE WALL EDITION', padding, subPhotoY);
+
+    // Right date badge
+    ctx.font = `bold 13px ${sansFont}`;
+    ctx.textAlign = 'right';
+    ctx.fillStyle = accentColor;
+    ctx.fillText(`★ EDISI ${calInfo.monthName} ${calInfo.year}`, canvasWidth - padding, subPhotoY);
+    ctx.restore();
+
+    subPhotoY += 22;
+
+    // 5. Inspiring Quote Banner below photo
+    let calGridSectionY = subPhotoY + 22;
+    ctx.save();
+    ctx.font = `italic 15px ${sansFont}`;
+    ctx.textAlign = 'center';
+    ctx.fillStyle = `${textColor}CC`;
+    ctx.fillText('“Setiap hari adalah berkah baru, nikmati dan simpan setiap detik manis bersama orang tersayang.”', canvasWidth / 2, calGridSectionY);
+    ctx.restore();
+
+    calGridSectionY += 24;
+
+    // 6. Days of Week Header Bar (MIN, SEN, SEL, RAB, KAM, JUM, SAB)
+    const dayNames = ['MIN', 'SEN', 'SEL', 'RAB', 'KAM', 'JUM', 'SAB'];
+    const dayColW = maxContentWidth / 7;
+    const daysBarH = 38;
+
+    ctx.save();
+    ctx.fillStyle = `${textColor}0D`;
+    ctx.beginPath();
+    if (ctx.roundRect) {
+      ctx.roundRect(padding, calGridSectionY, maxContentWidth, daysBarH, 8);
+    } else {
+      ctx.rect(padding, calGridSectionY, maxContentWidth, daysBarH);
+    }
+    ctx.fill();
+
+    ctx.font = `bold 15px ${sansFont}`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    for (let d = 0; d < 7; d++) {
+      const dayX = padding + d * dayColW + dayColW / 2;
+      ctx.fillStyle = d === 0 ? '#EF4444' : textColor;
+      ctx.fillText(dayNames[d], dayX, calGridSectionY + daysBarH / 2);
+    }
+    ctx.restore();
+
+    // 7. Monthly Days Grid
+    const gridStartY = calGridSectionY + daysBarH + 14;
+    const totalSlots = calInfo.firstDayOfWeek + calInfo.daysInMonth;
+    const totalRows = Math.ceil(totalSlots / 7);
+    const rowHeight = Math.min(54, Math.round(280 / totalRows));
+
+    ctx.save();
+    for (let dayNum = 1; dayNum <= calInfo.daysInMonth; dayNum++) {
+      const slotIndex = calInfo.firstDayOfWeek + dayNum - 1;
+      const col = slotIndex % 7;
+      const row = Math.floor(slotIndex / 7);
+      const cellCenterX = padding + col * dayColW + dayColW / 2;
+      const cellCenterY = gridStartY + row * rowHeight + rowHeight / 2;
+
+      const isHighlight = dayNum === calInfo.day;
+      const isSunday = col === 0;
+
+      if (isHighlight) {
+        // Highlight Badge (Circle/Pill)
+        ctx.fillStyle = accentColor;
+        ctx.beginPath();
+        ctx.arc(cellCenterX, cellCenterY - 4, 18, 0, Math.PI * 2);
+        ctx.fill();
+
+        // White Day Number
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = `bold 17px ${sansFont}`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(String(dayNum), cellCenterX, cellCenterY - 4);
+
+        // Mini Label under highlight badge
+        ctx.fillStyle = accentColor;
+        ctx.font = `bold 9px ${sansFont}`;
+        ctx.fillText('★ SPESIAL', cellCenterX, cellCenterY + 18);
+      } else {
+        ctx.fillStyle = isSunday ? '#EF4444' : textColor;
+        ctx.font = `bold 16px ${sansFont}`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(String(dayNum), cellCenterX, cellCenterY);
+      }
+    }
+    ctx.restore();
+
+    // 8. Memo & Highlights Box (Wall Calendar Special Section)
+    const memoBoxY = gridStartY + totalRows * rowHeight + 18;
+    const memoBoxH = 95;
+    ctx.save();
+    ctx.fillStyle = `${textColor}08`;
+    ctx.strokeStyle = `${textColor}20`;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    if (ctx.roundRect) {
+      ctx.roundRect(padding, memoBoxY, maxContentWidth, memoBoxH, 10);
+    } else {
+      ctx.rect(padding, memoBoxY, maxContentWidth, memoBoxH);
+    }
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = textColor;
+    ctx.font = `bold 13px ${sansFont}`;
+    ctx.textAlign = 'left';
+    ctx.fillText('📌 CATATAN & AGENDA BULAN INI (MEMO & HIGHLIGHTS):', padding + 16, memoBoxY + 24);
+
+    ctx.font = `12px ${sansFont}`;
+    ctx.fillStyle = `${textColor}CC`;
+    const memoEvent = theme.eventTitle || 'Momen Bahagia & Kebersamaan';
+    const memoDate = theme.eventDate || `${calInfo.day} ${calInfo.monthName} ${calInfo.year}`;
+    ctx.fillText(`• ${memoEvent} — ${memoDate} (Acara Istimewa & Abadi)`, padding + 16, memoBoxY + 48);
+    ctx.fillText('• Catatan: Abadikan setiap senyuman dan kehangatan bersama orang-orang tercinta di hari bahagia ini.', padding + 16, memoBoxY + 70);
+    ctx.restore();
+
+    // 9. Calendar Bottom Footer
+    const calFooterY = canvasHeight - padding - 40;
+    ctx.save();
+    ctx.strokeStyle = `${textColor}26`;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(padding, calFooterY);
+    ctx.lineTo(canvasWidth - padding, calFooterY);
+    ctx.stroke();
+
+    // Barcode on left
+    drawSimulatedBarcode(ctx, padding, calFooterY + 12, 170, 26, textColor);
+
+    ctx.fillStyle = textColor;
+    ctx.font = `bold 13px ${sansFont}`;
+    ctx.textAlign = 'right';
+    ctx.fillText('🗓️ SNAPBOOTH EXCLUSIVE WALL CALENDAR • EDISI TAHUNAN', canvasWidth - padding, calFooterY + 22);
+
+    ctx.textAlign = 'right';
+    ctx.font = `11px ${sansFont}`;
+    ctx.fillStyle = `${textColor}A6`;
+    ctx.fillText(`Dicetak Khusus • Koleksi Foto Kalender Pribadi • TAHUN ${calInfo.year}`, canvasWidth - padding, calFooterY + 38);
+    ctx.restore();
   } else {
     // Normal non-receipt layout rendering
     ctx.textAlign = 'center';

@@ -72,6 +72,27 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
       badge: 'Desain Editorial 📖',
     },
     {
+      id: 'newspaper',
+      title: 'Koran Harian & Warta Berita (The Daily News)',
+      description: 'Format koran vintage & berita pers lengkap dengan masthead, headline utama, dan kolom artikel.',
+      slotsCount: 4,
+      badge: 'Model Koran 📰',
+    },
+    {
+      id: 'calendar',
+      title: 'Kalender & Tanggalan Kenangan (Wall Calendar 4 Foto)',
+      description: 'Format tanggalan bulanan lengkap dengan grid 4 foto kenangan, nama bulan, dan penanda tanggal acara.',
+      slotsCount: 4,
+      badge: 'Tanggalan 4 Foto 🗓️',
+    },
+    {
+      id: 'calendar_single',
+      title: 'Kalender & Tanggalan 1 Foto (Single Wall Calendar)',
+      description: 'Format kalender dinding 1 foto besar fokus utama, lengkap dengan grid hari bulanan & penanda tanggal acara.',
+      slotsCount: 1,
+      badge: 'Tanggalan 1 Foto 🗓️',
+    },
+    {
       id: 'shopping_receipt',
       title: 'Struk Pembelian Kasir & Retail',
       description: 'Format struk belanja supermarket & kafe lengkap dengan rincian total belanja.',
@@ -225,6 +246,72 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
                           <div className="text-[6px] text-center text-slate-300 pt-0.5 font-sans">SPECIAL ISSUE • 2026</div>
                         </div>
                       )}
+                      {layout.id === 'newspaper' && (
+                        <div className="flex flex-col gap-1 text-[6px] font-serif leading-tight p-1 bg-[#F7F4EC] text-slate-900 rounded border border-slate-400">
+                          <div className="flex items-center justify-between text-[5px] border-b border-slate-400 pb-0.5 px-0.5 text-slate-600 font-sans">
+                            <span>VOL. 2026</span>
+                            <span className="font-bold">DAILY NEWS</span>
+                            <span>EDISI KHUSUS</span>
+                          </div>
+                          <div className="text-center font-black tracking-wider text-[8px] border-b border-double border-slate-600 pb-0.5">THE CHRONICLE</div>
+                          <div className="text-[5.5px] font-bold text-red-700 uppercase tracking-tight">BREAKING NEWS TODAY</div>
+                          {renderSlotImage(0, 'w-full h-8 rounded-xs border border-slate-700')}
+                          <div className="grid grid-cols-3 gap-0.5 pt-0.5 border-t border-slate-300">
+                            {renderSlotImage(1, 'w-full h-4 rounded-xs border border-slate-400')}
+                            {renderSlotImage(2, 'w-full h-4 rounded-xs border border-slate-400')}
+                            {renderSlotImage(3, 'w-full h-4 rounded-xs border border-slate-400')}
+                          </div>
+                          <div className="text-[4.5px] text-slate-500 pt-0.5 text-center font-mono">DOKUMEN PERS • SNAPBOOTH</div>
+                        </div>
+                      )}
+                      {layout.id === 'calendar' && (
+                        <div className="flex flex-col gap-0.5 text-[6px] font-sans leading-tight p-1 bg-white text-slate-900 rounded border border-slate-300 shadow-sm">
+                          <div className="flex justify-center gap-1.5 pb-0.5">
+                            <div className="w-1.5 h-1.5 rounded-full bg-slate-300 border border-slate-400" />
+                            <div className="w-1.5 h-1.5 rounded-full bg-slate-300 border border-slate-400" />
+                            <div className="w-1.5 h-1.5 rounded-full bg-slate-300 border border-slate-400" />
+                          </div>
+                          <div className="flex items-center justify-between px-1 border-b border-slate-200 pb-0.5">
+                            <span className="font-black text-[7px] text-rose-600">AGUSTUS 2026</span>
+                            <span className="text-[5px] text-slate-500 font-medium">MEMORIES</span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-0.5 my-0.5">
+                            {renderSlotImage(0, 'w-full h-5 rounded-xs')}
+                            {renderSlotImage(1, 'w-full h-5 rounded-xs')}
+                            {renderSlotImage(2, 'w-full h-5 rounded-xs')}
+                            {renderSlotImage(3, 'w-full h-5 rounded-xs')}
+                          </div>
+                          <div className="grid grid-cols-7 gap-0.5 text-[4.5px] text-center font-mono text-slate-600 bg-slate-50 p-0.5 rounded">
+                            <span className="text-red-500 font-bold">M</span><span>S</span><span>S</span><span>R</span><span>K</span><span>J</span><span>S</span>
+                            <span className="text-slate-300">.</span><span className="text-slate-300">.</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+                            <span>6</span><span>7</span><span className="bg-rose-500 text-white rounded-full font-bold">8</span><span>9</span><span>10</span><span>11</span><span>12</span>
+                          </div>
+                        </div>
+                      )}
+                      {layout.id === 'calendar_single' && (
+                        <div className="flex flex-col gap-0.5 text-[6px] font-sans leading-tight p-1 bg-white text-slate-900 rounded border border-slate-300 shadow-sm">
+                          <div className="flex justify-center gap-1.5 pb-0.5">
+                            <div className="w-1.5 h-1.5 rounded-full bg-slate-300 border border-slate-400" />
+                            <div className="w-1.5 h-1.5 rounded-full bg-slate-300 border border-slate-400" />
+                            <div className="w-1.5 h-1.5 rounded-full bg-slate-300 border border-slate-400" />
+                          </div>
+                          <div className="flex items-center justify-between px-1 border-b border-slate-200 pb-0.5">
+                            <span className="font-black text-[7px] text-rose-600">AGUSTUS 2026</span>
+                            <span className="text-[5px] text-slate-500 font-medium">1 FOTO UTAMA</span>
+                          </div>
+                          <div className="my-0.5">
+                            {renderSlotImage(0, 'w-full h-11 rounded-xs border border-slate-200 shadow-xs')}
+                          </div>
+                          <div className="text-[4.5px] text-center font-serif italic text-slate-500 pb-0.5">
+                            “Save the date & our sweetest memories”
+                          </div>
+                          <div className="grid grid-cols-7 gap-0.5 text-[4.5px] text-center font-mono text-slate-600 bg-slate-50 p-0.5 rounded">
+                            <span className="text-red-500 font-bold">M</span><span>S</span><span>S</span><span>R</span><span>K</span><span>J</span><span>S</span>
+                            <span className="text-slate-300">.</span><span className="text-slate-300">.</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+                            <span>6</span><span>7</span><span className="bg-rose-500 text-white rounded-full font-bold">8</span><span>9</span><span>10</span><span>11</span><span>12</span>
+                          </div>
+                        </div>
+                      )}
                       {layout.id === 'shopping_receipt' && (
                         <div className="flex flex-col gap-0.5 text-[7px] font-mono leading-tight py-1 bg-amber-50/60 p-1 rounded border border-dashed border-slate-400">
                           <div className="text-center font-bold text-slate-900 border-b border-dashed border-slate-400 pb-0.5">SUPERMARKET MART</div>
@@ -258,7 +345,7 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
           onClick={onContinueToExport}
           className="flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-2xl bg-gradient-to-r from-rose-500 via-pink-600 to-rose-600 hover:from-rose-400 hover:to-pink-500 text-white font-extrabold text-sm sm:text-base shadow-xl shadow-rose-500/25 active:scale-95 transition-all cursor-pointer w-full max-w-sm"
         >
-          <span>Lanjut ke Cetak & Simpan</span>
+          <span>Lanjut ke Preview, Cetak & Simpan</span>
           <ChevronRight className="w-5 h-5" />
         </button>
       </div>
