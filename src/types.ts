@@ -47,9 +47,13 @@ export interface EventTheme {
   showDateBadge: boolean;
   borderStyle: 'none' | 'thin' | 'double' | 'dashed' | 'ornate';
   logoUrl?: string;
-  welcomeMediaType?: 'photo' | 'video';
+  welcomeMediaType?: 'photo' | 'video' | 'slideshow';
   welcomeVideoUrl?: string;
   welcomePhotoUrl?: string;
+  slideshowPhotos?: string[];
+  slideshowSpeedSeconds?: number; // Kecepatan slide slow (misal 5, 7, 10 detik)
+  slideshowTransition?: 'ken_burns' | 'fade' | 'slide';
+  showProductBadge?: boolean;
   homeStyle?: 'classic' | 'minimal' | 'billboard' | 'kiosk_vertical' | 'neon_party' | 'luxury_wedding';
   homeCtaText?: string;
   homeCtaColor?: 'rose_amber' | 'cyber_neon' | 'royal_gold' | 'emerald' | 'slate_dark';

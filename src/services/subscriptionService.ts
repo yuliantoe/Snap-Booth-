@@ -22,7 +22,7 @@ export const OFFICIAL_PAYMENT_INFO = {
 };
 
 export const OFFICIAL_WHATSAPP_PHONE = '085159746119';
-export const OFFICIAL_WHATSAPP_LINK = 'https://wa.me/085159746119?text=Halo%20saya%20SnapBoth%20%0ATerimakasih%20telah%20menghubungi%20Layanan%20Kami%20%0Aada%20yang%20bisa%20kami%20bantu%20terimaksih%20';
+export const OFFICIAL_WHATSAPP_LINK = 'https://wa.me/085159746119?text=Halo%20saya%20SnapBooth%20%0ATerimakasih%20telah%20menghubungi%20Layanan%20Kami%20%0Aada%20yang%20bisa%20kami%20bantu%20terimaksih%20';
 
 export interface PricingPackage {
   id: 'weekly_25k' | 'monthly_49k' | 'quarterly_135k' | 'yearly_480k';
@@ -179,7 +179,6 @@ export const DEFAULT_USERS: UserAccount[] = [
     password: 'admin123',
     email: 'admin@snapbooth.id',
     displayName: 'Super Admin Master',
-    businessName: 'snapBoth Receipt HQ Indonesia',
     role: 'super_admin',
     subscriptionStatus: 'active',
     subscriptionPlan: 'lifetime',
@@ -298,7 +297,12 @@ export const initializeFirebaseUsers = async (): Promise<UserAccount[]> => {
 
     const users: UserAccount[] = [];
     snapshot.forEach((d) => {
-      users.push({ id: d.id, ...(d.data() as Omit<UserAccount, 'id'>) });
+      const data = d.data() as Omit<UserAccount, 'id'>;
+      if (data.businessName && data.businessName.includes('HQ Indonesia')) {
+        delete data.businessName;
+        setDoc(doc(db, 'users', d.id), { businessName: '' }, { merge: true }).catch(() => {});
+      }
+      users.push({ id: d.id, ...data });
     });
     return users;
   } catch (err) {
@@ -317,7 +321,12 @@ export const subscribeToUsers = (onUpdate: (users: UserAccount[]) => void) => {
         if (!snapshot.empty) {
           const users: UserAccount[] = [];
           snapshot.forEach((d) => {
-            users.push({ id: d.id, ...(d.data() as Omit<UserAccount, 'id'>) });
+            const data = d.data() as Omit<UserAccount, 'id'>;
+            if (data.businessName && data.businessName.includes('HQ Indonesia')) {
+              delete data.businessName;
+              setDoc(doc(db, 'users', d.id), { businessName: '' }, { merge: true }).catch(() => {});
+            }
+            users.push({ id: d.id, ...data });
           });
           onUpdate(users);
         } else {

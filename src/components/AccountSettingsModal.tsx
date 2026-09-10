@@ -274,64 +274,64 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-slate-900 border border-slate-800 w-full max-w-xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150">
+      <div className="bg-[#121317] border border-zinc-800 w-full max-w-xl rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[92vh]">
         {/* Modal Header */}
-        <div className="p-4 sm:p-5 bg-gradient-to-r from-slate-900 via-slate-850 to-slate-900 border-b border-slate-800 flex items-center justify-between">
+        <div className="p-4 sm:p-5 bg-zinc-950 border-b border-zinc-800 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div
-              className={`p-2.5 rounded-2xl border shadow-inner ${
+              className={`p-2.5 rounded-xl border ${
                 isSuperAdmin
-                  ? 'bg-amber-500/20 border-amber-500/30 text-amber-400'
-                  : 'bg-rose-500/20 border-rose-500/30 text-rose-400'
+                  ? 'bg-amber-400/10 border-amber-400/30 text-amber-400'
+                  : 'bg-zinc-800 border-zinc-700 text-zinc-200'
               }`}
             >
               {isSuperAdmin ? <Crown className="w-5 h-5 sm:w-6 sm:h-6" /> : <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6" />}
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base sm:text-lg font-black text-white">
+                <h2 className="text-base sm:text-lg font-bold text-zinc-100">
                   Pengaturan Akun & Keamanan
                 </h2>
                 <span
-                  className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase border ${
+                  className={`px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase border ${
                     isSuperAdmin
-                      ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
-                      : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                      ? 'bg-amber-400 text-stone-950 border-amber-300'
+                      : 'bg-zinc-800 text-zinc-300 border-zinc-700'
                   }`}
                 >
                   {isSuperAdmin ? 'Super Admin' : currentUser.subscriptionPlan}
                 </span>
               </div>
-              <p className="text-xs text-slate-400">
-                Ubah username, password, email, dan PIN akses Kiosk
+              <p className="text-xs text-zinc-400">
+                Kelola username, password, dan PIN otorisasi kiosk
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+            className="p-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex border-b border-slate-800 bg-slate-950 p-1.5 gap-1.5">
+        <div className="flex border-b border-zinc-800 bg-zinc-950 p-1.5 gap-1.5">
           <button
             type="button"
             onClick={() => {
               setActiveTab('profile');
               setStatusMsg(null);
             }}
-            className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+            className={`flex-1 py-2 px-2.5 rounded-lg text-xs font-mono font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
               activeTab === 'profile'
-                ? 'bg-slate-800 text-white shadow-md border border-slate-700'
-                : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                ? 'bg-zinc-800 text-amber-400 font-bold border border-zinc-700'
+                : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900'
             }`}
           >
-            <User className="w-3.5 h-3.5 text-amber-400" />
-            <span>Profil & Username</span>
+            <User className="w-3.5 h-3.5" />
+            <span>Profil</span>
           </button>
 
           <button
@@ -340,14 +340,14 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({
               setActiveTab('password');
               setStatusMsg(null);
             }}
-            className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+            className={`flex-1 py-2 px-2.5 rounded-lg text-xs font-mono font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
               activeTab === 'password'
-                ? 'bg-slate-800 text-white shadow-md border border-slate-700'
-                : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                ? 'bg-zinc-800 text-amber-400 font-bold border border-zinc-700'
+                : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900'
             }`}
           >
-            <Lock className="w-3.5 h-3.5 text-rose-400" />
-            <span>Ganti Password</span>
+            <Lock className="w-3.5 h-3.5" />
+            <span>Password</span>
           </button>
 
           <button
@@ -356,14 +356,14 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({
               setActiveTab('pin');
               setStatusMsg(null);
             }}
-            className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+            className={`flex-1 py-2 px-2.5 rounded-lg text-xs font-mono font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
               activeTab === 'pin'
-                ? 'bg-slate-800 text-white shadow-md border border-slate-700'
-                : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                ? 'bg-zinc-800 text-amber-400 font-bold border border-zinc-700'
+                : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900'
             }`}
           >
-            <KeyRound className="w-3.5 h-3.5 text-cyan-400" />
-            <span>PIN Akses Kiosk</span>
+            <KeyRound className="w-3.5 h-3.5" />
+            <span>PIN Kiosk</span>
           </button>
 
           <button
@@ -372,14 +372,14 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({
               setActiveTab('billing');
               setStatusMsg(null);
             }}
-            className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+            className={`flex-1 py-2 px-2.5 rounded-lg text-xs font-mono font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
               activeTab === 'billing'
-                ? 'bg-slate-800 text-white shadow-md border border-slate-700'
-                : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                ? 'bg-zinc-800 text-amber-400 font-bold border border-zinc-700'
+                : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900'
             }`}
           >
-            <CreditCard className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Paket & Pembayaran</span>
+            <CreditCard className="w-3.5 h-3.5" />
+            <span>Paket & Lisensi</span>
           </button>
         </div>
 
@@ -751,36 +751,36 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({
               </div>
 
               {/* Official BCA Bank Account Information */}
-              <div className="p-4 rounded-2xl bg-gradient-to-br from-blue-950/40 via-slate-950 to-amber-950/20 border-2 border-amber-500/40 space-y-2.5 shadow-lg">
+              <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 text-amber-400 font-black text-xs">
+                  <div className="flex items-center gap-1.5 text-zinc-200 font-mono font-bold text-xs">
                     <CreditCard className="w-4 h-4 text-amber-400" />
                     <span>Rekening Tujuan Resmi Pembayaran</span>
                   </div>
-                  <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30 font-mono">
-                    BCA Resmi
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700 font-mono">
+                    BCA Official
                   </span>
                 </div>
 
-                <div className="p-3 rounded-xl bg-slate-900/90 border border-slate-800 space-y-2 text-xs">
-                  <div className="flex justify-between items-center text-slate-300">
-                    <span className="text-slate-400">Bank Tujuan:</span>
-                    <span className="font-bold text-white tracking-wide">{OFFICIAL_PAYMENT_INFO.bankName}</span>
+                <div className="p-3 rounded-lg bg-[#121317] border border-zinc-800 space-y-2 text-xs">
+                  <div className="flex justify-between items-center text-zinc-300">
+                    <span className="text-zinc-500 font-mono">Bank Tujuan:</span>
+                    <span className="font-bold text-zinc-100 tracking-wide font-mono">{OFFICIAL_PAYMENT_INFO.bankName}</span>
                   </div>
 
-                  <div className="flex justify-between items-center text-slate-300">
-                    <span className="text-slate-400">Nomor Rekening:</span>
+                  <div className="flex justify-between items-center text-zinc-300">
+                    <span className="text-zinc-500 font-mono">Nomor Rekening:</span>
                     <div className="flex items-center gap-2">
-                      <span className="font-mono font-black text-amber-300 text-sm tracking-wider">
+                      <span className="font-mono font-bold text-amber-400 text-sm tracking-wider">
                         {OFFICIAL_PAYMENT_INFO.accountNumber}
                       </span>
                       <button
                         type="button"
                         onClick={handleCopyBca}
-                        className={`px-2 py-1 rounded-lg text-[10px] font-bold flex items-center gap-1 cursor-pointer transition-all ${
+                        className={`px-2 py-1 rounded text-[10px] font-mono font-bold flex items-center gap-1 cursor-pointer transition-all ${
                           copiedBca
-                            ? 'bg-emerald-500 text-slate-950 font-black'
-                            : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700'
+                            ? 'bg-amber-400 text-stone-950 font-bold'
+                            : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700'
                         }`}
                         title="Salin Nomor Rekening BCA"
                       >
@@ -790,16 +790,16 @@ export const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({
                     </div>
                   </div>
 
-                  <div className="flex justify-between items-center text-slate-300">
-                    <span className="text-slate-400">Atas Nama (A/N):</span>
-                    <span className="font-bold text-emerald-400 uppercase tracking-wide">
+                  <div className="flex justify-between items-center text-zinc-300">
+                    <span className="text-zinc-500 font-mono">Atas Nama (A/N):</span>
+                    <span className="font-bold text-zinc-100 uppercase tracking-wide font-mono">
                       {OFFICIAL_PAYMENT_INFO.accountHolder}
                     </span>
                   </div>
                 </div>
 
-                <p className="text-[11px] text-amber-200/90 leading-relaxed italic bg-amber-500/10 p-2.5 rounded-lg border border-amber-500/20">
-                  ⚠️ <strong>Perhatian:</strong> Hanya lakukan pembayaran ke Rekening Resmi <strong>{OFFICIAL_PAYMENT_INFO.fullLabel}</strong>. snapBoth Studio tidak pernah menerima pembayaran di luar rekening resmi ini.
+                <p className="text-[11px] text-zinc-400 leading-relaxed bg-zinc-900/60 p-2.5 rounded-lg border border-zinc-800">
+                  ⚠️ <strong>Perhatian:</strong> Hanya lakukan pembayaran ke Rekening Resmi <strong>{OFFICIAL_PAYMENT_INFO.fullLabel}</strong>. SnapBooth Studio tidak pernah menerima pembayaran di luar rekening resmi ini.
                 </p>
               </div>
 

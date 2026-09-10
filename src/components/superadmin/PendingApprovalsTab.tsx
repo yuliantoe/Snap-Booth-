@@ -55,7 +55,7 @@ export const PendingApprovalsTab: React.FC<PendingApprovalsTabProps> = ({
 
     const message = encodeURIComponent(
       `Halo *${user.displayName || user.businessName}*! 👋\n\n` +
-      `Selamat! Pendaftaran akun studio photobooth Anda (*${user.businessName}*) telah *DISETUJUI & DIAKTIFKAN* oleh Super Admin snapBoth Receipt! 🎉\n\n` +
+      `Selamat! Pendaftaran akun studio photobooth Anda (*${user.businessName}*) telah *DISETUJUI & DIAKTIFKAN* oleh Super Admin SnapBooth Receipt! 🎉\n\n` +
       `📋 *Detail Kredensial Login Anda:*\n` +
       `• Username: *${user.username || user.email}*\n` +
       `• Password: *${user.password || '123456'}*\n` +
@@ -63,7 +63,7 @@ export const PendingApprovalsTab: React.FC<PendingApprovalsTabProps> = ({
       `• Paket: *${planLabel}*\n` +
       `• Masa Aktif s/d: *${isUnl ? 'Tanpa Batas (OFF)' : user.subscriptionEndDate}*\n\n` +
       `Silakan buka aplikasi dan login sekarang untuk mulai menggunakan booth Anda:\n${window.location.origin}\n\n` +
-      `Terima kasih telah bergabung bersama snapBoth Receipt Studio!`
+      `Terima kasih telah bergabung bersama SnapBooth Receipt Studio!`
     );
     window.open(`https://wa.me/${cleanPhone}?text=${message}`, '_blank');
   };
@@ -72,7 +72,7 @@ export const PendingApprovalsTab: React.FC<PendingApprovalsTabProps> = ({
     const rawPhone = user.phone || '';
     const cleanPhone = rawPhone.replace(/[^0-9]/g, '').replace(/^0/, '62');
     const message = encodeURIComponent(
-      `Halo *${user.displayName || user.businessName}*, kami dari Super Admin snapBoth Receipt ingin mengonfirmasi pendaftaran akun studio Anda untuk paket *${user.requestedPlanName || 'Langganan'}*.\n\n` +
+      `Halo *${user.displayName || user.businessName}*, kami dari Super Admin SnapBooth Receipt ingin mengonfirmasi pendaftaran akun studio Anda untuk paket *${user.requestedPlanName || 'Langganan'}*.\n\n` +
       `Silakan pastikan pembayaran telah ditransfer ke Rekening Resmi:\n` +
       `*${OFFICIAL_PAYMENT_INFO.fullLabel}*\n\n` +
       `Kirimkan bukti transfer di sini agar akun Anda dapat segera diaktifkan. Terima kasih!`

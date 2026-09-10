@@ -53,7 +53,7 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({
   };
 
   return (
-    <div className="w-full bg-slate-950/80 border-b border-slate-800/80 px-3 py-2">
+    <div className="w-full bg-[#f8f9fa] border-b border-stone-200 px-3 py-2 sm:py-2.5">
       <div className="max-w-4xl mx-auto flex items-center justify-between gap-1 sm:gap-2">
         {steps.map((step, idx) => {
           const isActive = currentStep === step.id;
@@ -73,26 +73,26 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({
                     ? `Beralih ke ${step.label}`
                     : 'Langkah ini belum dapat diakses'
                 }
-                className={`flex items-center gap-1.5 sm:gap-2 px-2.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all ${
+                className={`flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-all ${
                   isActive
-                    ? 'bg-rose-500 text-white font-semibold shadow-md shadow-rose-500/20'
+                    ? 'bg-orange-600 text-white font-semibold shadow-sm border border-orange-500'
                     : isLockedByAuth
-                    ? 'bg-slate-900/60 text-slate-500 hover:text-amber-300 hover:bg-slate-800/80 border border-transparent hover:border-amber-500/30 cursor-pointer'
+                    ? 'bg-stone-100 text-stone-400 hover:text-orange-600 hover:bg-orange-50 border border-stone-200 hover:border-orange-200 cursor-pointer'
                     : isAllowed
-                    ? 'bg-slate-800/80 text-slate-300 hover:bg-slate-700 hover:text-white cursor-pointer'
-                    : 'bg-slate-900/40 text-slate-600 cursor-not-allowed'
+                    ? 'bg-white text-stone-700 hover:bg-stone-50 hover:text-stone-900 border border-stone-200 cursor-pointer shadow-xs'
+                    : 'bg-stone-100/70 text-stone-400 border border-stone-200/50 cursor-not-allowed'
                 }`}
               >
-                {isLockedByAuth ? <Lock className="w-3.5 h-3.5 text-amber-400/80" /> : step.icon}
+                {isLockedByAuth ? <Lock className="w-3.5 h-3.5 text-orange-500" /> : step.icon}
                 <span className="hidden xs:inline whitespace-nowrap">{step.label}</span>
                 {isLockedByAuth && (
-                  <span className="hidden md:inline text-[9px] font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300">
-                    Kunci
+                  <span className="hidden md:inline text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-orange-100 text-orange-700 border border-orange-200">
+                    LOCKED
                   </span>
                 )}
               </button>
               {idx < steps.length - 1 && (
-                <div className="flex-1 h-[2px] bg-slate-800 hidden sm:block max-w-[30px]" />
+                <div className="flex-1 h-px bg-stone-200 hidden sm:block max-w-[28px]" />
               )}
             </React.Fragment>
           );

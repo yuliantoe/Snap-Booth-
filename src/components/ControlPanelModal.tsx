@@ -4,6 +4,7 @@ import {
   Sliders,
   Palette,
   Image as ImageIcon,
+  Images,
   Video,
   Settings,
   Check,
@@ -31,10 +32,18 @@ import {
   Users,
   Lock,
   AlertCircle,
+  ShoppingBag,
+  Plus,
+  Play,
 } from 'lucide-react';
 import { EventTheme, UserAccount } from '../types';
 import { DEFAULT_THEMES } from '../utils/themePresets';
 import { isDurationUnlimited, calculateRemainingDays, OFFICIAL_PAYMENT_INFO } from '../services/subscriptionService';
+import {
+  PRESET_PRODUCT_PHOTOS,
+  PRODUCT_CATEGORIES,
+  DEFAULT_SLIDESHOW_PRODUCT_PHOTOS,
+} from '../utils/productPresets';
 
 interface ControlPanelModalProps {
   isOpen: boolean;
@@ -68,41 +77,41 @@ const PRESET_VIDEOS = [
 const PRESET_WELCOME_PHOTOS = [
   {
     id: 'party_celebration',
-    name: '🎉 Party & Sparkles',
+    name: 'Celebration Sparkles',
     url: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1920&q=80',
   },
   {
     id: 'wedding_romantic',
-    name: '💍 Wedding Lights',
+    name: 'Wedding Warm Lights',
     url: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1920&q=80',
   },
   {
     id: 'neon_night',
-    name: '⚡ Cyberpunk Neon',
+    name: 'Night Studio Lights',
     url: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=1920&q=80',
   },
   {
     id: 'gala_gold',
-    name: '✨ Gold Bokeh Gala',
+    name: 'Gala Warm Bokeh',
     url: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1920&q=80',
   },
   {
     id: 'cozy_cafe',
-    name: '☕ Cafe & Bakery',
+    name: 'Artisan Cafe & Event',
     url: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=1920&q=80',
   },
   {
     id: 'studio_minimal',
-    name: '🖼️ Dark Studio Texture',
+    name: 'Minimal Dark Studio',
     url: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=1920&q=80',
   },
 ];
 
 const PRESET_LOGOS = [
   {
-    id: 'snapboth_badge',
-    name: 'snapBoth Receipt Badge',
-    url: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><circle cx="100" cy="100" r="90" fill="%231E293B" stroke="%23F59E0B" stroke-width="8"/><rect x="50" y="70" width="100" height="70" fill="none" stroke="%23FFFFFF" stroke-width="8" rx="10"/><circle cx="100" cy="105" r="22" fill="%23F59E0B"/><circle cx="100" cy="55" r="10" fill="%23EF4444"/><text x="100" y="172" font-family="sans-serif" font-size="16" font-weight="bold" fill="%23FFFFFF" text-anchor="middle">SNAPBOTH</text></svg>`,
+    id: 'snapbooth_badge',
+    name: 'SnapBooth Receipt Badge',
+    url: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><circle cx="100" cy="100" r="90" fill="%231E293B" stroke="%23F59E0B" stroke-width="8"/><rect x="50" y="70" width="100" height="70" fill="none" stroke="%23FFFFFF" stroke-width="8" rx="10"/><circle cx="100" cy="105" r="22" fill="%23F59E0B"/><circle cx="100" cy="55" r="10" fill="%23EF4444"/><text x="100" y="172" font-family="sans-serif" font-size="16" font-weight="bold" fill="%23FFFFFF" text-anchor="middle">SNAPBOOTH</text></svg>`,
   },
   {
     id: 'royal_crest',
@@ -124,32 +133,32 @@ const PRESET_LOGOS = [
 const HOME_LAYOUT_STYLES = [
   {
     id: 'classic',
-    name: 'Classic Glassmorphism',
-    desc: 'Tampilan bersih dengan efek frosted glass & tombol gradient',
+    name: 'Classic Studio Dark',
+    desc: 'Tampilan bersih dengan panel netral obsidian & tombol terfokus',
     icon: Layout,
   },
   {
     id: 'luxury_wedding',
     name: 'Luxury Wedding Elegance',
-    desc: 'Tampilan mewah emas royal dengan serif font & floral crest',
+    desc: 'Nuansa editorial mewah dengan tipografi Playfair Display',
     icon: Crown,
   },
   {
     id: 'neon_party',
-    name: 'Cyberpunk Neon Party',
-    desc: 'Efek neon bercahaya cyan-magenta untuk rave & club party',
+    name: 'Night Studio Event',
+    desc: 'Aksen kontras tinggi yang terarah untuk suasana malam & pesta',
     icon: Zap,
   },
   {
     id: 'billboard',
-    name: 'Billboard Hero Banner',
+    name: 'Billboard Showcase',
     desc: 'Layout split banner dengan brand showcase berdampingan',
     icon: Columns,
   },
   {
     id: 'kiosk_vertical',
-    name: 'Kiosk Display Digital',
-    desc: 'Layout vertikal elegan ala mesin foto kiosk touchscreen',
+    name: 'Kiosk Touchscreen',
+    desc: 'Layout vertikal presisi untuk layar kiosk touchscreen',
     icon: Monitor,
   },
   {
@@ -180,6 +189,8 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
   const frameOverlayFileInputRef = useRef<HTMLInputElement | null>(null);
   const bgImageFileInputRef = useRef<HTMLInputElement | null>(null);
   const customStickerFileInputRef = useRef<HTMLInputElement | null>(null);
+  const productPhotosFileInputRef = useRef<HTMLInputElement | null>(null);
+  const [productCategoryFilter, setProductCategoryFilter] = useState<string>('all');
 
   const isSuperAdmin = currentUser?.role === 'super_admin';
   const isUnl = currentUser ? isDurationUnlimited(currentUser.subscriptionEndDate) : false;
@@ -221,6 +232,73 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
         welcomeMediaType: 'video',
       }));
     }
+  };
+
+  const handleProductPhotosUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      const fileArray = Array.from(files) as File[];
+      const readPromises = fileArray.map((file) => {
+        return new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            resolve(event.target?.result as string);
+          };
+          reader.readAsDataURL(file);
+        });
+      });
+
+      Promise.all(readPromises).then((newPhotos) => {
+        setThemeForm((prev) => {
+          const currentPhotos = prev.slideshowPhotos || DEFAULT_SLIDESHOW_PRODUCT_PHOTOS;
+          return {
+            ...prev,
+            welcomeMediaType: 'slideshow',
+            slideshowPhotos: [...currentPhotos, ...newPhotos],
+          };
+        });
+      });
+    }
+  };
+
+  const handleRemoveSlideshowPhoto = (indexToRemove: number) => {
+    setThemeForm((prev) => {
+      const current = prev.slideshowPhotos || DEFAULT_SLIDESHOW_PRODUCT_PHOTOS;
+      const updated = current.filter((_, idx) => idx !== indexToRemove);
+      return {
+        ...prev,
+        slideshowPhotos: updated.length > 0 ? updated : DEFAULT_SLIDESHOW_PRODUCT_PHOTOS,
+      };
+    });
+  };
+
+  const handleTogglePresetProduct = (url: string) => {
+    setThemeForm((prev) => {
+      const current = prev.slideshowPhotos || DEFAULT_SLIDESHOW_PRODUCT_PHOTOS;
+      const exists = current.includes(url);
+      let updated: string[];
+      if (exists) {
+        if (current.length <= 1) return prev;
+        updated = current.filter((item) => item !== url);
+      } else {
+        updated = [...current, url];
+      }
+      return {
+        ...prev,
+        welcomeMediaType: 'slideshow',
+        slideshowPhotos: updated,
+      };
+    });
+  };
+
+  const handleResetDefaultProductPhotos = () => {
+    setThemeForm((prev) => ({
+      ...prev,
+      welcomeMediaType: 'slideshow',
+      slideshowPhotos: [...DEFAULT_SLIDESHOW_PRODUCT_PHOTOS],
+      slideshowSpeedSeconds: 7,
+      slideshowTransition: 'ken_burns',
+    }));
   };
 
   const handleThemeJsonUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -301,29 +379,29 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden text-slate-100">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-[#131110] border border-stone-800 rounded-2xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden text-stone-100">
         {/* Header Bar */}
-        <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/80">
+        <div className="px-6 py-4 border-b border-stone-800 flex items-center justify-between bg-[#171514]">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-gradient-to-tr from-rose-500 to-amber-500 text-white shadow-lg shadow-rose-500/20">
+            <div className="p-2.5 rounded-xl bg-stone-900 border border-stone-800 text-orange-400">
               <Sliders className="w-5 h-5" />
             </div>
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">
-                  Dasboard Sistem
+                <h2 className="text-base sm:text-lg font-bold text-stone-100 tracking-tight">
+                  Dashboard Sistem
                 </h2>
                 {currentUser && (
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                    💎 {currentUser.businessName || currentUser.displayName}
+                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-stone-900 text-orange-400 border border-orange-500/30">
+                    {currentUser.businessName || currentUser.displayName}
                   </span>
                 )}
-                <span className="hidden sm:inline-block px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                <span className="hidden sm:inline-block px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase bg-stone-900 text-stone-400 border border-stone-800">
                   Cloud Synced
                 </span>
               </div>
-              <p className="text-xs text-slate-400">Atur Tema Home Custom, Desain Frame, Media Brand & Sistem Kiosk</p>
+              <p className="text-xs text-stone-400">Atur Tema Home Custom, Desain Frame, Media Brand & Sistem Kiosk</p>
             </div>
           </div>
 
@@ -335,55 +413,55 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                   onClose();
                   onLogout();
                 }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs font-bold transition-all cursor-pointer"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-300 hover:text-white border border-stone-700 text-xs font-bold transition-all cursor-pointer"
                 title="Logout dari akun ini"
               >
-                <LogOut className="w-3.5 h-3.5 text-rose-400" />
+                <LogOut className="w-3.5 h-3.5 text-stone-400" />
                 <span>Logout</span>
               </button>
             )}
             <button
               onClick={onClose}
-              className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-all cursor-pointer"
+              className="p-1.5 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-400 hover:text-stone-200 transition-all cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
         </div>
 
-        {/* Control Panel Tab Navigation - 5 Prominent Visible Tabs */}
-        <div className="p-3 bg-slate-950 border-b border-slate-800">
+        {/* Control Panel Tab Navigation - 5 Clean Tabs */}
+        <div className="p-3 bg-[#100f0e] border-b border-stone-800">
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
             {/* Tab 1: Home */}
             <button
               onClick={() => setActiveTab('home')}
               type="button"
-              className={`p-2.5 rounded-2xl border text-left transition-all flex flex-col justify-between gap-1.5 ${
+              className={`p-2.5 rounded-xl border text-left transition-all flex flex-col justify-between gap-1.5 cursor-pointer ${
                 activeTab === 'home'
-                  ? 'bg-rose-500 text-white border-rose-400 shadow-lg shadow-rose-500/25 ring-1 ring-rose-400'
-                  : 'bg-slate-900/90 text-slate-300 border-slate-800 hover:border-slate-700 hover:bg-slate-850'
+                  ? 'bg-orange-600 text-white border-orange-500 shadow-sm'
+                  : 'bg-[#181615] text-stone-300 border-stone-800 hover:border-stone-700 hover:bg-stone-900'
               }`}
             >
               <div className="flex items-center justify-between w-full">
-                <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-md ${
-                  activeTab === 'home' ? 'bg-white/20 text-white' : 'bg-slate-800 text-rose-400'
+                <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${
+                  activeTab === 'home' ? 'bg-black/20 text-white' : 'bg-stone-900 text-stone-400'
                 }`}>
                   TAB 1
                 </span>
                 <div className="flex items-center gap-1">
                   {isTrial && (
-                    <span className="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-amber-400 text-slate-950 flex items-center gap-0.5">
+                    <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-stone-900 text-orange-400 border border-orange-500/40 flex items-center gap-0.5">
                       <Lock className="w-2.5 h-2.5" /> Trial
                     </span>
                   )}
-                  <Layout className={`w-4 h-4 ${activeTab === 'home' ? 'text-amber-200' : 'text-rose-400'}`} />
+                  <Layout className={`w-4 h-4 ${activeTab === 'home' ? 'text-white' : 'text-orange-400'}`} />
                 </div>
               </div>
               <div>
                 <p className="text-xs font-bold leading-tight truncate flex items-center gap-1">
-                  Tema Home {isTrial && <span className="text-[10px] text-amber-300">🔒</span>}
+                  Tema Home
                 </p>
-                <p className={`text-[10px] leading-tight truncate ${activeTab === 'home' ? 'text-white/80' : 'text-slate-500'}`}>
+                <p className={`text-[10px] leading-tight truncate ${activeTab === 'home' ? 'text-white/80' : 'text-stone-500'}`}>
                   Layout & Tombol
                 </p>
               </div>
@@ -393,23 +471,23 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
             <button
               onClick={() => setActiveTab('theme')}
               type="button"
-              className={`p-2.5 rounded-2xl border text-left transition-all flex flex-col justify-between gap-1.5 ${
+              className={`p-2.5 rounded-xl border text-left transition-all flex flex-col justify-between gap-1.5 cursor-pointer ${
                 activeTab === 'theme'
-                  ? 'bg-rose-500 text-white border-rose-400 shadow-lg shadow-rose-500/25 ring-1 ring-rose-400'
-                  : 'bg-slate-900/90 text-slate-300 border-slate-800 hover:border-slate-700 hover:bg-slate-850'
+                  ? 'bg-orange-600 text-white border-orange-500 shadow-sm'
+                  : 'bg-[#181615] text-stone-300 border-stone-800 hover:border-stone-700 hover:bg-stone-900'
               }`}
             >
               <div className="flex items-center justify-between w-full">
-                <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-md ${
-                  activeTab === 'theme' ? 'bg-white/20 text-white' : 'bg-slate-800 text-pink-400'
+                <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${
+                  activeTab === 'theme' ? 'bg-black/20 text-white' : 'bg-stone-900 text-stone-400'
                 }`}>
                   TAB 2
                 </span>
-                <Palette className={`w-4 h-4 ${activeTab === 'theme' ? 'text-amber-200' : 'text-pink-400'}`} />
+                <Palette className={`w-4 h-4 ${activeTab === 'theme' ? 'text-white' : 'text-orange-400'}`} />
               </div>
               <div>
                 <p className="text-xs font-bold leading-tight truncate">Preset Frame</p>
-                <p className={`text-[10px] leading-tight truncate ${activeTab === 'theme' ? 'text-white/80' : 'text-slate-500'}`}>
+                <p className={`text-[10px] leading-tight truncate ${activeTab === 'theme' ? 'text-white/80' : 'text-stone-500'}`}>
                   Warna & Teks Acara
                 </p>
               </div>
@@ -419,32 +497,32 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
             <button
               onClick={() => setActiveTab('upload_custom')}
               type="button"
-              className={`p-2.5 rounded-2xl border text-left transition-all flex flex-col justify-between gap-1.5 ${
+              className={`p-2.5 rounded-xl border text-left transition-all flex flex-col justify-between gap-1.5 cursor-pointer ${
                 activeTab === 'upload_custom'
-                  ? 'bg-rose-500 text-white border-rose-400 shadow-lg shadow-rose-500/25 ring-1 ring-rose-400'
-                  : 'bg-slate-900/90 text-slate-300 border-slate-800 hover:border-slate-700 hover:bg-slate-850'
+                  ? 'bg-orange-600 text-white border-orange-500 shadow-sm'
+                  : 'bg-[#181615] text-stone-300 border-stone-800 hover:border-stone-700 hover:bg-stone-900'
               }`}
             >
               <div className="flex items-center justify-between w-full">
-                <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-md ${
-                  activeTab === 'upload_custom' ? 'bg-white/20 text-white' : 'bg-slate-800 text-cyan-400'
+                <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${
+                  activeTab === 'upload_custom' ? 'bg-black/20 text-white' : 'bg-stone-900 text-stone-400'
                 }`}>
                   TAB 3
                 </span>
                 <div className="flex items-center gap-1">
                   {isTrial && (
-                    <span className="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-cyan-400 text-slate-950 flex items-center gap-0.5">
+                    <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-stone-900 text-orange-400 border border-orange-500/40 flex items-center gap-0.5">
                       <Lock className="w-2.5 h-2.5" /> Trial
                     </span>
                   )}
-                  <Upload className={`w-4 h-4 ${activeTab === 'upload_custom' ? 'text-cyan-200' : 'text-cyan-400'}`} />
+                  <Upload className={`w-4 h-4 ${activeTab === 'upload_custom' ? 'text-white' : 'text-orange-400'}`} />
                 </div>
               </div>
               <div>
                 <p className="text-xs font-bold leading-tight truncate flex items-center gap-1">
-                  Upload Desain {isTrial && <span className="text-[10px] text-cyan-300">🔒</span>}
+                  Upload Desain
                 </p>
-                <p className={`text-[10px] leading-tight truncate ${activeTab === 'upload_custom' ? 'text-white/80' : 'text-slate-500'}`}>
+                <p className={`text-[10px] leading-tight truncate ${activeTab === 'upload_custom' ? 'text-white/80' : 'text-stone-500'}`}>
                   Overlay PNG & Stiker
                 </p>
               </div>
@@ -454,32 +532,32 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
             <button
               onClick={() => setActiveTab('media')}
               type="button"
-              className={`p-2.5 rounded-2xl border text-left transition-all flex flex-col justify-between gap-1.5 ${
+              className={`p-2.5 rounded-xl border text-left transition-all flex flex-col justify-between gap-1.5 cursor-pointer ${
                 activeTab === 'media'
-                  ? 'bg-rose-500 text-white border-rose-400 shadow-lg shadow-rose-500/25 ring-1 ring-rose-400'
-                  : 'bg-slate-900/90 text-slate-300 border-slate-800 hover:border-slate-700 hover:bg-slate-850'
+                  ? 'bg-orange-600 text-white border-orange-500 shadow-sm'
+                  : 'bg-[#181615] text-stone-300 border-stone-800 hover:border-stone-700 hover:bg-stone-900'
               }`}
             >
               <div className="flex items-center justify-between w-full">
-                <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-md ${
-                  activeTab === 'media' ? 'bg-white/20 text-white' : 'bg-slate-800 text-amber-400'
+                <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${
+                  activeTab === 'media' ? 'bg-black/20 text-white' : 'bg-stone-900 text-stone-400'
                 }`}>
                   TAB 4
                 </span>
                 <div className="flex items-center gap-1">
                   {isTrial && (
-                    <span className="text-[9px] font-extrabold px-1.5 py-0.2 rounded bg-rose-400 text-slate-950 flex items-center gap-0.5">
+                    <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-stone-900 text-orange-400 border border-orange-500/40 flex items-center gap-0.5">
                       <Lock className="w-2.5 h-2.5" /> Trial
                     </span>
                   )}
-                  <Video className={`w-4 h-4 ${activeTab === 'media' ? 'text-amber-200' : 'text-amber-400'}`} />
+                  <Video className={`w-4 h-4 ${activeTab === 'media' ? 'text-white' : 'text-orange-400'}`} />
                 </div>
               </div>
               <div>
                 <p className="text-xs font-bold leading-tight truncate flex items-center gap-1">
-                  Media Brand {isTrial && <span className="text-[10px] text-rose-300">🔒</span>}
+                  Media Brand
                 </p>
-                <p className={`text-[10px] leading-tight truncate ${activeTab === 'media' ? 'text-white/80' : 'text-slate-500'}`}>
+                <p className={`text-[10px] leading-tight truncate ${activeTab === 'media' ? 'text-white/80' : 'text-stone-500'}`}>
                   Logo, Foto & Video
                 </p>
               </div>
@@ -489,23 +567,23 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
             <button
               onClick={() => setActiveTab('system')}
               type="button"
-              className={`p-2.5 rounded-2xl border text-left transition-all flex flex-col justify-between gap-1.5 relative overflow-hidden ${
+              className={`p-2.5 rounded-xl border text-left transition-all flex flex-col justify-between gap-1.5 relative overflow-hidden cursor-pointer ${
                 activeTab === 'system'
-                  ? 'bg-rose-500 text-white border-rose-400 shadow-lg shadow-rose-500/25 ring-1 ring-rose-400'
-                  : 'bg-slate-900/90 text-slate-300 border-slate-800 hover:border-slate-700 hover:bg-slate-850'
+                  ? 'bg-orange-600 text-white border-orange-500 shadow-sm'
+                  : 'bg-[#181615] text-stone-300 border-stone-800 hover:border-stone-700 hover:bg-stone-900'
               }`}
             >
               <div className="flex items-center justify-between w-full">
-                <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-md ${
-                  activeTab === 'system' ? 'bg-white/20 text-white' : 'bg-slate-800 text-emerald-400'
+                <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${
+                  activeTab === 'system' ? 'bg-black/20 text-white' : 'bg-stone-900 text-stone-400'
                 }`}>
                   TAB 5
                 </span>
-                <Settings className={`w-4 h-4 ${activeTab === 'system' ? 'text-amber-200' : 'text-emerald-400'}`} />
+                <Settings className={`w-4 h-4 ${activeTab === 'system' ? 'text-white' : 'text-orange-400'}`} />
               </div>
               <div>
-                <p className="text-xs font-bold leading-tight truncate">5. Sistem Kiosk</p>
-                <p className={`text-[10px] leading-tight truncate ${activeTab === 'system' ? 'text-white/80' : 'text-slate-500'}`}>
+                <p className="text-xs font-bold leading-tight truncate">Sistem Kiosk</p>
+                <p className={`text-[10px] leading-tight truncate ${activeTab === 'system' ? 'text-white/80' : 'text-stone-500'}`}>
                   Auto-Reset & Print
                 </p>
               </div>
@@ -517,22 +595,22 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
         <div className="p-6 overflow-y-auto flex-1 space-y-6">
           {/* Peringatan Sisa Masa Aktif (< 3 Hari) */}
           {isExpiringSoon && (
-            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-amber-500/15 via-rose-500/10 to-amber-500/15 border-2 border-amber-500/60 shadow-xl shadow-amber-500/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-amber-200 animate-in fade-in slide-in-from-top-2">
+            <div className="p-4 sm:p-5 rounded-xl bg-[#181615] border border-orange-500/50 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-stone-200 animate-in fade-in slide-in-from-top-2">
               <div className="flex items-start gap-3.5">
-                <div className="p-3 rounded-2xl bg-amber-500/20 text-amber-300 border border-amber-500/40 shrink-0 shadow-inner">
-                  <AlertCircle className="w-6 h-6 animate-pulse text-amber-400" />
+                <div className="p-2.5 rounded-xl bg-stone-900 text-orange-400 border border-orange-500/40 shrink-0">
+                  <AlertCircle className="w-5 h-5 text-orange-400" />
                 </div>
                 <div className="space-y-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h4 className="text-sm sm:text-base font-black text-amber-300">
+                    <h4 className="text-sm sm:text-base font-bold text-stone-100">
                       Peringatan Sisa Masa Aktif Akun
                     </h4>
-                    <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-amber-500 text-slate-950 uppercase tracking-wider animate-pulse font-mono">
-                      {remainingDays === 0 ? '⚠️ Berakhir Hari Ini' : `⚠️ Sisa ${remainingDays} Hari`}
+                    <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-orange-600 text-white uppercase tracking-wider">
+                      {remainingDays === 0 ? 'Berakhir Hari Ini' : `Sisa ${remainingDays} Hari`}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-300 leading-relaxed max-w-2xl">
-                    Akun Anda <strong>({currentUser?.businessName || currentUser?.displayName})</strong> akan berakhir dalam kurun waktu <strong>{remainingDays === 0 ? 'hari ini' : `${remainingDays} hari lagi`}</strong> (Batas Aktif: <span className="text-amber-300 font-bold">{currentUser?.subscriptionEndDate}</span>). Perpanjangan langganan HANYA ditujukan ke Rekening Resmi: <span className="text-amber-300 font-bold underline decoration-amber-400/50">{OFFICIAL_PAYMENT_INFO.fullLabel}</span>.
+                  <p className="text-xs text-stone-400 leading-relaxed max-w-2xl">
+                    Akun Anda <strong>({currentUser?.businessName || currentUser?.displayName})</strong> akan berakhir dalam kurun waktu <strong>{remainingDays === 0 ? 'hari ini' : `${remainingDays} hari lagi`}</strong> (Batas Aktif: <span className="text-orange-400 font-semibold">{currentUser?.subscriptionEndDate}</span>). Perpanjangan langganan HANYA ditujukan ke Rekening Resmi: <span className="text-stone-200 font-semibold">{OFFICIAL_PAYMENT_INFO.fullLabel}</span>.
                   </p>
                 </div>
               </div>
@@ -898,7 +976,7 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                       <Lock className="w-5 h-5" />
                     </div>
                     <span className="text-xs font-bold text-cyan-200">Upload Frame Overlay PNG Dikunci pada Akun Trial</span>
-                    <span className="text-[11px] text-slate-400 max-w-md">Hasil cetak foto pada akun trial menyertakan watermark snapBoth Receipt dan menggunakan pilihan tema preset standar.</span>
+                    <span className="text-[11px] text-slate-400 max-w-md">Hasil cetak foto pada akun trial menyertakan watermark SnapBooth Receipt dan menggunakan pilihan tema preset standar.</span>
                   </div>
                 ) : themeForm.customFrameOverlayUrl ? (
                   <div className="p-4 bg-slate-900 rounded-2xl border border-cyan-500/30 flex items-center gap-4">
@@ -1264,34 +1342,387 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                   <ImageIcon className="w-4 h-4 text-rose-400" /> Mode Tampilan Utama Menu Start
                 </h3>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <button
                     type="button"
                     onClick={() => setThemeForm({ ...themeForm, welcomeMediaType: 'photo' })}
-                    className={`p-4 rounded-2xl border flex flex-col items-center gap-2 transition-all ${
-                      themeForm.welcomeMediaType !== 'video'
+                    className={`p-4 rounded-2xl border flex flex-col items-center gap-2 transition-all cursor-pointer ${
+                      themeForm.welcomeMediaType === 'photo' || (!themeForm.welcomeMediaType && themeForm.welcomeMediaType !== 'video' && themeForm.welcomeMediaType !== 'slideshow')
                         ? 'border-rose-500 bg-rose-500/10 text-white font-bold'
                         : 'border-slate-800 bg-slate-900 text-slate-400 hover:border-slate-700'
                     }`}
                   >
                     <ImageIcon className="w-6 h-6 text-rose-400" />
-                    <span className="text-sm">Foto Welcoming Background</span>
-                    <span className="text-[10px] font-normal text-slate-400">Menampilkan Foto Fullscreen & Logo</span>
+                    <span className="text-sm">Foto Welcoming</span>
+                    <span className="text-[10px] font-normal text-slate-400">1 Foto statis fullscreen & logo</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setThemeForm({
+                        ...themeForm,
+                        welcomeMediaType: 'slideshow',
+                        slideshowPhotos:
+                          themeForm.slideshowPhotos && themeForm.slideshowPhotos.length > 0
+                            ? themeForm.slideshowPhotos
+                            : DEFAULT_SLIDESHOW_PRODUCT_PHOTOS,
+                        slideshowSpeedSeconds: themeForm.slideshowSpeedSeconds || 7,
+                        slideshowTransition: themeForm.slideshowTransition || 'ken_burns',
+                      })
+                    }
+                    className={`p-4 rounded-2xl border flex flex-col items-center gap-2 transition-all cursor-pointer relative overflow-hidden ${
+                      themeForm.welcomeMediaType === 'slideshow'
+                        ? 'border-amber-400 bg-amber-400/10 text-white font-bold ring-1 ring-amber-400/50'
+                        : 'border-slate-800 bg-slate-900 text-slate-400 hover:border-slate-700'
+                    }`}
+                  >
+                    <span className="absolute top-2 right-2 px-1.5 py-0.5 rounded text-[9px] font-mono font-black bg-amber-400 text-slate-950">
+                      FITUR BARU
+                    </span>
+                    <Images className="w-6 h-6 text-amber-400" />
+                    <span className="text-sm">Slide Slow Foto Produk</span>
+                    <span className="text-[10px] font-normal text-slate-400">Slideshow produk bergerak slow</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setThemeForm({ ...themeForm, welcomeMediaType: 'video' })}
-                    className={`p-4 rounded-2xl border flex flex-col items-center gap-2 transition-all ${
+                    className={`p-4 rounded-2xl border flex flex-col items-center gap-2 transition-all cursor-pointer ${
                       themeForm.welcomeMediaType === 'video'
-                        ? 'border-rose-500 bg-rose-500/10 text-white font-bold'
+                        ? 'border-cyan-500 bg-cyan-500/10 text-white font-bold'
                         : 'border-slate-800 bg-slate-900 text-slate-400 hover:border-slate-700'
                     }`}
                   >
                     <Video className="w-6 h-6 text-cyan-400" />
                     <span className="text-sm">Video Background Loop</span>
-                    <span className="text-[10px] font-normal text-slate-400">Menampilkan Animasi Video Bergerak</span>
+                    <span className="text-[10px] font-normal text-slate-400">Animasi video MP4 bergerak</span>
                   </button>
+                </div>
+              </div>
+
+              {/* SLIDE SLOW FOTO PRODUK SETTINGS */}
+              <div className={`p-5 rounded-2xl border transition-all space-y-6 ${
+                themeForm.welcomeMediaType === 'slideshow'
+                  ? 'bg-slate-950 border-amber-500/40 ring-1 ring-amber-500/20'
+                  : 'bg-slate-950/60 border-slate-800'
+              }`}>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-2 rounded-xl bg-amber-400/10 border border-amber-400/30 text-amber-400">
+                      <Images className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                          Pengaturan Slide Slow Foto Produk
+                        </h3>
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-400/20 text-amber-300 border border-amber-400/30">
+                          {themeForm.welcomeMediaType === 'slideshow' ? 'SEDANG AKTIF' : 'TERSEDIA'}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-400">
+                        Katalog produk berjalan otomatis dengan gerakan lambat & transisi cinematic di layar start photobooth.
+                      </p>
+                    </div>
+                  </div>
+
+                  {themeForm.welcomeMediaType !== 'slideshow' && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setThemeForm({
+                          ...themeForm,
+                          welcomeMediaType: 'slideshow',
+                          slideshowPhotos:
+                            themeForm.slideshowPhotos && themeForm.slideshowPhotos.length > 0
+                              ? themeForm.slideshowPhotos
+                              : DEFAULT_SLIDESHOW_PRODUCT_PHOTOS,
+                          slideshowSpeedSeconds: themeForm.slideshowSpeedSeconds || 7,
+                          slideshowTransition: themeForm.slideshowTransition || 'ken_burns',
+                        })
+                      }
+                      className="px-3.5 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs cursor-pointer shadow-md transition-colors whitespace-nowrap self-start sm:self-auto"
+                    >
+                      Aktifkan Mode Slide Slow
+                    </button>
+                  )}
+                </div>
+
+                {/* 1. Kecepatan Slide Slow */}
+                <div className="space-y-2.5">
+                  <label className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <Timer className="w-4 h-4 text-amber-400" /> Kecepatan Durasi Slide (Slide Slow Interval)
+                    </span>
+                    <span className="text-amber-400 font-mono">
+                      {themeForm.slideshowSpeedSeconds || 7} Detik / Slide
+                    </span>
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {[
+                      { sec: 10, label: '10 Detik', desc: 'Sangat Lambat (Cinematic)' },
+                      { sec: 7, label: '7 Detik', desc: 'Slow Smooth (Rekomendasi)' },
+                      { sec: 5, label: '5 Detik', desc: 'Sedang (Standard)' },
+                      { sec: 3, label: '3 Detik', desc: 'Cepat (Dinamis)' },
+                    ].map((speed) => {
+                      const isSelected = (themeForm.slideshowSpeedSeconds || 7) === speed.sec;
+                      return (
+                        <button
+                          key={speed.sec}
+                          type="button"
+                          onClick={() => setThemeForm({ ...themeForm, slideshowSpeedSeconds: speed.sec })}
+                          className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                            isSelected
+                              ? 'border-amber-400 bg-amber-400/10 text-white font-bold'
+                              : 'border-slate-800 bg-slate-900 text-slate-400 hover:border-slate-700'
+                          }`}
+                        >
+                          <div className="text-xs font-bold text-amber-300">{speed.label}</div>
+                          <div className="text-[10px] text-slate-400 mt-0.5">{speed.desc}</div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* 2. Efek Transisi Gerakan & Badge */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Efek Gerakan */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Efek Gerakan Slide
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setThemeForm({ ...themeForm, slideshowTransition: 'ken_burns' })}
+                        className={`p-2.5 rounded-xl border text-xs text-left transition-all cursor-pointer ${
+                          (themeForm.slideshowTransition || 'ken_burns') === 'ken_burns'
+                            ? 'border-amber-400 bg-amber-400/10 text-white font-bold'
+                            : 'border-slate-800 bg-slate-900 text-slate-400 hover:border-slate-700'
+                        }`}
+                      >
+                        <div className="font-semibold text-amber-300">Ken Burns Zoom</div>
+                        <div className="text-[10px] text-slate-400 mt-0.5">Slow zoom & pan halus</div>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setThemeForm({ ...themeForm, slideshowTransition: 'fade' })}
+                        className={`p-2.5 rounded-xl border text-xs text-left transition-all cursor-pointer ${
+                          themeForm.slideshowTransition === 'fade'
+                            ? 'border-amber-400 bg-amber-400/10 text-white font-bold'
+                            : 'border-slate-800 bg-slate-900 text-slate-400 hover:border-slate-700'
+                        }`}
+                      >
+                        <div className="font-semibold text-amber-300">Crossfade Smooth</div>
+                        <div className="text-[10px] text-slate-400 mt-0.5">Pudar lembut antar foto</div>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Badge Indikator Produk */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                      <ShoppingBag className="w-3.5 h-3.5 text-amber-400" /> Badge Indikator di Layar
+                    </label>
+                    <div className="flex items-center justify-between p-2.5 rounded-xl border border-slate-800 bg-slate-900">
+                      <div>
+                        <div className="text-xs font-semibold text-white">Label "PRODUK X/Y"</div>
+                        <div className="text-[10px] text-slate-400">Tampilkan pill navigator di sudut kiri bawah</div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setThemeForm({
+                            ...themeForm,
+                            showProductBadge: themeForm.showProductBadge === false ? true : false,
+                          })
+                        }
+                        className={`w-11 h-6 rounded-full transition-colors relative cursor-pointer ${
+                          themeForm.showProductBadge !== false ? 'bg-amber-400' : 'bg-slate-700'
+                        }`}
+                      >
+                        <div
+                          className={`w-4 h-4 rounded-full bg-slate-950 transition-transform absolute top-1 ${
+                            themeForm.showProductBadge !== false ? 'left-6' : 'left-1'
+                          }`}
+                        />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. Daftar Foto Produk Aktif Saat Ini */}
+                <div className="space-y-3 pt-2 border-t border-slate-800/80">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <div>
+                      <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
+                        <span>📸 Foto Produk yang Aktif dalam Slideshow</span>
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-slate-800 text-amber-400 border border-slate-700">
+                          {(themeForm.slideshowPhotos || DEFAULT_SLIDESHOW_PRODUCT_PHOTOS).length} Foto
+                        </span>
+                      </h4>
+                      <p className="text-[11px] text-slate-400 mt-0.5">
+                        Foto di bawah ini akan bergantian tampil di background menu start secara slow.
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => productPhotosFileInputRef.current?.click()}
+                        disabled={isTrial}
+                        className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-all ${
+                          isTrial
+                            ? 'bg-slate-800 text-slate-500 border-slate-800 cursor-not-allowed opacity-60'
+                            : 'bg-amber-400/10 hover:bg-amber-400/20 text-amber-300 border-amber-500/30 cursor-pointer'
+                        }`}
+                      >
+                        {isTrial ? <Lock className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
+                        <span>Upload Foto Produk Kustom</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={handleResetDefaultProductPhotos}
+                        className="px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-slate-200 text-xs font-semibold cursor-pointer transition-colors"
+                        title="Reset ke Foto Produk Bawaan"
+                      >
+                        <RefreshCw className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <input
+                    type="file"
+                    ref={productPhotosFileInputRef}
+                    onChange={handleProductPhotosUpload}
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                  />
+
+                  {/* Active Photos List Grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                    {(themeForm.slideshowPhotos || DEFAULT_SLIDESHOW_PRODUCT_PHOTOS).map((photoUrl, idx) => (
+                      <div
+                        key={`${photoUrl}-${idx}`}
+                        className="relative group rounded-xl overflow-hidden border border-slate-800 bg-slate-900 aspect-video sm:aspect-square flex items-center justify-center"
+                      >
+                        <img
+                          src={photoUrl}
+                          alt={`Produk #${idx + 1}`}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                        />
+                        <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-950/80 text-amber-400 border border-amber-400/30">
+                          #{idx + 1}
+                        </div>
+                        {(themeForm.slideshowPhotos || DEFAULT_SLIDESHOW_PRODUCT_PHOTOS).length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveSlideshowPhoto(idx)}
+                            className="absolute top-1.5 right-1.5 p-1 rounded-md bg-rose-600/90 text-white hover:bg-rose-500 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer shadow-md"
+                            title="Hapus foto dari slide"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 4. Koleksi Preset Foto Produk Siap Pakai */}
+                <div className="space-y-3 pt-3 border-t border-slate-800/80">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                        <ShoppingBag className="w-3.5 h-3.5 text-amber-400" /> Katalog Preset Foto Produk Siap Pakai
+                      </h4>
+                      <p className="text-[11px] text-slate-400 mt-0.5">
+                        Pilih foto produk di bawah untuk menambah atau mengganti slide background:
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Category Filter Chips */}
+                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+                    {PRODUCT_CATEGORIES.map((cat) => (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => setProductCategoryFilter(cat.id)}
+                        className={`px-3 py-1.5 rounded-xl border whitespace-nowrap text-xs font-semibold transition-all cursor-pointer ${
+                          productCategoryFilter === cat.id
+                            ? 'bg-amber-400 text-slate-950 border-amber-400 shadow-sm'
+                            : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'
+                        }`}
+                      >
+                        {cat.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Preset Photos Grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 max-h-[360px] overflow-y-auto pr-1">
+                    {PRESET_PRODUCT_PHOTOS.filter(
+                      (p) => productCategoryFilter === 'all' || p.category === productCategoryFilter
+                    ).map((preset) => {
+                      const isIncluded = (themeForm.slideshowPhotos || DEFAULT_SLIDESHOW_PRODUCT_PHOTOS).includes(
+                        preset.url
+                      );
+                      return (
+                        <div
+                          key={preset.id}
+                          className={`rounded-xl border p-2.5 flex flex-col justify-between gap-2 transition-all ${
+                            isIncluded
+                              ? 'bg-amber-400/5 border-amber-400/50 shadow-sm'
+                              : 'bg-slate-900/80 border-slate-800 hover:border-slate-700'
+                          }`}
+                        >
+                          <div className="space-y-1.5">
+                            <div className="relative aspect-video rounded-lg overflow-hidden border border-slate-800 bg-slate-950">
+                              <img
+                                src={preset.url}
+                                alt={preset.name}
+                                className="w-full h-full object-cover"
+                              />
+                              {isIncluded && (
+                                <div className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded bg-amber-400 text-slate-950 font-bold font-mono text-[9px] flex items-center gap-1 shadow">
+                                  <Check className="w-2.5 h-2.5 stroke-[3]" /> AKTIF
+                                </div>
+                              )}
+                            </div>
+                            <div className="text-xs font-bold text-slate-200 truncate">{preset.name}</div>
+                            <p className="text-[10px] text-slate-400 line-clamp-2 leading-relaxed">
+                              {preset.description}
+                            </p>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => handleTogglePresetProduct(preset.url)}
+                            className={`w-full py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 cursor-pointer ${
+                              isIncluded
+                                ? 'bg-amber-400/20 text-amber-300 hover:bg-rose-500/20 hover:text-rose-300 border border-amber-400/30 hover:border-rose-500/30'
+                                : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700'
+                            }`}
+                          >
+                            {isIncluded ? (
+                              <span>Hapus dari Slide</span>
+                            ) : (
+                              <>
+                                <Plus className="w-3 h-3" />
+                                <span>+ Tambah ke Slide</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
 
@@ -1446,7 +1877,7 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                       <button
                         key={logo.id}
                         type="button"
-                        onClick={() => setThemeForm({ ...themeForm, logoUrl: logo.url, welcomeMediaType: 'photo' })}
+                        onClick={() => setThemeForm({ ...themeForm, logoUrl: logo.url })}
                         className="p-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-rose-500 transition-all flex-shrink-0"
                         title={logo.name}
                       >
@@ -1902,22 +2333,22 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                 </div>
               )}
 
-              <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-4">
-                <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                  <RefreshCw className="w-4 h-4 text-rose-400" /> Aksi & Reset Kiosk Photobooth
+              <div className="bg-[#181615] p-5 rounded-xl border border-stone-800 space-y-4">
+                <h3 className="text-xs font-bold text-stone-300 uppercase tracking-wider flex items-center gap-2">
+                  <RefreshCw className="w-4 h-4 text-orange-400" /> Aksi & Reset Kiosk Photobooth
                 </h3>
 
-                <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between">
+                <div className="p-4 rounded-xl bg-stone-900 border border-stone-800 flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-bold text-white">Reset Sesi Foto Baru</p>
-                    <p className="text-xs text-slate-400">Mulai ulang seluruh sesi dari awal dan bersihkan slot foto aktif</p>
+                    <p className="text-sm font-bold text-stone-100">Reset Sesi Foto Baru</p>
+                    <p className="text-xs text-stone-400">Mulai ulang seluruh sesi dari awal dan bersihkan slot foto aktif</p>
                   </div>
                   <button
                     onClick={() => {
                       onResetSession();
                       onClose();
                     }}
-                    className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-md shadow-rose-600/20"
+                    className="px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
                   >
                     <RefreshCw className="w-3.5 h-3.5" /> Mulai Foto Baru
                   </button>
@@ -1928,18 +2359,18 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
         </div>
 
         {/* Footer Actions */}
-        <div className="px-6 py-4 border-t border-slate-800 bg-slate-950/80 flex items-center justify-between">
-          <p className="text-xs text-slate-400 hidden sm:block">snapBoth Receipt System v2.0</p>
+        <div className="px-6 py-4 border-t border-stone-800 bg-[#171514] flex items-center justify-between">
+          <p className="text-xs text-stone-500 font-mono hidden sm:block">SnapBooth Studio System</p>
           <div className="flex items-center gap-3">
             <button
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold"
+              className="px-4 py-2.5 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-300 text-xs font-bold border border-stone-800 cursor-pointer"
             >
               Batal
             </button>
             <button
               onClick={handleSaveAndApply}
-              className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-rose-500 to-amber-500 hover:from-rose-600 hover:to-amber-600 text-white text-xs font-bold shadow-lg shadow-rose-500/20 flex items-center gap-1.5"
+              className="px-5 py-2.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold shadow-sm flex items-center gap-1.5 cursor-pointer border border-orange-500"
             >
               <Check className="w-4 h-4" /> Simpan & Terapkan Perubahan
             </button>

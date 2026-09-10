@@ -1531,7 +1531,7 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
 
     // Event Title
     ctx.font = `bold 56px ${titleFontFamilyName}`;
-    ctx.fillText(theme.eventTitle || 'snapBoth Receipt', canvasWidth / 2, headerY);
+    ctx.fillText(theme.eventTitle || 'SnapBooth Receipt', canvasWidth / 2, headerY);
 
     // Subtitle
     if (theme.eventSubtitle) {
@@ -1606,7 +1606,7 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
     ctx.font = `bold ${Math.round(bannerH * 0.42)}px "Plus Jakarta Sans", system-ui, sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('⚡ SNAPBOTH RECEIPT • TRIAL VERSION (MASA UJI COBA)', canvasWidth / 2, canvasHeight - bannerH / 2 + 1);
+    ctx.fillText('⚡ SNAPBOOTH RECEIPT • TRIAL VERSION (MASA UJI COBA)', canvasWidth / 2, canvasHeight - bannerH / 2 + 1);
 
     // Subtle diagonal background watermark in center
     ctx.save();
@@ -1616,7 +1616,7 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
     ctx.fillStyle = 'rgba(0, 0, 0, 0.07)';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('SNAPBOTH TRIAL MODE', 0, 0);
+    ctx.fillText('SNAPBOOTH TRIAL MODE', 0, 0);
     ctx.restore();
 
     ctx.restore();

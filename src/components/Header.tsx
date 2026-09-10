@@ -68,45 +68,50 @@ export const Header: React.FC<HeaderProps> = ({
   }, []);
 
   return (
-    <header className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 text-white px-2.5 sm:px-4 py-2 sm:py-2.5 shadow-lg">
+    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200 text-stone-900 px-2.5 sm:px-4 py-2 sm:py-2.5 shadow-sm">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-1.5 sm:gap-4">
         {/* Logo & Brand */}
         <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-pink-500 via-rose-500 to-amber-400 flex items-center justify-center shadow-md shadow-rose-500/20 shrink-0">
-            <Camera className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-orange-50 border border-orange-200 flex items-center justify-center text-orange-600 shrink-0 shadow-sm">
+            <Camera className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-1.5 sm:gap-2">
-              <h1 className="text-sm sm:text-lg font-black tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent truncate">
-                snapBoth<span className="text-rose-400"> Receipt</span>
+              <h1 className="text-sm sm:text-base font-bold tracking-tight text-stone-900 flex items-center gap-1.5 truncate">
+                <span>SnapBooth</span>
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-orange-100 text-orange-700 border border-orange-200">
+                  RECEIPT
+                </span>
               </h1>
               {/* Orientation Mode Pill Badge */}
               <button
                 type="button"
                 onClick={onToggleOrientation || onOpenControlPanel}
-                className="inline-flex items-center gap-1 px-2 py-0.5 text-[9px] sm:text-[10px] font-bold tracking-wide uppercase bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 hover:border-cyan-400 rounded-full cursor-pointer hover:bg-cyan-500/30 transition-all shrink-0 select-none active:scale-95"
+                className="inline-flex items-center gap-1 px-2 py-0.5 text-[9px] sm:text-[10px] font-mono font-bold tracking-wide uppercase bg-stone-100 text-stone-700 border border-stone-200 hover:border-orange-500/50 rounded-md cursor-pointer hover:bg-stone-200 transition-all shrink-0 select-none active:scale-95"
                 title="Klik untuk ubah orientasi layar: Otomatis / Portrait / Landscape"
               >
                 {currentTheme.tabletOrientation === 'landscape' ? (
                   <>
-                    <Tablet className="w-3 h-3 rotate-90 text-cyan-400" />
+                    <Tablet className="w-3 h-3 rotate-90 text-orange-600" />
                     <span className="hidden xs:inline">Landscape</span>
                   </>
                 ) : currentTheme.tabletOrientation === 'portrait' ? (
                   <>
-                    <Smartphone className="w-3 h-3 text-cyan-400" />
+                    <Smartphone className="w-3 h-3 text-orange-600" />
                     <span className="hidden xs:inline">Portrait</span>
                   </>
                 ) : (
                   <>
-                    <Zap className="w-3 h-3 text-amber-400" />
+                    <Zap className="w-3 h-3 text-orange-600" />
                     <span>Auto ({orientationState.isLandscape ? 'L' : 'P'})</span>
                   </>
                 )}
               </button>
             </div>
-            <p className="text-[10px] sm:text-[11px] text-slate-400 truncate max-w-[120px] sm:max-w-xs">
-              {currentUser?.businessName || currentTheme.eventTitle || 'snapBoth Receipt Event'}
+            <p className="text-[10px] sm:text-[11px] text-stone-500 truncate max-w-[120px] sm:max-w-xs font-mono">
+              {currentUser?.role === 'super_admin' || !currentUser?.businessName || currentUser.businessName.includes('HQ Indonesia')
+                ? (currentTheme.eventTitle || 'SnapBooth Receipt Event')
+                : currentUser.businessName}
             </p>
           </div>
         </div>
@@ -119,41 +124,41 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 type="button"
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer select-none ${
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg text-xs font-semibold transition-all border cursor-pointer select-none ${
                   isSuperAdmin
-                    ? 'bg-amber-500/10 border-amber-500/40 text-amber-300 hover:bg-amber-500/20'
+                    ? 'bg-amber-50 border-amber-200 text-amber-800 hover:bg-amber-100'
                     : isExpired
-                    ? 'bg-rose-500/20 border-rose-500/40 text-rose-300 hover:bg-rose-500/30 ring-1 ring-rose-500/40'
+                    ? 'bg-rose-50 border-rose-200 text-rose-800 hover:bg-rose-100'
                     : isExpiringSoon
-                    ? 'bg-amber-500/20 border-amber-500/50 text-amber-300 hover:bg-amber-500/30 ring-1 ring-amber-500/40 animate-pulse'
+                    ? 'bg-amber-50 border-amber-300 text-amber-900 hover:bg-amber-100'
                     : isTrial
-                    ? 'bg-amber-500/10 border-amber-500/30 text-amber-300 hover:bg-amber-500/20'
+                    ? 'bg-orange-50 border-orange-200 text-orange-800 hover:bg-orange-100'
                     : isUnl
-                    ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20'
-                    : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/20'
+                    ? 'bg-stone-100 border-stone-200 text-stone-800 hover:bg-stone-200'
+                    : 'bg-emerald-50 border-emerald-200 text-emerald-800 hover:bg-emerald-100'
                 }`}
                 title="Menu Akun dan Logout"
               >
                 {isSuperAdmin ? (
-                  <Crown className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                  <Crown className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                 ) : isExpired ? (
-                  <AlertCircle className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+                  <AlertCircle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
                 ) : isExpiringSoon ? (
-                  <AlertCircle className="w-3.5 h-3.5 text-amber-400 shrink-0 animate-bounce" />
+                  <AlertCircle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                 ) : (
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                 )}
                 <div className="flex flex-col text-left leading-tight">
                   <span className="truncate max-w-[90px] sm:max-w-[120px] text-[11px] font-bold">
                     {currentUser.displayName}
                   </span>
-                  <span className="text-[9px] font-medium opacity-80 truncate max-w-[90px] sm:max-w-[120px]">
+                  <span className="text-[9px] font-mono text-stone-500 truncate max-w-[90px] sm:max-w-[120px]">
                     {isSuperAdmin
                       ? 'Super Admin'
                       : isExpired
                       ? 'Expired'
                       : isExpiringSoon
-                      ? `⚠️ Sisa ${remainingDays === 0 ? 'Hari ini' : `${remainingDays}h`}`
+                      ? `Sisa ${remainingDays === 0 ? 'Hari ini' : `${remainingDays}h`}`
                       : isTrial
                       ? `Trial (${remainingDays}h)`
                       : isUnl
@@ -166,61 +171,61 @@ export const Header: React.FC<HeaderProps> = ({
 
               {/* Dropdown Menu Modal/Popover */}
               {isUserMenuOpen && (
-                <div className="absolute right-0 mt-2 w-72 sm:w-80 rounded-2xl bg-slate-900 border border-slate-700/80 shadow-2xl shadow-black/80 py-2.5 z-50 text-slate-200 animate-in fade-in zoom-in-95 duration-150">
+                <div className="absolute right-0 mt-2 w-72 sm:w-80 rounded-xl bg-white border border-stone-200 shadow-xl py-2 z-50 text-stone-800">
                   {/* User Profile Header */}
-                  <div className="px-4 py-2.5 border-b border-slate-800">
+                  <div className="px-4 py-3 border-b border-stone-200">
                     <div className="flex items-center gap-3">
                       <div
-                        className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-base border shrink-0 ${
+                        className={`w-9 h-9 rounded-lg flex items-center justify-center font-bold text-sm border shrink-0 ${
                           isSuperAdmin
-                            ? 'bg-amber-500/20 border-amber-500/40 text-amber-300'
+                            ? 'bg-amber-50 border-amber-200 text-amber-700'
                             : isExpired
-                            ? 'bg-rose-500/20 border-rose-500/40 text-rose-300'
+                            ? 'bg-rose-50 border-rose-200 text-rose-700'
                             : isExpiringSoon
-                            ? 'bg-amber-500/20 border-amber-500/50 text-amber-300'
+                            ? 'bg-amber-50 border-amber-300 text-amber-800'
                             : isTrial
-                            ? 'bg-amber-500/20 border-amber-500/40 text-amber-300'
+                            ? 'bg-orange-50 border-orange-200 text-orange-700'
                             : isUnl
-                            ? 'bg-cyan-500/20 border-cyan-500/40 text-cyan-300'
-                            : 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300'
+                            ? 'bg-stone-100 border-stone-200 text-stone-700'
+                            : 'bg-emerald-50 border-emerald-200 text-emerald-700'
                         }`}
                       >
-                        {isSuperAdmin ? <Crown className="w-5 h-5" /> : <User className="w-5 h-5" />}
+                        {isSuperAdmin ? <Crown className="w-4 h-4" /> : <User className="w-4 h-4" />}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-white truncate">
+                        <p className="text-sm font-bold text-stone-900 truncate">
                           {currentUser.displayName}
                         </p>
-                        <p className="text-xs text-slate-400 font-mono truncate">
+                        <p className="text-xs text-stone-500 font-mono truncate">
                           @{currentUser.username || currentUser.email.split('@')[0]}
                         </p>
-                        <div className="flex items-center gap-1.5 mt-1">
+                        <div className="flex items-center gap-1.5 mt-1.5">
                           <span
-                            className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full border ${
+                            className={`text-[10px] font-mono font-semibold px-2 py-0.5 rounded border ${
                               isSuperAdmin
-                                ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+                                ? 'bg-amber-50 text-amber-700 border-amber-200'
                                 : isExpired
-                                ? 'bg-rose-500/20 text-rose-300 border-rose-500/30'
+                                ? 'bg-rose-50 text-rose-700 border-rose-200'
                                 : isExpiringSoon
-                                ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 animate-pulse'
+                                ? 'bg-amber-50 text-amber-800 border-amber-300'
                                 : isTrial
-                                ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+                                ? 'bg-orange-50 text-orange-700 border-orange-200'
                                 : isUnl
-                                ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30'
-                                : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                                ? 'bg-stone-100 text-stone-700 border-stone-200'
+                                : 'bg-emerald-50 text-emerald-700 border-emerald-200'
                             }`}
                           >
                             {isSuperAdmin
-                              ? '👑 Super Admin'
+                              ? 'Super Admin'
                               : isExpired
-                              ? '🔴 Langganan Berakhir'
+                              ? 'Langganan Berakhir'
                               : isExpiringSoon
-                              ? `⚠️ Sisa ${remainingDays === 0 ? 'Hari ini' : `${remainingDays} Hari`}`
+                              ? `Sisa ${remainingDays === 0 ? 'Hari ini' : `${remainingDays} Hari`}`
                               : isTrial
-                              ? `🟡 Masa Trial (${remainingDays} Hari)`
+                              ? `Trial (${remainingDays} Hari)`
                               : isUnl
-                              ? '♾️ Tanpa Batas (OFF)'
-                              : `🟢 ${currentPlan?.name || 'Pro'} (${remainingDays} Hari)`}
+                              ? 'Tanpa Batas (OFF)'
+                              : `${currentPlan?.name || 'Pro'} (${remainingDays} Hari)`}
                           </span>
                         </div>
                       </div>
@@ -228,14 +233,14 @@ export const Header: React.FC<HeaderProps> = ({
 
                     {/* Sisa masa aktif warning alert in dropdown */}
                     {isExpiringSoon && (
-                      <div className="mt-2.5 p-2.5 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-200 text-xs flex items-start gap-2">
-                        <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                      <div className="mt-3 p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-start gap-2">
+                        <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                         <div className="space-y-1">
-                          <p className="font-bold text-amber-300 leading-tight">
-                            Peringatan: Sisa Masa Aktif ({remainingDays === 0 ? 'Hari Ini' : `${remainingDays} Hari Lagi`})
+                          <p className="font-semibold text-amber-800 leading-tight">
+                            Masa Aktif ({remainingDays === 0 ? 'Hari Ini' : `${remainingDays} Hari Lagi`})
                           </p>
-                          <p className="text-[11px] text-slate-300 leading-snug">
-                            Akun Anda akan segera berakhir pada {currentUser.subscriptionEndDate}. Segera lakukan perpanjangan paket.
+                          <p className="text-[11px] text-stone-600 leading-snug">
+                            Akun Anda akan berakhir pada {currentUser.subscriptionEndDate}. Silakan lakukan perpanjangan paket.
                           </p>
                           {onOpenAuthModal && (
                             <button
@@ -244,10 +249,9 @@ export const Header: React.FC<HeaderProps> = ({
                                 setIsUserMenuOpen(false);
                                 onOpenAuthModal();
                               }}
-                              className="mt-1 px-2.5 py-1 rounded-lg bg-amber-500 text-slate-950 text-[10px] font-black hover:bg-amber-400 transition-colors inline-flex items-center gap-1"
+                              className="mt-1 px-3 py-1 rounded bg-orange-600 text-white text-xs font-bold hover:bg-orange-500 transition-colors"
                             >
-                              <Sparkles className="w-3 h-3" />
-                              <span>Perpanjang Sekarang</span>
+                              Perpanjang Sekarang
                             </button>
                           )}
                         </div>
@@ -256,7 +260,7 @@ export const Header: React.FC<HeaderProps> = ({
                   </div>
 
                   {/* Menu Items */}
-                  <div className="p-1.5 space-y-1">
+                  <div className="p-1.5 space-y-0.5">
                     {/* Open Super Admin if role is super_admin */}
                     {isSuperAdmin && (
                       <button
@@ -265,14 +269,14 @@ export const Header: React.FC<HeaderProps> = ({
                           setIsUserMenuOpen(false);
                           onOpenSuperAdmin();
                         }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-amber-300 hover:bg-amber-500/10 transition-colors text-left"
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-amber-800 hover:bg-amber-50 transition-colors text-left"
                       >
-                        <div className="p-1.5 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                        <div className="p-1.5 rounded bg-amber-100 text-amber-700 border border-amber-200">
                           <Crown className="w-4 h-4" />
                         </div>
                         <div>
-                          <div className="font-bold text-amber-300">Portal Super Admin</div>
-                          <div className="text-[10px] text-amber-400/70">Kelola database customer & paket</div>
+                          <div className="font-bold text-amber-900">Portal Super Admin</div>
+                          <div className="text-[10px] text-stone-500">Kelola database customer & paket</div>
                         </div>
                       </button>
                     )}
@@ -284,18 +288,18 @@ export const Header: React.FC<HeaderProps> = ({
                         setIsUserMenuOpen(false);
                         onOpenControlPanel();
                       }}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-200 hover:text-white hover:bg-slate-800 transition-colors text-left"
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-stone-700 hover:text-stone-900 hover:bg-stone-100 transition-colors text-left"
                     >
-                      <div className="p-1.5 rounded-lg bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                      <div className="p-1.5 rounded bg-stone-100 text-stone-700 border border-stone-200">
                         <Sliders className="w-4 h-4" />
                       </div>
                       <div>
-                        <div className="font-bold text-white">Pengaturan Booth</div>
-                        <div className="text-[10px] text-slate-400">Ubah tema, branding, & layout cetak</div>
+                        <div className="font-bold text-stone-900">Pengaturan Booth</div>
+                        <div className="text-[10px] text-stone-500">Ubah tema, branding, & layout cetak</div>
                       </div>
                     </button>
 
-                    <div className="my-1 border-t border-slate-800" />
+                    <div className="my-1 border-t border-stone-200" />
 
                     {/* Logout Menu */}
                     <button
@@ -304,14 +308,14 @@ export const Header: React.FC<HeaderProps> = ({
                         setIsUserMenuOpen(false);
                         onLogout();
                       }}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 transition-colors text-left"
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-rose-700 hover:bg-rose-50 transition-colors text-left"
                     >
-                      <div className="p-1.5 rounded-lg bg-rose-500/20 text-rose-400 border border-rose-500/30">
+                      <div className="p-1.5 rounded bg-rose-100 text-rose-700 border border-rose-200">
                         <LogOut className="w-4 h-4" />
                       </div>
                       <div>
-                        <div className="font-bold text-rose-400">Logout / Keluar</div>
-                        <div className="text-[10px] text-rose-400/70">Keluar dari akun {currentUser.displayName}</div>
+                        <div className="font-bold text-rose-800">Logout / Keluar</div>
+                        <div className="text-[10px] text-rose-600">Keluar dari akun {currentUser.displayName}</div>
                       </div>
                     </button>
                   </div>
@@ -321,7 +325,7 @@ export const Header: React.FC<HeaderProps> = ({
           ) : (
             <button
               onClick={onOpenAuthModal}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-rose-500 to-amber-500 hover:brightness-110 text-slate-950 text-xs font-extrabold shadow-md shadow-rose-500/20 transition-all cursor-pointer"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold transition-all shadow-sm border border-orange-500/40 active:scale-95 cursor-pointer"
             >
               <LogIn className="w-3.5 h-3.5" />
               <span>Login</span>
@@ -332,28 +336,28 @@ export const Header: React.FC<HeaderProps> = ({
           {isSuperAdmin && (
             <button
               onClick={onOpenSuperAdmin}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:brightness-110 text-slate-950 text-xs sm:text-sm font-black transition-all shadow-md shadow-amber-500/20 active:scale-95 cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs sm:text-sm font-semibold transition-all border border-amber-200 active:scale-95 cursor-pointer"
               title="Portal Super Admin: Kelola Customer & Langganan"
             >
-              <Users className="w-4 h-4" />
-              <span className="hidden sm:inline">Kelola Customer</span>
+              <Users className="w-4 h-4 text-amber-600" />
+              <span className="hidden sm:inline">Kelola Klien</span>
             </button>
           )}
 
           {/* Main Control Panel Setting Button */}
           <button
             onClick={onOpenControlPanel}
-            className="flex items-center gap-1.5 sm:gap-2 px-3 py-2 rounded-xl bg-gradient-to-r from-rose-500/20 to-amber-500/20 hover:from-rose-500/30 hover:to-amber-500/30 text-white text-xs sm:text-sm font-bold transition-all border border-rose-500/40 hover:border-rose-500/60 shadow-md active:scale-95"
+            className="flex items-center gap-1.5 sm:gap-2 px-3 py-2 rounded-lg bg-stone-900 hover:bg-stone-800 text-white text-xs sm:text-sm font-medium transition-all active:scale-95 cursor-pointer shadow-sm"
             title="Buka Dasboard Setting Booth"
           >
-            <Sliders className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400" />
-            <span>Dasboard</span>
+            <Sliders className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-400" />
+            <span>Dashboard</span>
           </button>
 
           {/* New Session Reset */}
           <button
             onClick={onResetSession}
-            className="flex items-center gap-1 px-2.5 py-2 sm:px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold transition-all border border-slate-700 active:scale-95"
+            className="flex items-center gap-1.5 px-2.5 py-2 sm:px-3 rounded-lg bg-white hover:bg-stone-50 text-stone-700 hover:text-stone-900 text-xs font-medium transition-all border border-stone-200 active:scale-95 cursor-pointer shadow-sm"
             title="Mulai Sesi Foto Baru"
           >
             <RefreshCw className="w-3.5 h-3.5" />

@@ -21,6 +21,7 @@ import {
   HardDrive,
   Info,
   Home,
+  Camera,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import QRCode from 'qrcode';
@@ -468,119 +469,119 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-4 sm:p-6 space-y-8 animate-in fade-in duration-300">
+    <div className="max-w-5xl mx-auto p-4 sm:p-6 space-y-6">
       {/* Header Banner */}
       <div className="text-center space-y-2">
         <div className="flex flex-wrap items-center justify-center gap-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-semibold border border-emerald-500/30">
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Halaman Utama Preview Foto Strip
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-stone-900 border border-stone-800 text-stone-300 text-[11px] font-mono uppercase tracking-wider">
+            <Camera className="w-3.5 h-3.5 text-orange-400" /> Pratinjau Foto Strip
           </div>
 
           {theme.autoPrintEnabled && (
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-300 text-xs font-bold border border-cyan-500/40 animate-pulse">
-              <Printer className="w-3.5 h-3.5 text-cyan-400" /> Auto-Print Kiosk Aktif
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-stone-900 border border-orange-500/40 text-orange-300 text-[11px] font-mono font-medium">
+              <Printer className="w-3 h-3 text-orange-400" /> Auto-Print Aktif
             </div>
           )}
         </div>
 
-        <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
-          Preview, Cetak & Simpan Foto
+        <h2 className="text-2xl sm:text-3xl font-serif font-bold text-stone-100">
+          Pratinjau & Cetak Hasil Foto
         </h2>
 
         {autoPrintNotice && (
-          <div className="p-3 bg-cyan-500/10 border border-cyan-500/30 rounded-xl max-w-md mx-auto text-cyan-300 text-xs font-semibold flex items-center justify-center gap-2 animate-bounce">
-            <Printer className="w-4 h-4 text-cyan-400" />
-            <span>Memicu dialog cetak printer otomatis...</span>
+          <div className="p-2.5 bg-stone-900 border border-orange-500/40 rounded-lg max-w-md mx-auto text-orange-300 text-xs font-mono flex items-center justify-center gap-2">
+            <Printer className="w-3.5 h-3.5 text-orange-400" />
+            <span>Memicu dialog cetak printer...</span>
           </div>
         )}
 
-        <p className="text-slate-400 text-xs sm:text-sm max-w-lg mx-auto">
-          Lihat pratinjau hasil foto di bawah ini. Tekan <strong>⚡ Cetak Cepat</strong> untuk langsung mencetak, unduh file HD, atau scan QR code dari smartphone Anda.
+        <p className="text-stone-400 text-xs sm:text-sm max-w-lg mx-auto">
+          Hasil foto telah diproses. Tekan <strong>Cetak Cepat</strong> untuk langsung mencetak atau unduh file resolusi tinggi.
         </p>
       </div>
 
       {/* Quick Print Notification Status Toast/Bar */}
       {quickPrintStatus !== 'idle' && (
         <div
-          className={`max-w-xl mx-auto p-3.5 rounded-2xl border flex items-center justify-between gap-3 text-xs font-bold shadow-xl animate-in fade-in zoom-in-95 duration-200 ${
+          className={`max-w-xl mx-auto p-3 rounded-xl border flex items-center justify-between gap-3 text-xs font-medium ${
             quickPrintStatus === 'printing'
-              ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
-              : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+              ? 'bg-stone-900 text-orange-300 border-orange-500/40'
+              : 'bg-stone-900 text-emerald-300 border-emerald-500/40'
           }`}
         >
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2">
             {quickPrintStatus === 'printing' ? (
-              <RefreshCw className="w-4 h-4 animate-spin text-amber-400 shrink-0" />
+              <RefreshCw className="w-3.5 h-3.5 animate-spin text-orange-400 shrink-0" />
             ) : (
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
             )}
             <span>{quickPrintMessage}</span>
           </div>
-          <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-black/40 uppercase tracking-wider">
-            {quickPrintStatus === 'printing' ? 'Memproses...' : 'Siap Cetak'}
+          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-stone-800 border border-stone-700 uppercase tracking-wider">
+            {quickPrintStatus === 'printing' ? 'Memproses' : 'Siap'}
           </span>
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left: Strip Render Preview */}
         <div className="lg:col-span-5 flex flex-col items-center space-y-4">
-          <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 shadow-2xl relative">
+          <div className="bg-[#100f0e] p-4 rounded-2xl border border-stone-800 shadow-xl relative">
             {isGenerating ? (
-              <div className="w-64 h-96 flex flex-col items-center justify-center space-y-3 text-slate-400">
-                <RefreshCw className="w-8 h-8 animate-spin text-rose-500" />
+              <div className="w-64 h-96 flex flex-col items-center justify-center space-y-3 text-stone-400">
+                <RefreshCw className="w-8 h-8 animate-spin text-orange-500" />
                 <span className="text-xs font-semibold">Mengolah Hasil Cetak High-Res...</span>
               </div>
             ) : (
               <img
                 src={currentPrintData}
                 alt="High Res Photo Strip"
-                className="max-h-[500px] w-auto rounded shadow-lg object-contain"
+                className="max-h-[500px] w-auto rounded shadow-md object-contain"
               />
             )}
           </div>
 
           {/* Trial Notice Badge on Result */}
           {isTrial && (
-            <div className="w-full p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center gap-2.5 text-amber-300 text-xs">
-              <span className="text-sm shrink-0">🟡</span>
+            <div className="w-full p-3 rounded-lg bg-stone-900 border border-orange-500/30 flex items-center gap-2.5 text-orange-300 text-xs">
+              <Info className="w-4 h-4 text-orange-400 shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="font-bold text-[11px]">Mode Akun Trial 3 Hari Aktif</p>
-                <p className="text-[10px] text-amber-200/80 leading-relaxed">Hasil foto memuat watermark uji coba. Berlangganan mingguan (30rb), bulanan (50rb), atau tahunan (500rb) untuk menghapus watermark & akses custom desain.</p>
+                <p className="text-[10px] text-stone-400 leading-relaxed">Hasil foto memuat watermark uji coba. Hubungi admin untuk lisensi tanpa watermark.</p>
               </div>
             </div>
           )}
 
           {/* Active Connected Printer & Paper Format Badge */}
-          <div className="w-full space-y-2.5 bg-slate-900 border border-slate-800 p-3.5 rounded-2xl">
+          <div className="w-full space-y-2.5 bg-[#131110] border border-stone-800 p-3.5 rounded-xl">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                <HardDrive className="w-3.5 h-3.5 text-emerald-400" /> Printer Aktif
+              <span className="text-[11px] font-bold text-stone-400 font-mono uppercase tracking-wider flex items-center gap-1.5">
+                <HardDrive className="w-3.5 h-3.5 text-orange-400" /> PRINTER AKTIF
               </span>
               <button
                 type="button"
                 onClick={() => setIsPrinterSelectorOpen(true)}
-                className="text-[10px] font-extrabold px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 hover:border-cyan-500/40 flex items-center gap-1 transition-all cursor-pointer"
+                className="text-[10px] font-mono font-bold px-2.5 py-1 rounded bg-stone-900 hover:bg-stone-800 text-stone-200 border border-stone-800 flex items-center gap-1 transition-all cursor-pointer"
               >
-                <Sliders className="w-3 h-3" /> Ganti Printer
+                <Sliders className="w-3 h-3 text-orange-400" /> Ganti Printer
               </button>
             </div>
 
             <div
               onClick={() => setIsPrinterSelectorOpen(true)}
-              className="bg-slate-950 p-3 rounded-xl border border-emerald-500/30 hover:border-emerald-500/60 transition-all flex items-center gap-3 cursor-pointer group"
+              className="bg-[#181615] p-3 rounded-lg border border-stone-800 hover:border-stone-700 transition-all flex items-center gap-3 cursor-pointer group"
             >
-              <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 group-hover:scale-105 transition-transform">
+              <div className="p-2 rounded-md bg-stone-900 text-orange-400 border border-stone-800">
                 <Printer className="w-5 h-5" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-1">
-                  <span className="text-xs font-bold text-white truncate">{activePrinter.name}</span>
-                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shrink-0">
-                    🟢 Terhubung
+                  <span className="text-xs font-bold text-stone-100 truncate">{activePrinter.name}</span>
+                  <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-emerald-950/80 text-emerald-300 border border-emerald-800 shrink-0">
+                    ONLINE
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-400 leading-tight mt-0.5 truncate">
+                <p className="text-[11px] text-stone-400 font-mono leading-tight mt-0.5 truncate">
                   {activePrinter.paperDescription} ({activePrinter.connectionType})
                 </p>
               </div>
@@ -591,25 +592,21 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
         {/* Right: Actions, Quick Print, QR Code Scan, and Social Sharing */}
         <div className="lg:col-span-7 space-y-6">
           {/* Hero Quick Print Card */}
-          <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 border-2 border-rose-500/40 rounded-3xl p-5 sm:p-6 shadow-2xl shadow-rose-950/30 space-y-4 relative overflow-hidden">
-            {/* Ambient subtle glow background */}
-            <div className="absolute -top-10 -right-10 w-40 h-40 bg-rose-500/10 rounded-full blur-2xl pointer-events-none" />
-            <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
-
+          <div className="bg-[#131110] border border-stone-800 rounded-xl p-5 sm:p-6 shadow-sm space-y-4 relative overflow-hidden">
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2.5">
-                <div className="p-2.5 rounded-2xl bg-gradient-to-tr from-amber-500 to-rose-500 text-white shadow-lg shadow-rose-500/30">
+                <div className="p-2.5 rounded-lg bg-orange-600 text-white shadow-sm">
                   <Zap className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-extrabold text-white flex items-center gap-2">
+                  <h3 className="text-base font-bold text-stone-100 flex items-center gap-2">
                     Fitur Cetak Cepat
-                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40">
-                      ⚡ Instant Print
+                    <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-stone-900 text-orange-400 border border-stone-800">
+                      Instant Print
                     </span>
                   </h3>
-                  <p className="text-xs text-slate-400">
-                    Mencetak langsung ke printer yang terhubung tanpa perlu konfirmasi ulang
+                  <p className="text-xs text-stone-400">
+                    Mencetak langsung ke printer yang terhubung tanpa perlu dialog konfirmasi
                   </p>
                 </div>
               </div>
@@ -621,23 +618,23 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
               <button
                 type="button"
                 onClick={() => setIsPrinterSelectorOpen(true)}
-                className="p-3 rounded-2xl bg-slate-950/80 border border-slate-800 hover:border-slate-700 text-left flex items-center justify-between gap-2 transition-all cursor-pointer group"
+                className="p-3 rounded-lg bg-[#181615] border border-stone-800 hover:border-stone-700 text-left flex items-center justify-between gap-2 transition-all cursor-pointer group"
               >
                 <div className="min-w-0">
-                  <span className="text-[10px] font-bold uppercase text-slate-400 block">Printer Terhubung:</span>
-                  <span className="text-xs font-bold text-white truncate block group-hover:text-amber-300 transition-colors">
+                  <span className="text-[10px] font-mono font-bold uppercase text-stone-500 block">Printer Terhubung:</span>
+                  <span className="text-xs font-bold text-stone-200 truncate block group-hover:text-orange-400 transition-colors">
                     {activePrinter.name}
                   </span>
                 </div>
-                <ChevronDown className="w-4 h-4 text-slate-400 group-hover:text-white shrink-0" />
+                <ChevronDown className="w-4 h-4 text-stone-500 group-hover:text-stone-300 shrink-0" />
               </button>
 
               {/* Number of Copies Selector */}
-              <div className="p-3 rounded-2xl bg-slate-950/80 border border-slate-800 flex items-center justify-between gap-2">
+              <div className="p-3 rounded-lg bg-[#181615] border border-stone-800 flex items-center justify-between gap-2">
                 <div>
-                  <span className="text-[10px] font-bold uppercase text-slate-400 block">Jumlah Cetak:</span>
-                  <span className="text-xs font-bold text-white flex items-center gap-1">
-                    <Copy className="w-3 h-3 text-amber-400" /> {printCopies} Salinan
+                  <span className="text-[10px] font-mono font-bold uppercase text-stone-500 block">Jumlah Cetak:</span>
+                  <span className="text-xs font-bold text-stone-200 flex items-center gap-1 font-mono">
+                    <Copy className="w-3 h-3 text-orange-400" /> {printCopies}x Lembar
                   </span>
                 </div>
                 <div className="flex items-center gap-1">
@@ -649,10 +646,10 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
                         setPrintCopies(num);
                         sounds.playPopSound();
                       }}
-                      className={`w-7 h-7 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      className={`w-7 h-7 rounded text-xs font-mono font-bold transition-all cursor-pointer border ${
                         printCopies === num
-                          ? 'bg-amber-500 text-slate-950 font-black shadow-md'
-                          : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white'
+                          ? 'bg-orange-600 text-white border-orange-500 shadow-sm'
+                          : 'bg-stone-900 text-stone-400 hover:text-stone-200 border-stone-800'
                       }`}
                     >
                       {num}x
@@ -667,42 +664,40 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
               type="button"
               onClick={handleQuickPrint}
               disabled={isGenerating || quickPrintStatus === 'printing'}
-              className="w-full relative group py-4 px-6 rounded-2xl bg-gradient-to-r from-amber-500 via-rose-500 to-pink-600 hover:from-amber-400 hover:via-rose-400 hover:to-pink-500 text-white font-black text-base sm:text-lg shadow-xl shadow-rose-500/30 hover:shadow-rose-500/50 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 cursor-pointer overflow-hidden"
+              className="w-full relative group py-3.5 px-6 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-bold text-base shadow-sm active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 cursor-pointer border border-orange-500"
             >
-              <div className="p-1 rounded-full bg-white/20 group-hover:scale-110 transition-transform">
-                <Zap className="w-6 h-6 text-white fill-white animate-pulse" />
-              </div>
+              <Zap className="w-5 h-5 text-white fill-white" />
               <div className="text-left leading-tight">
                 <div className="flex items-center gap-2">
-                  <span>⚡ Cetak Cepat</span>
-                  <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-black/30 text-white">
+                  <span>Cetak Cepat</span>
+                  <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-black/30 text-white">
                     {printCopies}x Lembar
                   </span>
                 </div>
-                <span className="text-xs font-medium text-white/80 block mt-0.5">
-                  Langsung kirim ke {activePrinter.name}
+                <span className="text-xs font-normal text-orange-100 block mt-0.5">
+                  Langsung kirim spooling ke {activePrinter.name}
                 </span>
               </div>
             </button>
 
             {/* Secondary Option: Download & Standard Print */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1 border-t border-slate-800/80">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1 border-t border-stone-800">
               <button
                 type="button"
                 onClick={() => executeDirectPrint(1)}
                 disabled={isGenerating}
-                className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-slate-800/90 hover:bg-slate-800 text-slate-200 hover:text-white font-bold text-xs border border-slate-700/80 transition-all cursor-pointer"
+                className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-200 hover:text-white font-mono font-bold text-xs border border-stone-800 transition-all cursor-pointer"
               >
-                <Printer className="w-4 h-4 text-emerald-400" /> Cetak Standar (1x)
+                <Printer className="w-4 h-4 text-orange-400" /> Cetak Standar (1x)
               </button>
 
               <button
                 type="button"
                 onClick={handleDownload}
                 disabled={isGenerating}
-                className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-slate-800/90 hover:bg-slate-800 text-slate-200 hover:text-white font-bold text-xs border border-slate-700/80 transition-all cursor-pointer"
+                className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-200 hover:text-white font-mono font-bold text-xs border border-stone-800 transition-all cursor-pointer"
               >
-                <Download className="w-4 h-4 text-amber-400" /> Unduh File Foto (PNG)
+                <Download className="w-4 h-4 text-orange-400" /> Unduh File Foto (PNG)
               </button>
             </div>
           </div>
@@ -711,17 +706,17 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
           <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
             <button
               onClick={onResetSession}
-              className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-emerald-600/20 active:scale-98 transition-all cursor-pointer"
+              className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-stone-900 hover:bg-stone-800 text-stone-200 font-bold text-xs sm:text-sm border border-stone-800 active:scale-[0.98] transition-all cursor-pointer"
             >
-              <Home className="w-4 h-4 text-emerald-100" />
+              <Home className="w-4 h-4 text-stone-400" />
               <span>Selesai & Ke Halaman Utama</span>
             </button>
 
             <button
               onClick={onResetSession}
-              className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-bold text-xs sm:text-sm border border-slate-700 transition-all active:scale-98 cursor-pointer"
+              className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs sm:text-sm border border-orange-500 transition-all active:scale-[0.98] cursor-pointer shadow-sm"
             >
-              <RefreshCw className="w-4 h-4 text-rose-400" />
+              <RefreshCw className="w-4 h-4 text-white" />
               <span>Mulai Sesi Foto Baru</span>
             </button>
           </div>
@@ -730,17 +725,17 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
 
       {/* Connected Printer Selection & Manager Modal */}
       {isPrinterSelectorOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150">
+          <div className="bg-[#131110] border border-stone-800 rounded-xl w-full max-w-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
             {/* Modal Header */}
-            <div className="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-950">
+            <div className="p-4 sm:p-5 border-b border-stone-800 flex items-center justify-between bg-[#171514]">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                <div className="p-2 rounded-lg bg-stone-900 text-orange-400 border border-stone-800">
                   <Printer className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-white">Pilih Printer Terhubung</h3>
-                  <p className="text-xs text-slate-400">Pilih printer aktif untuk fitur Cetak Cepat</p>
+                  <h3 className="text-base font-bold text-stone-100">Pilih Printer Terhubung</h3>
+                  <p className="text-xs text-stone-400">Pilih printer aktif untuk cetak langsung</p>
                 </div>
               </div>
               <button
@@ -749,7 +744,7 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
                   setIsPrinterSelectorOpen(false);
                   setShowAddCustom(false);
                 }}
-                className="p-2 rounded-xl bg-slate-800 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg bg-stone-900 text-stone-400 hover:text-white transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -759,13 +754,13 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
             <div className="p-5 space-y-4 overflow-y-auto flex-1">
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+                  <label className="text-xs font-bold text-stone-300 uppercase tracking-wider font-mono">
                     Daftar Printer Tersedia:
                   </label>
                   <button
                     type="button"
                     onClick={() => setShowAddCustom(!showAddCustom)}
-                    className="text-xs font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1 cursor-pointer"
+                    className="text-xs font-bold text-orange-400 hover:text-orange-300 flex items-center gap-1 cursor-pointer font-mono"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>{showAddCustom ? 'Tutup Form' : 'Tambah Printer Baru'}</span>
@@ -774,14 +769,14 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
 
                 {/* Custom Printer Add Form */}
                 {showAddCustom && (
-                  <div className="p-4 rounded-2xl bg-slate-950 border border-amber-500/40 space-y-3 animate-in fade-in duration-150">
-                    <h4 className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                  <div className="p-4 rounded-xl bg-[#171514] border border-orange-500/40 space-y-3 animate-in fade-in duration-150">
+                    <h4 className="text-xs font-bold text-orange-400 flex items-center gap-1.5">
                       <Plus className="w-3.5 h-3.5" /> Tambah Profil Printer Kustom
                     </h4>
 
                     <div className="space-y-2">
                       <div>
-                        <label className="text-[11px] font-bold text-slate-400 block mb-1">
+                        <label className="text-[11px] font-bold text-stone-400 block mb-1">
                           Nama Printer (contoh: Epson TM-T82 Kios 1, DNP Booth Utama):
                         </label>
                         <input
@@ -789,19 +784,19 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
                           value={newPrinterName}
                           onChange={(e) => setNewPrinterName(e.target.value)}
                           placeholder="Masukkan nama atau tipe printer..."
-                          className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs focus:outline-none focus:border-amber-500"
+                          className="w-full px-3 py-2 rounded-lg bg-stone-900 border border-stone-700 text-white text-xs focus:outline-none focus:border-orange-500"
                         />
                       </div>
 
                       <div className="grid grid-cols-2 gap-2">
                         <div>
-                          <label className="text-[11px] font-bold text-slate-400 block mb-1">
+                          <label className="text-[11px] font-bold text-stone-400 block mb-1">
                             Format / Ukuran Kertas:
                           </label>
                           <select
                             value={newPrinterType}
                             onChange={(e) => setNewPrinterType(e.target.value as any)}
-                            className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs focus:outline-none focus:border-amber-500"
+                            className="w-full px-3 py-2 rounded-lg bg-stone-900 border border-stone-700 text-white text-xs focus:outline-none focus:border-orange-500"
                           >
                             <option value="thermal_80mm">Thermal 80mm (Standar Struk)</option>
                             <option value="thermal_58mm">Thermal 58mm (Mini POS)</option>
@@ -811,13 +806,13 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
                         </div>
 
                         <div>
-                          <label className="text-[11px] font-bold text-slate-400 block mb-1">
+                          <label className="text-[11px] font-bold text-stone-400 block mb-1">
                             Jenis Sambungan:
                           </label>
                           <select
                             value={newPrinterConn}
                             onChange={(e) => setNewPrinterConn(e.target.value as any)}
-                            className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs focus:outline-none focus:border-amber-500"
+                            className="w-full px-3 py-2 rounded-lg bg-stone-900 border border-stone-700 text-white text-xs focus:outline-none focus:border-orange-500"
                           >
                             <option value="USB / Bluetooth">USB / Bluetooth</option>
                             <option value="Driver OS">Driver OS (Spooler)</option>
@@ -830,7 +825,7 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
                         <button
                           type="button"
                           onClick={() => setShowAddCustom(false)}
-                          className="px-3 py-1.5 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold hover:bg-slate-700 cursor-pointer"
+                          className="px-3 py-1.5 rounded-lg bg-stone-900 text-stone-300 text-xs font-bold hover:bg-stone-800 cursor-pointer"
                         >
                           Batal
                         </button>
@@ -838,7 +833,7 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
                           type="button"
                           onClick={handleAddCustomPrinter}
                           disabled={!newPrinterName.trim()}
-                          className="px-4 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black transition-all disabled:opacity-50 cursor-pointer"
+                          className="px-4 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold transition-all disabled:opacity-50 cursor-pointer border border-orange-500"
                         >
                           Simpan Printer
                         </button>
@@ -855,18 +850,18 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
                       <div
                         key={printer.id}
                         onClick={() => handleSelectPrinter(printer.id)}
-                        className={`p-3.5 rounded-2xl border transition-all flex items-center justify-between gap-3 cursor-pointer ${
+                        className={`p-3.5 rounded-xl border transition-all flex items-center justify-between gap-3 cursor-pointer ${
                           isSelected
-                            ? 'bg-emerald-500/10 border-emerald-500/60 ring-1 ring-emerald-500/40 shadow-lg shadow-emerald-500/10'
-                            : 'bg-slate-950/80 border-slate-800 hover:border-slate-700'
+                            ? 'bg-orange-950/30 border-orange-500/60 ring-1 ring-orange-500/40 shadow-sm'
+                            : 'bg-[#181615] border-stone-800 hover:border-stone-700'
                         }`}
                       >
                         <div className="flex items-center gap-3 min-w-0">
                           <div
-                            className={`p-2.5 rounded-xl border shrink-0 ${
+                            className={`p-2.5 rounded-lg border shrink-0 ${
                               isSelected
-                                ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                                : 'bg-slate-900 text-slate-400 border-slate-800'
+                                ? 'bg-orange-600 text-white border-orange-500'
+                                : 'bg-stone-900 text-stone-400 border-stone-800'
                             }`}
                           >
                             <Printer className="w-5 h-5" />
@@ -876,13 +871,13 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
                             <div className="flex items-center gap-2">
                               <span className="text-xs font-bold text-white truncate">{printer.name}</span>
                               {isSelected && (
-                                <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                                <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-orange-950 text-orange-300 border border-orange-800">
                                   AKTIF
                                 </span>
                               )}
                             </div>
-                            <p className="text-[11px] text-slate-400 leading-tight mt-0.5 truncate">
-                              {printer.paperDescription} • <span className="text-cyan-400 font-medium">{printer.connectionType}</span>
+                            <p className="text-[11px] text-stone-400 leading-tight mt-0.5 truncate font-mono">
+                              {printer.paperDescription} • <span className="text-orange-400 font-medium">{printer.connectionType}</span>
                             </p>
                           </div>
                         </div>
@@ -902,8 +897,8 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
                           <div
                             className={`w-5 h-5 rounded-full border flex items-center justify-center ${
                               isSelected
-                                ? 'bg-emerald-500 border-emerald-400 text-slate-950 font-bold'
-                                : 'border-slate-700 bg-slate-900'
+                                ? 'bg-orange-600 border-orange-500 text-white font-bold'
+                                : 'border-stone-700 bg-stone-900'
                             }`}
                           >
                             {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
@@ -916,18 +911,18 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
               </div>
 
               {/* Information Note */}
-              <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 flex items-start gap-2.5 text-xs text-slate-400">
-                <Info className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
+              <div className="p-3.5 rounded-xl bg-[#171514] border border-stone-800 flex items-start gap-2.5 text-xs text-stone-400">
+                <Info className="w-4 h-4 text-orange-400 shrink-0 mt-0.5" />
                 <span>
-                  Printer yang Anda pilih akan disimpan dan digunakan secara otomatis setiap kali tombol <strong>⚡ Cetak Cepat</strong> ditekan.
+                  Printer yang Anda pilih akan disimpan dan digunakan secara otomatis setiap kali tombol <strong>Cetak Cepat</strong> ditekan.
                 </span>
               </div>
             </div>
 
             {/* Modal Footer */}
-            <div className="p-4 border-t border-slate-800 bg-slate-950 flex items-center justify-between">
-              <span className="text-xs font-medium text-slate-400">
-                Terpilih: <strong className="text-white">{activePrinter.name}</strong>
+            <div className="p-4 border-t border-stone-800 bg-[#171514] flex items-center justify-between">
+              <span className="text-xs font-medium text-stone-400 font-mono">
+                Terpilih: <strong className="text-stone-100">{activePrinter.name}</strong>
               </span>
 
               <button
@@ -936,7 +931,7 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
                   setIsPrinterSelectorOpen(false);
                   sounds.playPopSound();
                 }}
-                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-110 text-slate-950 font-extrabold text-xs shadow-md shadow-emerald-500/20 transition-all cursor-pointer"
+                className="px-5 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs shadow-sm transition-all cursor-pointer border border-orange-500"
               >
                 Gunakan Printer Ini
               </button>

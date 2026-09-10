@@ -340,7 +340,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-rose-500 selection:text-white">
+    <div className="min-h-screen bg-[#f0f2f5] text-stone-900 flex flex-col font-sans selection:bg-orange-600 selection:text-white antialiased">
       {/* Navbar Header with Multi-Role Badges, User Dropdown, and Logout */}
       <Header
         currentTheme={currentTheme}
@@ -457,8 +457,8 @@ export default function App() {
       />
 
       {/* Footer */}
-      <footer className="border-t border-slate-900 bg-slate-950 py-4 text-center text-xs text-slate-500">
-        <p>snapBoth Receipt • Photobooth Digital Receipt untuk Cafe, Bisnis, Pesta, Pernikahan & Acara Spesial</p>
+      <footer className="border-t border-stone-200 bg-[#e8eaed] py-4 text-center text-xs text-stone-500 font-mono">
+        <p>SnapBooth Receipt • Photobooth Digital Kiosk System</p>
       </footer>
     </div>
   );

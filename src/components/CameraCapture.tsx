@@ -40,7 +40,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
 
   const requiredCount = 4;
 
-// Helper function to generate vibrant sample pose photos when camera is unavailable or for instant demo
+// Helper function to generate clean studio sample pose photos when camera is unavailable or for instant demo
 const createDemoPosePhoto = (poseIndex: number): string => {
   const canvas = document.createElement('canvas');
   canvas.width = 1280;
@@ -48,45 +48,49 @@ const createDemoPosePhoto = (poseIndex: number): string => {
   const ctx = canvas.getContext('2d');
   if (!ctx) return '';
 
-  const poses = [
-    { title: '✌️ Peace & Smile', bg: ['#FF7E5F', '#FEB47B'], emoji: '📸', subText: 'SnapBooth Pose #1' },
-    { title: '😎 Cool Style', bg: ['#6A11CB', '#2575FC'], emoji: '✨', subText: 'SnapBooth Pose #2' },
-    { title: '💖 Heart Finger', bg: ['#FF0844', '#FFB199'], emoji: '🎉', subText: 'SnapBooth Pose #3' },
-    { title: '🥳 Party Mood!', bg: ['#00F2FE', '#4FACFE'], emoji: '👑', subText: 'SnapBooth Pose #4' },
+  const studioTones = [
+    { title: 'PORTRAIT STUDIO 01', bg: ['#282930', '#15161c'], subText: 'Natural Lighting • Pose 1' },
+    { title: 'PORTRAIT STUDIO 02', bg: ['#2b2824', '#171613'], subText: 'Warm Minimalist • Pose 2' },
+    { title: 'PORTRAIT STUDIO 03', bg: ['#21262d', '#111419'], subText: 'Cool Graphite • Pose 3' },
+    { title: 'PORTRAIT STUDIO 04', bg: ['#262329', '#141217'], subText: 'Editorial Mono • Pose 4' },
   ];
 
-  const p = poses[poseIndex % poses.length];
+  const p = studioTones[poseIndex % studioTones.length];
 
-  // Draw gradient background
-  const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+  // Draw subtle gradient background
+  const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
   grad.addColorStop(0, p.bg[0]);
   grad.addColorStop(1, p.bg[1]);
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+  // Elegant subtle inner studio frame
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+  ctx.lineWidth = 4;
+  ctx.strokeRect(36, 36, canvas.width - 72, canvas.height - 72);
+
   // Soft circle backdrop
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.18)';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
   ctx.beginPath();
-  ctx.arc(640, 420, 260, 0, Math.PI * 2);
+  ctx.arc(640, 420, 240, 0, Math.PI * 2);
   ctx.fill();
 
-  // Draw Avatar / Emoji
-  ctx.font = '160px sans-serif';
+  // Draw minimalist camera icon watermark
+  ctx.font = '80px sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText(p.emoji, 640, 400);
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+  ctx.fillText('📸', 640, 390);
 
   // Draw Title text
-  ctx.font = 'bold 52px sans-serif';
-  ctx.fillStyle = '#FFFFFF';
-  ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-  ctx.shadowBlur = 12;
-  ctx.fillText(p.title, 640, 680);
+  ctx.font = 'bold 36px "Space Mono", monospace';
+  ctx.fillStyle = '#f1f2f6';
+  ctx.letterSpacing = '2px';
+  ctx.fillText(p.title, 640, 620);
 
-  ctx.font = '26px sans-serif';
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-  ctx.shadowBlur = 4;
-  ctx.fillText(p.subText, 640, 740);
+  ctx.font = '22px "Plus Jakarta Sans", sans-serif';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
+  ctx.fillText(p.subText, 640, 675);
 
   return canvas.toDataURL('image/jpeg', 0.92);
 };
@@ -292,7 +296,7 @@ const createDemoPosePhoto = (poseIndex: number): string => {
   const isAllFilled = filledCount >= requiredCount;
 
   return (
-    <div className={`mx-auto p-2.5 sm:p-4 md:p-6 space-y-4 sm:space-y-6 animate-in fade-in duration-300 w-full ${
+    <div className={`mx-auto p-2.5 sm:p-4 md:p-6 space-y-4 sm:space-y-6 animate-in fade-in duration-200 w-full ${
       isLandscape ? 'max-w-7xl' : 'max-w-3xl md:max-w-4xl'
     }`}>
       <div className={`flex gap-4 sm:gap-6 ${
@@ -300,18 +304,24 @@ const createDemoPosePhoto = (poseIndex: number): string => {
       }`}>
         {/* Left Column: Live Webcam Viewfinder */}
         <div className="flex-1 space-y-3 sm:space-y-4 min-w-0">
-          <div className="relative aspect-[4/3] rounded-2xl sm:rounded-3xl bg-slate-950 border border-slate-800 overflow-hidden shadow-2xl flex items-center justify-center">
-            {/* Flash Overlay Effect */}
-            {flashEffect && <div className="absolute inset-0 bg-white z-30 animate-ping opacity-90" />}
+          <div className="relative aspect-[4/3] rounded-2xl bg-[#0a0b0e] border border-zinc-800 overflow-hidden shadow-xl flex items-center justify-center">
+            {/* Viewfinder Reticle Corners */}
+            <div className="absolute top-4 left-4 w-6 h-6 border-t-2 border-l-2 border-zinc-500/60 pointer-events-none z-10" />
+            <div className="absolute top-4 right-4 w-6 h-6 border-t-2 border-r-2 border-zinc-500/60 pointer-events-none z-10" />
+            <div className="absolute bottom-4 left-4 w-6 h-6 border-b-2 border-l-2 border-zinc-500/60 pointer-events-none z-10" />
+            <div className="absolute bottom-4 right-4 w-6 h-6 border-b-2 border-r-2 border-zinc-500/60 pointer-events-none z-10" />
 
-            {/* Countdown Overlay */}
+            {/* Flash Overlay Effect */}
+            {flashEffect && <div className="absolute inset-0 bg-white z-30 animate-ping opacity-95" />}
+
+            {/* Countdown Overlay - Clean no bounce slop */}
             {activeCountdown !== null && (
-              <div className="absolute inset-0 z-20 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center text-white">
-                <span className="text-7xl sm:text-8xl font-black tracking-tighter text-rose-400 animate-bounce">
+              <div className="absolute inset-0 z-20 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center text-white">
+                <span className="text-8xl sm:text-9xl font-black font-mono tracking-tighter text-orange-500">
                   {activeCountdown}
                 </span>
-                <span className="text-xs sm:text-sm font-semibold tracking-wider text-slate-300 uppercase mt-2">
-                  Siap-siap Bergaya! 📸
+                <span className="text-xs sm:text-sm font-mono uppercase tracking-widest text-stone-300 mt-3 px-3 py-1 rounded bg-stone-900 border border-stone-700">
+                  BERSIAP FOTO
                 </span>
               </div>
             )}
@@ -327,21 +337,21 @@ const createDemoPosePhoto = (poseIndex: number): string => {
               />
             ) : (
               <div className="p-4 sm:p-6 text-center space-y-3 sm:space-y-4 max-w-md">
-                <AlertCircle className="w-8 h-8 sm:w-10 sm:h-10 text-amber-400 mx-auto animate-bounce" />
+                <AlertCircle className="w-8 h-8 sm:w-10 sm:h-10 text-orange-400 mx-auto" />
                 <div className="space-y-1">
                   <p className="text-xs sm:text-sm font-bold text-white">Kamera Fisik Tidak Aktif</p>
-                  <p className="text-[11px] sm:text-xs text-slate-300 leading-relaxed">{cameraError}</p>
+                  <p className="text-[11px] sm:text-xs text-stone-400 leading-relaxed font-mono">{cameraError}</p>
                 </div>
                 <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
                   <button
                     onClick={handlePopulateDemoPhotos}
-                    className="px-3 py-2 rounded-xl bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-400 hover:to-pink-500 text-white font-bold text-xs shadow-md transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
+                    className="px-3.5 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs shadow-sm transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer border border-orange-500"
                   >
                     <Camera className="w-3.5 h-3.5" /> Gunakan Foto Demo Studio
                   </button>
                   <button
                     onClick={() => setSelectedDeviceId((prev) => (prev ? '' : 'retry'))}
-                    className="px-3 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white font-medium text-xs transition-all flex items-center gap-1 cursor-pointer"
+                    className="px-3 py-2 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-300 hover:text-white font-medium text-xs border border-stone-800 transition-all flex items-center gap-1 cursor-pointer"
                   >
                     <RefreshCw className="w-3 h-3" /> Coba Lagi
                   </button>
@@ -351,9 +361,9 @@ const createDemoPosePhoto = (poseIndex: number): string => {
 
             {/* Top Toolbar Controls over video */}
             <div className="absolute top-2.5 sm:top-3 left-2.5 sm:left-3 right-2.5 sm:right-3 flex items-center justify-between z-10 pointer-events-auto gap-2">
-              <div className="flex items-center gap-1.5 sm:gap-2 bg-slate-900/85 backdrop-blur-md px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-slate-700/60 text-[11px] sm:text-xs font-semibold text-slate-200 shadow-md">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span>Foto #{activeSlotIndex + 1} dari {requiredCount}</span>
+              <div className="flex items-center gap-2 bg-stone-900/90 backdrop-blur-md px-3 py-1.5 rounded-md border border-stone-700/80 text-[11px] sm:text-xs font-mono font-medium text-stone-200 shadow-sm">
+                <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                <span>SLOT #{activeSlotIndex + 1} / {requiredCount}</span>
               </div>
 
               <div className="flex items-center gap-1.5 sm:gap-2">
@@ -362,7 +372,7 @@ const createDemoPosePhoto = (poseIndex: number): string => {
                   <select
                     value={selectedDeviceId}
                     onChange={(e) => setSelectedDeviceId(e.target.value)}
-                    className="bg-slate-900/85 backdrop-blur-md text-[11px] sm:text-xs text-slate-200 border border-slate-700/60 rounded-full px-2 py-1 focus:outline-none max-w-[110px] sm:max-w-none truncate"
+                    className="bg-stone-900/90 backdrop-blur-md text-[11px] sm:text-xs text-stone-200 border border-stone-700/80 rounded-md px-2 py-1 focus:outline-none max-w-[110px] sm:max-w-none truncate font-mono"
                   >
                     {devices.map((d, idx) => (
                       <option key={d.deviceId} value={d.deviceId}>
@@ -372,25 +382,25 @@ const createDemoPosePhoto = (poseIndex: number): string => {
                   </select>
                 )}
 
-                {/* Flip Camera Facing Mode (Front / Back camera toggle for tablet/mobile) */}
+                {/* Flip Camera Facing Mode */}
                 <button
                   type="button"
                   onClick={() => {
                     setFacingMode((prev) => (prev === 'user' ? 'environment' : 'user'));
                     setIsMirrored((prev) => !prev);
                   }}
-                  className="p-1.5 sm:p-2 rounded-full backdrop-blur-md bg-slate-900/85 text-slate-300 hover:text-white border border-slate-700/60 transition-all cursor-pointer shadow-md"
+                  className="p-1.5 sm:p-2 rounded-md backdrop-blur-md bg-stone-900/90 text-stone-300 hover:text-white border border-stone-700/80 transition-all cursor-pointer shadow-sm"
                   title={facingMode === 'user' ? 'Ganti ke Kamera Belakang' : 'Ganti ke Kamera Depan (Selfie)'}
                 >
-                  <SwitchCamera className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" />
+                  <SwitchCamera className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-400" />
                 </button>
 
                 {/* Flip Camera Mirror */}
                 <button
                   type="button"
                   onClick={() => setIsMirrored(!isMirrored)}
-                  className={`p-1.5 sm:p-2 rounded-full backdrop-blur-md transition-all border border-slate-700/60 shadow-md cursor-pointer ${
-                    isMirrored ? 'bg-rose-500/80 text-white' : 'bg-slate-900/85 text-slate-300'
+                  className={`p-1.5 sm:p-2 rounded-md backdrop-blur-md transition-all border shadow-sm cursor-pointer ${
+                    isMirrored ? 'bg-orange-600 text-white border-orange-500 font-bold' : 'bg-stone-900/90 text-stone-300 border-stone-700/80'
                   }`}
                   title="Cermin Horizontal"
                 >
@@ -401,18 +411,18 @@ const createDemoPosePhoto = (poseIndex: number): string => {
           </div>
 
           {/* Shutter & Timer Controls Toolbar */}
-          <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-3 sm:p-4 flex flex-wrap items-center justify-between gap-3 shadow-lg">
+          <div className="bg-[#131110] border border-stone-800 rounded-xl p-3 sm:p-4 flex flex-wrap items-center justify-between gap-3 shadow-sm">
             {/* Timer Options */}
             <div className="flex items-center gap-1.5 sm:gap-2">
-              <span className="text-xs font-semibold text-slate-400">Timer:</span>
+              <span className="text-xs font-mono font-medium text-stone-400">TIMER:</span>
               {[0, 3, 5, 10].map((sec) => (
                 <button
                   key={sec}
                   onClick={() => setCountdownTimer(sec)}
-                  className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer select-none ${
+                  className={`px-2.5 py-1 rounded-md text-xs font-mono font-bold transition-all cursor-pointer select-none border ${
                     countdownTimer === sec
-                      ? 'bg-rose-500 text-white shadow-sm ring-1 ring-rose-400'
-                      : 'bg-slate-800 text-slate-400 hover:text-white'
+                      ? 'bg-orange-600 text-white border-orange-500'
+                      : 'bg-stone-900 text-stone-400 hover:text-stone-200 border-stone-800'
                   }`}
                 >
                   {sec === 0 ? '0s' : `${sec}s`}
@@ -426,10 +436,10 @@ const createDemoPosePhoto = (poseIndex: number): string => {
               <button
                 onClick={handleStartBurstMode}
                 disabled={isBurstMode || activeCountdown !== null}
-                className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-purple-600/25 hover:bg-purple-600/40 text-purple-200 border border-purple-500/40 text-xs font-bold transition-all active:scale-95 disabled:opacity-50 cursor-pointer shadow-md"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-200 border border-stone-800 text-xs font-medium transition-all active:scale-95 disabled:opacity-50 cursor-pointer shadow-sm"
               >
-                <Play className="w-3.5 h-3.5 text-purple-400" />
-                <span className="hidden xs:inline">Ambil 4 Foto Auto</span>
+                <Play className="w-3.5 h-3.5 text-orange-400" />
+                <span className="hidden xs:inline">Auto 4x Bergantian</span>
                 <span className="xs:hidden">Auto 4x</span>
               </button>
 
@@ -437,7 +447,7 @@ const createDemoPosePhoto = (poseIndex: number): string => {
               <button
                 onClick={() => handleStartCapture(activeSlotIndex)}
                 disabled={isBurstMode || activeCountdown !== null}
-                className="flex items-center gap-2 px-5 sm:px-6 py-2.5 rounded-xl bg-gradient-to-r from-rose-500 via-pink-600 to-amber-500 hover:brightness-110 text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-rose-500/25 active:scale-95 transition-all disabled:opacity-50 cursor-pointer"
+                className="flex items-center gap-2 px-5 sm:px-6 py-2.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs sm:text-sm shadow-sm active:scale-[0.98] transition-all disabled:opacity-50 cursor-pointer border border-orange-500"
               >
                 <Camera className="w-4 h-4" />
                 <span>Ambil Foto #{activeSlotIndex + 1}</span>
@@ -448,15 +458,20 @@ const createDemoPosePhoto = (poseIndex: number): string => {
 
         {/* Right Column (or Bottom Column in Portrait): Photo Slots */}
         <div className={`w-full ${isLandscape ? 'md:w-80' : 'w-full'} space-y-3 sm:space-y-4 flex flex-col justify-between`}>
-          <div className="space-y-2.5 sm:space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xs sm:text-sm font-bold text-white flex items-center gap-2">
-                Foto Terkumpul ({filledCount}/{requiredCount})
+          <div className="bg-[#131110] border border-stone-800 rounded-xl p-3 sm:p-4 space-y-3">
+            <div className="flex items-center justify-between border-b border-stone-800 pb-2">
+              <h3 className="text-xs sm:text-sm font-bold text-stone-200 flex items-center gap-2 font-mono">
+                SLOT FOTO ({filledCount}/{requiredCount})
               </h3>
+              {isAllFilled && (
+                <span className="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800">
+                  LENGKAP
+                </span>
+              )}
             </div>
 
-            {/* Photo Slots List - responsive 4 cols on phone/portrait, 1 or 2 cols on landscape */}
-            <div className={`grid ${isLandscape ? 'grid-cols-2 md:grid-cols-1' : 'grid-cols-4'} gap-2 sm:gap-3`}>
+            {/* Photo Slots List */}
+            <div className={`grid ${isLandscape ? 'grid-cols-2 md:grid-cols-1' : 'grid-cols-4'} gap-2 sm:gap-2.5`}>
               {Array.from({ length: requiredCount }).map((_, slotIdx) => {
                 const photo = photos[slotIdx];
                 const isActive = activeSlotIndex === slotIdx;
@@ -465,12 +480,12 @@ const createDemoPosePhoto = (poseIndex: number): string => {
                   <div
                     key={slotIdx}
                     onClick={() => setActiveSlotIndex(slotIdx)}
-                    className={`relative group rounded-xl border overflow-hidden transition-all cursor-pointer aspect-[4/3] flex items-center justify-center bg-slate-950 ${
+                    className={`relative group rounded-lg border overflow-hidden transition-all cursor-pointer aspect-[4/3] flex items-center justify-center bg-stone-950 ${
                       isActive
-                        ? 'border-rose-500 ring-2 ring-rose-500/40 shadow-md shadow-rose-500/20'
+                        ? 'border-orange-500 ring-2 ring-orange-500/30'
                         : photo
-                        ? 'border-slate-800 hover:border-slate-700'
-                        : 'border-dashed border-slate-800 hover:border-slate-700'
+                        ? 'border-stone-700 hover:border-stone-600'
+                        : 'border-dashed border-stone-800 hover:border-stone-700'
                     }`}
                   >
                     {photo ? (
@@ -480,13 +495,13 @@ const createDemoPosePhoto = (poseIndex: number): string => {
                           alt={`Slot ${slotIdx + 1}`}
                           className="w-full h-full object-cover"
                         />
-                        <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5">
+                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
                               handleStartCapture(slotIdx);
                             }}
-                            className="p-1.5 rounded-lg bg-slate-800 text-white hover:bg-slate-700 text-xs font-semibold"
+                            className="p-1.5 rounded bg-stone-800 text-white hover:bg-stone-700 text-xs"
                             title="Foto Ulang"
                           >
                             <RefreshCw className="w-3.5 h-3.5" />
@@ -496,7 +511,7 @@ const createDemoPosePhoto = (poseIndex: number): string => {
                               e.stopPropagation();
                               handleRemovePhoto(slotIdx);
                             }}
-                            className="p-1.5 rounded-lg bg-rose-600 text-white hover:bg-rose-500 text-xs font-semibold"
+                            className="p-1.5 rounded bg-rose-700 text-white hover:bg-rose-600 text-xs"
                             title="Hapus Foto"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -505,8 +520,8 @@ const createDemoPosePhoto = (poseIndex: number): string => {
                       </>
                     ) : (
                       <div className="text-center p-2 space-y-0.5">
-                        <Camera className="w-5 h-5 text-slate-600 mx-auto" />
-                        <span className="block text-[10px] font-medium text-slate-500 truncate">
+                        <Camera className="w-4 h-4 text-stone-600 mx-auto" />
+                        <span className="block text-[10px] font-mono text-stone-500 truncate">
                           #{slotIdx + 1} Kosong
                         </span>
                       </div>
@@ -521,12 +536,12 @@ const createDemoPosePhoto = (poseIndex: number): string => {
           <button
             onClick={onContinueToLayout}
             disabled={filledCount === 0}
-            className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-xs sm:text-sm transition-all shadow-lg cursor-pointer ${
+            className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold text-xs sm:text-sm transition-all shadow cursor-pointer ${
               isAllFilled
-                ? 'bg-gradient-to-r from-rose-500 via-pink-600 to-rose-600 text-white shadow-rose-500/20 hover:brightness-110 active:scale-98'
+                ? 'bg-orange-600 hover:bg-orange-500 text-white active:scale-[0.98] border border-orange-500 shadow-sm'
                 : filledCount > 0
-                ? 'bg-rose-600/80 text-white hover:bg-rose-600'
-                : 'bg-slate-800 text-slate-500 cursor-not-allowed'
+                ? 'bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700'
+                : 'bg-stone-900 text-stone-600 border border-stone-800 cursor-not-allowed'
             }`}
           >
             <span>Lanjut ke Tata Letak & Tema</span>

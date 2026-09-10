@@ -116,29 +116,28 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-4 sm:p-6 space-y-8 animate-in fade-in duration-300">
+    <div className="max-w-5xl mx-auto p-4 sm:p-6 space-y-8 animate-in fade-in duration-200">
       {/* Welcome Banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-purple-950 to-slate-900 border border-purple-800/40 p-6 sm:p-8 text-white shadow-xl">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-rose-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="relative z-10 max-w-2xl space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/20 text-rose-300 text-xs font-semibold border border-rose-500/30">
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Sesi Foto Berhasil ({photos.length} Foto)
+      <div className="relative rounded-xl bg-[#131110] border border-stone-800 p-6 sm:p-7 text-stone-100 shadow-sm">
+        <div className="max-w-2xl space-y-3">
+          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded bg-stone-900 border border-stone-800 text-stone-300 text-[11px] font-mono uppercase tracking-wider">
+            <Sparkles className="w-3.5 h-3.5 text-orange-400" /> Sesi Selesai • {photos.length} Foto Siap
           </div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-            Pilih Tata Letak & Tema Acara Anda
+          <h2 className="text-2xl sm:text-3xl font-serif font-bold tracking-tight text-stone-100">
+            Pilih Format Cetak & Tata Letak
           </h2>
-          <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
-            Foto Anda telah berhasil ditangkap! Sekarang pilih format tata letak strip foto dan tema acara yang sesuai dengan momen spesial Anda.
+          <p className="text-stone-400 text-xs sm:text-sm leading-relaxed">
+            Foto Anda telah siap. Tentukan format strip atau lembar cetak kenangan yang ingin dicetak dan dibagikan.
           </p>
 
           <div className="pt-2 flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/80 border border-slate-700/60 text-xs text-slate-200">
-              <span className="text-slate-400">Tema Aktif:</span>
-              <span className="font-bold text-amber-300">{currentTheme.eventTitle}</span>
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-stone-900 border border-stone-800 text-xs text-stone-300 font-mono">
+              <span className="text-stone-500">TEMA AKTIF:</span>
+              <span className="font-bold text-orange-400">{currentTheme.eventTitle}</span>
             </div>
             <button
               onClick={onOpenThemeCustomizer}
-              className="text-xs font-semibold text-rose-400 hover:text-rose-300 underline underline-offset-4 transition-colors"
+              className="text-xs font-mono font-medium text-orange-400 hover:text-orange-300 underline underline-offset-4 transition-colors"
             >
               Ubah Tema & Judul Acara →
             </button>
@@ -148,8 +147,8 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
 
       {/* Layout Selection Cards */}
       <div>
-        <h3 className="text-base font-bold text-white mb-4 flex items-center gap-2">
-          Pilih Format Tata Letak Foto
+        <h3 className="text-xs font-mono uppercase tracking-widest text-stone-400 font-bold mb-4 flex items-center gap-2">
+          FORMAT TATA LETAK STRIP ({layouts.length} OPSI)
         </h3>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -160,39 +159,39 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
               <div
                 key={layout.id}
                 onClick={() => onSelectLayout(layout.id)}
-                className={`group relative p-5 rounded-2xl border cursor-pointer transition-all flex flex-col justify-between ${
+                className={`group relative p-5 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${
                   isSelected
-                    ? 'border-rose-500 bg-slate-900 ring-2 ring-rose-500/30 shadow-lg shadow-rose-500/10'
-                    : 'border-slate-800 bg-slate-900/60 hover:border-slate-700 hover:bg-slate-900/90'
+                    ? 'border-orange-500 bg-[#171513] ring-1 ring-orange-500/30 shadow-sm'
+                    : 'border-stone-800 bg-[#121110] hover:border-stone-700 hover:bg-[#161413]'
                 }`}
               >
                 {layout.badge && (
-                  <span className="absolute -top-2.5 right-4 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-gradient-to-r from-rose-500 to-amber-500 text-white shadow-sm">
+                  <span className="absolute -top-2.5 right-4 px-2.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider bg-orange-600 text-white border border-orange-500 shadow-sm">
                     {layout.badge}
                   </span>
                 )}
 
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <h4 className="font-bold text-white group-hover:text-rose-300 transition-colors">
+                    <h4 className="font-bold text-stone-100 group-hover:text-orange-400 transition-colors text-sm sm:text-base">
                       {layout.title}
                     </h4>
                     <div
-                      className={`w-6 h-6 rounded-full flex items-center justify-center border transition-all ${
+                      className={`w-5 h-5 rounded-full flex items-center justify-center border transition-all ${
                         isSelected
-                          ? 'bg-rose-500 border-rose-500 text-white'
-                          : 'border-slate-700 text-transparent'
+                          ? 'bg-orange-600 border-orange-600 text-white'
+                          : 'border-stone-700 text-transparent'
                       }`}
                     >
-                      <Check className="w-3.5 h-3.5" />
+                      <Check className="w-3 h-3 stroke-[3]" />
                     </div>
                   </div>
 
-                  <p className="text-xs text-slate-400">{layout.description}</p>
+                  <p className="text-xs text-stone-400 leading-relaxed">{layout.description}</p>
 
                   {/* Visual Strip Thumbnail Simulation with Real Photos */}
                   <div
-                    className="p-3 rounded-xl border flex flex-col items-center justify-between gap-1.5 min-h-[140px] max-w-[160px] mx-auto shadow-inner overflow-hidden"
+                    className="p-3 rounded-lg border flex flex-col items-center justify-between gap-1.5 min-h-[140px] max-w-[160px] mx-auto shadow-inner overflow-hidden"
                     style={{
                       backgroundColor: currentTheme.frameColor || '#FFFFFF',
                       borderColor: currentTheme.accentColor || '#333333',
@@ -201,36 +200,36 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
                     <div className="w-full flex-1 flex flex-col justify-center gap-1 overflow-hidden">
                       {layout.id === 'strip4' && (
                         <>
-                          {renderSlotImage(0, 'w-full h-5 rounded')}
-                          {renderSlotImage(1, 'w-full h-5 rounded')}
-                          {renderSlotImage(2, 'w-full h-5 rounded')}
-                          {renderSlotImage(3, 'w-full h-5 rounded')}
+                          {renderSlotImage(0, 'w-full h-5 rounded-xs')}
+                          {renderSlotImage(1, 'w-full h-5 rounded-xs')}
+                          {renderSlotImage(2, 'w-full h-5 rounded-xs')}
+                          {renderSlotImage(3, 'w-full h-5 rounded-xs')}
                         </>
                       )}
                       {layout.id === 'strip3' && (
                         <>
-                          {renderSlotImage(0, 'w-full h-7 rounded')}
-                          {renderSlotImage(1, 'w-full h-7 rounded')}
-                          {renderSlotImage(2, 'w-full h-7 rounded')}
+                          {renderSlotImage(0, 'w-full h-7 rounded-xs')}
+                          {renderSlotImage(1, 'w-full h-7 rounded-xs')}
+                          {renderSlotImage(2, 'w-full h-7 rounded-xs')}
                         </>
                       )}
                       {layout.id === 'grid2x2' && (
                         <div className="grid grid-cols-2 gap-1 h-full">
-                          {renderSlotImage(0, 'w-full h-10 rounded')}
-                          {renderSlotImage(1, 'w-full h-10 rounded')}
-                          {renderSlotImage(2, 'w-full h-10 rounded')}
-                          {renderSlotImage(3, 'w-full h-10 rounded')}
+                          {renderSlotImage(0, 'w-full h-10 rounded-xs')}
+                          {renderSlotImage(1, 'w-full h-10 rounded-xs')}
+                          {renderSlotImage(2, 'w-full h-10 rounded-xs')}
+                          {renderSlotImage(3, 'w-full h-10 rounded-xs')}
                         </div>
                       )}
-                      {layout.id === 'polaroid' && renderSlotImage(0, 'w-full h-20 rounded')}
+                      {layout.id === 'polaroid' && renderSlotImage(0, 'w-full h-20 rounded-xs')}
                       {layout.id === 'photocard' && (
                         <>
-                          {renderSlotImage(0, 'w-full h-10 rounded')}
-                          {renderSlotImage(1, 'w-full h-10 rounded')}
+                          {renderSlotImage(0, 'w-full h-10 rounded-xs')}
+                          {renderSlotImage(1, 'w-full h-10 rounded-xs')}
                         </>
                       )}
                       {layout.id === 'korean_receipt' && (
-                        <div className="flex flex-col gap-0.5 text-[7px] font-mono leading-tight py-1 bg-amber-50/50 p-1 rounded border border-dashed border-slate-300">
+                        <div className="flex flex-col gap-0.5 text-[7px] font-mono leading-tight py-1 bg-amber-50/50 p-1 rounded-xs border border-dashed border-slate-300">
                           <div className="text-center font-bold text-slate-800 border-b border-dashed border-slate-300 pb-0.5">KR RECEIPT PHOTO</div>
                           {renderSlotImage(0, 'w-full h-5 rounded-xs')}
                           {renderSlotImage(1, 'w-full h-5 rounded-xs')}
@@ -240,14 +239,14 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
                         </div>
                       )}
                       {layout.id === 'magazine' && (
-                        <div className="flex flex-col gap-1 text-[7px] font-serif leading-tight p-1 bg-slate-950/80 text-amber-100 rounded border border-amber-500/30">
+                        <div className="flex flex-col gap-1 text-[7px] font-serif leading-tight p-1 bg-slate-950/80 text-amber-100 rounded-xs border border-amber-500/30">
                           <div className="text-center font-black tracking-widest text-[9px] text-amber-300 border-b border-amber-500/30 pb-0.5">VOGUE</div>
-                          {renderSlotImage(0, 'w-full h-16 rounded-sm')}
+                          {renderSlotImage(0, 'w-full h-16 rounded-xs')}
                           <div className="text-[6px] text-center text-slate-300 pt-0.5 font-sans">SPECIAL ISSUE • 2026</div>
                         </div>
                       )}
                       {layout.id === 'newspaper' && (
-                        <div className="flex flex-col gap-1 text-[6px] font-serif leading-tight p-1 bg-[#F7F4EC] text-slate-900 rounded border border-slate-400">
+                        <div className="flex flex-col gap-1 text-[6px] font-serif leading-tight p-1 bg-[#F7F4EC] text-slate-900 rounded-xs border border-slate-400">
                           <div className="flex items-center justify-between text-[5px] border-b border-slate-400 pb-0.5 px-0.5 text-slate-600 font-sans">
                             <span>VOL. 2026</span>
                             <span className="font-bold">DAILY NEWS</span>
@@ -265,7 +264,7 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
                         </div>
                       )}
                       {layout.id === 'calendar' && (
-                        <div className="flex flex-col gap-0.5 text-[6px] font-sans leading-tight p-1 bg-white text-slate-900 rounded border border-slate-300 shadow-sm">
+                        <div className="flex flex-col gap-0.5 text-[6px] font-sans leading-tight p-1 bg-white text-slate-900 rounded-xs border border-slate-300 shadow-sm">
                           <div className="flex justify-center gap-1.5 pb-0.5">
                             <div className="w-1.5 h-1.5 rounded-full bg-slate-300 border border-slate-400" />
                             <div className="w-1.5 h-1.5 rounded-full bg-slate-300 border border-slate-400" />
@@ -281,7 +280,7 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
                             {renderSlotImage(2, 'w-full h-5 rounded-xs')}
                             {renderSlotImage(3, 'w-full h-5 rounded-xs')}
                           </div>
-                          <div className="grid grid-cols-7 gap-0.5 text-[4.5px] text-center font-mono text-slate-600 bg-slate-50 p-0.5 rounded">
+                          <div className="grid grid-cols-7 gap-0.5 text-[4.5px] text-center font-mono text-slate-600 bg-slate-50 p-0.5 rounded-xs">
                             <span className="text-red-500 font-bold">M</span><span>S</span><span>S</span><span>R</span><span>K</span><span>J</span><span>S</span>
                             <span className="text-slate-300">.</span><span className="text-slate-300">.</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
                             <span>6</span><span>7</span><span className="bg-rose-500 text-white rounded-full font-bold">8</span><span>9</span><span>10</span><span>11</span><span>12</span>
@@ -289,7 +288,7 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
                         </div>
                       )}
                       {layout.id === 'calendar_single' && (
-                        <div className="flex flex-col gap-0.5 text-[6px] font-sans leading-tight p-1 bg-white text-slate-900 rounded border border-slate-300 shadow-sm">
+                        <div className="flex flex-col gap-0.5 text-[6px] font-sans leading-tight p-1 bg-white text-slate-900 rounded-xs border border-slate-300 shadow-sm">
                           <div className="flex justify-center gap-1.5 pb-0.5">
                             <div className="w-1.5 h-1.5 rounded-full bg-slate-300 border border-slate-400" />
                             <div className="w-1.5 h-1.5 rounded-full bg-slate-300 border border-slate-400" />
@@ -305,7 +304,7 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
                           <div className="text-[4.5px] text-center font-serif italic text-slate-500 pb-0.5">
                             “Save the date & our sweetest memories”
                           </div>
-                          <div className="grid grid-cols-7 gap-0.5 text-[4.5px] text-center font-mono text-slate-600 bg-slate-50 p-0.5 rounded">
+                          <div className="grid grid-cols-7 gap-0.5 text-[4.5px] text-center font-mono text-slate-600 bg-slate-50 p-0.5 rounded-xs">
                             <span className="text-red-500 font-bold">M</span><span>S</span><span>S</span><span>R</span><span>K</span><span>J</span><span>S</span>
                             <span className="text-slate-300">.</span><span className="text-slate-300">.</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
                             <span>6</span><span>7</span><span className="bg-rose-500 text-white rounded-full font-bold">8</span><span>9</span><span>10</span><span>11</span><span>12</span>
@@ -313,7 +312,7 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
                         </div>
                       )}
                       {layout.id === 'shopping_receipt' && (
-                        <div className="flex flex-col gap-0.5 text-[7px] font-mono leading-tight py-1 bg-amber-50/60 p-1 rounded border border-dashed border-slate-400">
+                        <div className="flex flex-col gap-0.5 text-[7px] font-mono leading-tight py-1 bg-amber-50/60 p-1 rounded-xs border border-dashed border-slate-400">
                           <div className="text-center font-bold text-slate-900 border-b border-dashed border-slate-400 pb-0.5">SUPERMARKET MART</div>
                           {renderSlotImage(0, 'w-full h-5 rounded-xs')}
                           {renderSlotImage(1, 'w-full h-5 rounded-xs')}
@@ -324,14 +323,14 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
                       )}
                     </div>
                     <div className="w-full text-center">
-                      <div className="w-12 h-1 bg-slate-400 rounded mx-auto" />
+                      <div className="w-12 h-1 bg-slate-400 rounded-xs mx-auto" />
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-slate-800/60 flex items-center justify-between text-xs text-slate-400">
-                  <span>{layout.slotsCount} Foto Sesi</span>
-                  <span className="font-semibold text-rose-400">Pilih Format</span>
+                <div className="mt-4 pt-3 border-t border-stone-800 flex items-center justify-between text-xs font-mono text-stone-400">
+                  <span>{layout.slotsCount} SLOT FOTO</span>
+                  <span className="font-bold text-orange-400">PILIH FORMAT</span>
                 </div>
               </div>
             );
@@ -340,12 +339,12 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
       </div>
 
       {/* Continue Button Centered */}
-      <div className="flex flex-col items-center justify-center pt-6 pb-2">
+      <div className="flex flex-col items-center justify-center pt-4 pb-2">
         <button
           onClick={onContinueToExport}
-          className="flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-2xl bg-gradient-to-r from-rose-500 via-pink-600 to-rose-600 hover:from-rose-400 hover:to-pink-500 text-white font-extrabold text-sm sm:text-base shadow-xl shadow-rose-500/25 active:scale-95 transition-all cursor-pointer w-full max-w-sm"
+          className="flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-bold text-sm sm:text-base shadow-sm active:scale-[0.98] transition-all cursor-pointer w-full max-w-sm border border-orange-500"
         >
-          <span>Lanjut ke Preview, Cetak & Simpan</span>
+          <span>Lanjut ke Cetak & Bagikan</span>
           <ChevronRight className="w-5 h-5" />
         </button>
       </div>
