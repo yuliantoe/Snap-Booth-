@@ -1,16 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { LayoutType, EventTheme, PhotoSlot, FilterType, ImageAdjustments, StickerItem, UserAccount } from '../types';
-import { generatePhotoStripCanvas } from '../utils/canvasRenderer';
+import { generatePhotoStripCanvas, ThermalDitherAlgorithm } from '../utils/canvasRenderer';
 import { isDurationUnlimited, calculateRemainingDays } from '../services/subscriptionService';
 import {
   Printer,
   Download,
   QrCode,
-  Sparkles,
   RefreshCw,
   Zap,
   CheckCircle2,
-  Sliders,
   Plus,
   Trash2,
   X,
@@ -18,10 +16,10 @@ import {
   Copy,
   ChevronDown,
   Check,
-  HardDrive,
   Info,
   Home,
   Camera,
+  ExternalLink,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import QRCode from 'qrcode';
@@ -144,10 +142,11 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
     } catch {
       // ignore
     }
-    // Default to matching theme.autoPrintMode if possible
+    // Default to matching theme.autoPrintMode if possible, otherwise standard POS thermal 80mm
     if (theme.autoPrintMode === 'thermal_58mm') return 'printer_thermal_58mm';
     if (theme.autoPrintMode === 'dual_4x6') return 'printer_dnp_dyesub';
-    if (theme.autoPrintMode === 'single') return 'printer_inkjet_a4';
+    if (theme.autoPrintMode === 'single') return 'printer_thermal_80mm';
+    if (theme.autoPrintMode === 'thermal_80mm') return 'printer_thermal_80mm';
     return 'printer_thermal_80mm';
   });
 
@@ -155,6 +154,17 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
   const [isPrinterSelectorOpen, setIsPrinterSelectorOpen] = useState<boolean>(false);
   const [quickPrintStatus, setQuickPrintStatus] = useState<'idle' | 'printing' | 'success'>('idle');
   const [quickPrintMessage, setQuickPrintMessage] = useState<string>('');
+  const [blockedBlobUrl, setBlockedBlobUrl] = useState<string | null>(null);
+
+  // Normal Standard Receipt Print Configuration (100% natural, standard receipt output)
+  const clarityLevel = 0; // 0 = standard natural, no unsharp mask exaggeration
+  const printBrightness = 1.0; // 1.0 = standard 100% normal brightness
+  const printContrast = 1.0; // 1.0 = standard 100% normal contrast
+  const thermalDither = true; // Standard 1-bit raster dithering for receipt paper
+  const thermalDitherMode: ThermalDitherAlgorithm = 'atkinson'; // Cleanest natural receipt dots
+  const thermalDensity = 1.0; // Standard 1.0x normal receipt density
+  const thermalResMode = 'native_dot' as const; // 1:1 hardware dot resolution
+  const photoTextColor = 'black' as const; // Standard solid black receipt text
 
   // Form for adding custom printer
   const [showAddCustom, setShowAddCustom] = useState<boolean>(false);
@@ -248,8 +258,14 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
       setIsGenerating(true);
       try {
         const appUrl = window.location.href;
+        const effectiveOverrideTextColor =
+          photoTextColor === 'black'
+            ? '#000000'
+            : photoTextColor === 'white'
+            ? '#FFFFFF'
+            : theme.textColor || '#000000';
 
-        // 1. Single High-Res Strip Canvas
+        // 1. Single Strip Canvas (Standard 1080px for lightning-fast generation & perfect print output)
         const singleCanvas = await generatePhotoStripCanvas({
           photos,
           layout,
@@ -259,12 +275,18 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
           stickers,
           includeQrCode: true,
           qrUrl: appUrl,
-          targetWidth: 1200,
+          targetWidth: 1080,
           isTrial,
+          clarityLevel,
+          printBrightness,
+          printContrast,
+          thermalDither: false,
+          overrideTextColor: effectiveOverrideTextColor,
         });
-        const singleDataUrl = singleCanvas.toDataURL('image/png', 1.0);
+        const singleDataUrl = singleCanvas.toDataURL('image/png', 0.95);
 
-        // 2. Thermal 80mm Canvas (800px)
+        // 2. Thermal 80mm Canvas (576px native hardware dots @ 203 DPI or 800px HD)
+        const thermal80Width = thermalResMode === 'native_dot' ? 576 : 800;
         const thermal80Canvas = await generatePhotoStripCanvas({
           photos,
           layout,
@@ -274,12 +296,20 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
           stickers,
           includeQrCode: true,
           qrUrl: appUrl,
-          targetWidth: 800,
+          targetWidth: thermal80Width,
           isTrial,
+          clarityLevel,
+          printBrightness,
+          printContrast,
+          thermalDither,
+          thermalDitherMode,
+          thermalDensity,
+          overrideTextColor: effectiveOverrideTextColor,
         });
         const t80DataUrl = thermal80Canvas.toDataURL('image/png', 1.0);
 
-        // 3. Thermal 58mm Canvas (576px)
+        // 3. Thermal 58mm Canvas (384px native hardware dots @ 203 DPI or 580px HD)
+        const thermal58Width = thermalResMode === 'native_dot' ? 384 : 580;
         const thermal58Canvas = await generatePhotoStripCanvas({
           photos,
           layout,
@@ -289,17 +319,26 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
           stickers,
           includeQrCode: true,
           qrUrl: appUrl,
-          targetWidth: 576,
+          targetWidth: thermal58Width,
           isTrial,
+          clarityLevel,
+          printBrightness,
+          printContrast,
+          thermalDither,
+          thermalDitherMode,
+          thermalDensity,
+          overrideTextColor: effectiveOverrideTextColor,
         });
         const t58DataUrl = thermal58Canvas.toDataURL('image/png', 1.0);
 
-        // 4. Dual Strip 4x6" Canvas (Two strips side by side)
+        // 4. Dual Strip 4x6" Canvas (Two strips side by side @ standard 1200x1800)
         const dualCanvas = document.createElement('canvas');
-        dualCanvas.width = 2400; // 4x6 ratio @ 400dpi
-        dualCanvas.height = 3600;
+        dualCanvas.width = 1200; // Standard 4x6 ratio (1200x1800) for instant rendering
+        dualCanvas.height = 1800;
         const ctx = dualCanvas.getContext('2d');
         if (ctx) {
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
           ctx.fillStyle = '#FFFFFF';
           ctx.fillRect(0, 0, dualCanvas.width, dualCanvas.height);
 
@@ -309,26 +348,26 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
             singleImg.src = singleDataUrl;
           });
 
-          const stripWidth = 1100;
+          const stripWidth = 550;
           const stripHeight = Math.round(stripWidth * (singleCanvas.height / singleCanvas.width));
           const topPadding = (dualCanvas.height - stripHeight) / 2;
 
           // Strip 1 Left
-          ctx.drawImage(singleImg, 80, topPadding, stripWidth, stripHeight);
+          ctx.drawImage(singleImg, 40, topPadding, stripWidth, stripHeight);
           // Strip 2 Right
-          ctx.drawImage(singleImg, 1220, topPadding, stripWidth, stripHeight);
+          ctx.drawImage(singleImg, 610, topPadding, stripWidth, stripHeight);
 
           // Center dotted cut line
-          ctx.setLineDash([30, 20]);
-          ctx.lineWidth = 4;
+          ctx.setLineDash([15, 10]);
+          ctx.lineWidth = 2;
           ctx.strokeStyle = '#CCCCCC';
           ctx.beginPath();
-          ctx.moveTo(1200, 0);
-          ctx.lineTo(1200, dualCanvas.height);
+          ctx.moveTo(600, 0);
+          ctx.lineTo(600, dualCanvas.height);
           ctx.stroke();
         }
 
-        const dualDataUrl = dualCanvas.toDataURL('image/png', 1.0);
+        const dualDataUrl = dualCanvas.toDataURL('image/png', 0.95);
 
         // 5. QR Code for phone scan
         const qrUrl = await QRCode.toDataURL(appUrl, { width: 300, margin: 1 });
@@ -362,7 +401,7 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
       case 'thermal_58mm':
         return thermal58DataUrl || highResDataUrl;
       case 'single':
-        return highResDataUrl;
+        return thermalDither ? (thermal80DataUrl || highResDataUrl) : highResDataUrl;
       case 'dual_4x6':
       default:
         return dualStripDataUrl || highResDataUrl;
@@ -371,77 +410,377 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
 
   const currentPrintData = getDataForType(activePrinter.type);
 
-  // Execute Direct Print (No Confirmation Needed)
-  const executeDirectPrint = (copiesCount: number = printCopies) => {
-    const dataToPrint = currentPrintData;
-    if (!dataToPrint) return;
+  // Helper to build standardized, cross-platform Print Document HTML
+  const buildPrintHtml = (
+    dataToPrint: string,
+    printerType: 'thermal_80mm' | 'thermal_58mm' | 'dual_4x6' | 'single',
+    copiesCount: number,
+    printerName: string
+  ) => {
+    let pageCss = '';
+    let paperLabel = 'Thermal 80mm';
 
-    let pageCss = `@page { size: 80mm auto; margin: 0; } body { margin: 0; padding: 0; width: 80mm; background: #ffffff; } img { width: 100%; height: auto; display: block; page-break-after: always; }`;
-
-    if (activePrinter.type === 'thermal_58mm') {
-      pageCss = `@page { size: 58mm auto; margin: 0; } body { margin: 0; padding: 0; width: 58mm; background: #ffffff; } img { width: 100%; height: auto; display: block; page-break-after: always; }`;
-    } else if (activePrinter.type === 'dual_4x6') {
-      pageCss = `@page { size: 4in 6in; margin: 0; } body { margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #ffffff; } img { max-width: 100%; max-height: 100vh; object-fit: contain; page-break-after: always; }`;
-    } else if (activePrinter.type === 'single') {
-      pageCss = `@page { size: auto; margin: 0; } body { margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #ffffff; } img { max-width: 100%; max-height: 100vh; object-fit: contain; page-break-after: always; }`;
+    if (printerType === 'thermal_58mm') {
+      paperLabel = 'Thermal 58mm';
+      pageCss = `
+        @page { size: 58mm auto; margin: 0; }
+        * { box-sizing: border-box; }
+        html, body {
+          margin: 0 !important;
+          padding: 0 !important;
+          width: 100% !important;
+          background: #ffffff !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+        .print-strip {
+          width: 48mm;
+          margin: 0 auto;
+          page-break-after: always;
+          break-after: page;
+        }
+        .print-strip:last-child {
+          page-break-after: auto;
+          break-after: auto;
+        }
+        .print-strip img {
+          width: 48mm;
+          max-width: 48mm;
+          height: auto;
+          display: block;
+          margin: 0 auto;
+          image-rendering: -webkit-optimize-contrast !important;
+          image-rendering: crisp-edges !important;
+        }
+      `;
+    } else if (printerType === 'dual_4x6') {
+      paperLabel = 'Dual Strip 4x6"';
+      pageCss = `
+        @page { size: 4in 6in; margin: 0; }
+        * { box-sizing: border-box; }
+        html, body {
+          margin: 0 !important;
+          padding: 0 !important;
+          width: 4in !important;
+          height: 6in !important;
+          background: #ffffff !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+        .print-strip {
+          width: 4in;
+          height: 6in;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          page-break-after: always;
+          break-after: page;
+        }
+        .print-strip:last-child {
+          page-break-after: auto;
+          break-after: auto;
+        }
+        .print-strip img {
+          width: 4in;
+          height: 6in;
+          object-fit: contain;
+          display: block;
+          image-rendering: -webkit-optimize-contrast !important;
+        }
+      `;
+    } else if (printerType === 'single') {
+      paperLabel = 'Single Strip';
+      pageCss = `
+        @page { size: auto; margin: 0; }
+        * { box-sizing: border-box; }
+        html, body {
+          margin: 0 !important;
+          padding: 0 !important;
+          width: 100% !important;
+          background: #ffffff !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+        .print-strip {
+          width: 100%;
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          page-break-after: always;
+          break-after: page;
+        }
+        .print-strip:last-child {
+          page-break-after: auto;
+          break-after: auto;
+        }
+        .print-strip img {
+          max-width: 100%;
+          max-height: 100vh;
+          object-fit: contain;
+          display: block;
+          margin: auto;
+          image-rendering: -webkit-optimize-contrast !important;
+        }
+      `;
+    } else {
+      // Thermal 80mm
+      paperLabel = 'Thermal 80mm';
+      pageCss = `
+        @page { size: 80mm auto; margin: 0; }
+        * { box-sizing: border-box; }
+        html, body {
+          margin: 0 !important;
+          padding: 0 !important;
+          width: 100% !important;
+          background: #ffffff !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+        .print-strip {
+          width: 72mm;
+          margin: 0 auto;
+          page-break-after: always;
+          break-after: page;
+        }
+        .print-strip:last-child {
+          page-break-after: auto;
+          break-after: auto;
+        }
+        .print-strip img {
+          width: 72mm;
+          max-width: 72mm;
+          height: auto;
+          display: block;
+          margin: 0 auto;
+          image-rendering: -webkit-optimize-contrast !important;
+          image-rendering: crisp-edges !important;
+        }
+      `;
     }
 
-    // Build multiple image tags for copies
     const imagesHtml = Array.from({ length: copiesCount })
-      .map((_, i) => `<img src="${dataToPrint}" alt="Photo Strip ${i + 1}" />`)
+      .map(
+        (_, i) => `
+        <div class="print-strip">
+          <img src="${dataToPrint}" alt="Photo Strip Lembar ${i + 1}" />
+        </div>`
+      )
       .join('\n');
 
-    // Create popup/direct window with instant print trigger
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) {
-      alert('Mohon izinkan pop-up browser untuk menjalankan Cetak Cepat ke printer.');
+    return `<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cetak Foto - ${printerName}</title>
+  <style>
+    ${pageCss}
+
+    @media screen {
+      body {
+        background-color: #171514;
+        color: #f5f5f4;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+        padding: 24px 16px 64px;
+        margin: 0;
+        box-sizing: border-box;
+      }
+      .screen-toolbar {
+        position: sticky;
+        top: 12px;
+        z-index: 9999;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        background: #24201e;
+        border: 1px solid #443e3c;
+        padding: 12px 20px;
+        border-radius: 16px;
+        box-shadow: 0 12px 36px rgba(0,0,0,0.6);
+        margin-bottom: 24px;
+        max-width: 95%;
+      }
+      .btn-print {
+        background: #ea580c;
+        color: #ffffff;
+        font-weight: bold;
+        font-size: 15px;
+        padding: 10px 24px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 14px rgba(234,88,12,0.45);
+        transition: all 0.2s ease;
+      }
+      .btn-print:hover {
+        background: #f97316;
+        transform: translateY(-1px);
+      }
+      .btn-close {
+        background: #383330;
+        color: #d6d3d1;
+        font-weight: 600;
+        font-size: 13px;
+        padding: 10px 16px;
+        border: 1px solid #57514e;
+        border-radius: 10px;
+        cursor: pointer;
+      }
+      .btn-close:hover {
+        background: #443e3c;
+        color: #ffffff;
+      }
+      .toolbar-info {
+        font-size: 12px;
+        color: #a8a29e;
+        font-family: monospace;
+      }
+      .print-container {
+        background: #ffffff;
+        padding: 16px;
+        border-radius: 10px;
+        box-shadow: 0 10px 35px rgba(0,0,0,0.7);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+      }
+    }
+
+    @media print {
+      .screen-toolbar {
+        display: none !important;
+      }
+      body {
+        background: #ffffff !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      .print-container {
+        padding: 0 !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        background: transparent !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="screen-toolbar">
+    <button class="btn-print" onclick="window.focus(); window.print();">
+      🖨️ CETAK SEKARANG (PRINT)
+    </button>
+    <div class="toolbar-info">
+      ${printerName} &bull; ${paperLabel} &bull; ${copiesCount}x Lembar
+    </div>
+    <button class="btn-close" onclick="window.close()">
+      ✕ Tutup
+    </button>
+  </div>
+
+  <div class="print-container">
+    ${imagesHtml}
+  </div>
+
+  <script>
+    window.addEventListener('load', function() {
+      var imgs = Array.from(document.images);
+      var promises = imgs.map(function(img) {
+        return img.decode ? img.decode().catch(function(){}) : Promise.resolve();
+      });
+      Promise.all(promises).then(function() {
+        setTimeout(function() {
+          window.focus();
+          try {
+            window.print();
+          } catch(e) {
+            console.warn('Auto print trigger error:', e);
+          }
+        }, 300);
+      });
+    });
+  </script>
+</body>
+</html>`;
+  };
+
+  // Execute Direct Print directly to connected printer
+  const executeDirectPrint = (copiesCount: number = printCopies) => {
+    const dataToPrint = currentPrintData || highResDataUrl || thermal80DataUrl || thermal58DataUrl || dualStripDataUrl;
+    if (!dataToPrint) {
+      setQuickPrintStatus('printing');
+      setQuickPrintMessage('Sedang menyiapkan gambar strip beresolusi tinggi...');
+      const checkTimer = setInterval(() => {
+        const readyData = getDataForType(activePrinter.type) || highResDataUrl;
+        if (readyData) {
+          clearInterval(checkTimer);
+          executeDirectPrint(copiesCount);
+        }
+      }, 200);
+      setTimeout(() => clearInterval(checkTimer), 4000);
       return;
     }
 
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>Cetak Cepat - ${activePrinter.name}</title>
-          <style>
-            ${pageCss}
-            @media print {
-              img { page-break-after: ${copiesCount > 1 ? 'always' : 'auto'}; }
-            }
-          </style>
-        </head>
-        <body>
-          ${imagesHtml}
-          <script>
-            window.addEventListener('load', function() {
-              window.focus();
-              window.print();
-              setTimeout(function() {
-                window.close();
-              }, 400);
-            });
-          </script>
-        </body>
-      </html>
-    `);
-    printWindow.document.close();
+    const htmlContent = buildPrintHtml(dataToPrint, activePrinter.type, copiesCount, activePrinter.name);
+    const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+    const blobUrl = URL.createObjectURL(blob);
+    setBlockedBlobUrl(blobUrl);
+
+    // If running in an iframe (e.g. AI Studio preview), sandboxed iframes block window.print() completely with error:
+    // "The document is in a sandboxed iframe that lacks the 'allow-modals' permission."
+    let printWin: Window | null = null;
+    try {
+      printWin = window.open(blobUrl, '_blank');
+    } catch (err) {
+      console.warn('Direct window.open blocked:', err);
+    }
+
+    if (!printWin || printWin.closed || typeof printWin.closed === 'undefined') {
+      setQuickPrintStatus('success');
+      setQuickPrintMessage(`Perintah cetak (${copiesCount}x lembar) disiapkan untuk "${activePrinter.name}"!`);
+      setTimeout(() => {
+        setQuickPrintStatus('idle');
+      }, 4000);
+    } else {
+      setQuickPrintStatus('success');
+      setQuickPrintMessage(`Jendela cetak printer (${copiesCount}x lembar) terbuka untuk "${activePrinter.name}"!`);
+      try {
+        printWin.focus();
+      } catch {}
+      setTimeout(() => {
+        setQuickPrintStatus('idle');
+      }, 4000);
+    }
   };
 
-  // Handler for "⚡ Cetak Cepat" button (Instant Print without re-confirmation)
+  // Direct in-page browser print trigger
+  const handleSystemPrint = () => {
+    sounds.playPopSound();
+    try {
+      window.print();
+    } catch (err) {
+      console.warn('Direct window.print error, opening print window:', err);
+      executeDirectPrint(1);
+    }
+  };
+
+  // Handler for "⚡ Cetak Cepat" button (Instant Print directly to connected printer)
   const handleQuickPrint = () => {
     sounds.playPopSound();
     setQuickPrintStatus('printing');
-    setQuickPrintMessage(`Mengirim ${printCopies}x cetakan langsung ke "${activePrinter.name}"...`);
+    setQuickPrintMessage(`Mengirim ${printCopies}x cetakan langsung ke printer "${activePrinter.name}"...`);
 
     executeDirectPrint(printCopies);
-
-    setTimeout(() => {
-      setQuickPrintStatus('success');
-      setQuickPrintMessage(`Berhasil dikirim ke printer "${activePrinter.name}" (${printCopies} salinan)`);
-      setTimeout(() => {
-        setQuickPrintStatus('idle');
-      }, 3500);
-    }, 1000);
   };
 
   // Auto-Print trigger when photo capture process finishes if autoPrintEnabled is active
@@ -469,7 +808,7 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-4 sm:p-6 space-y-6">
+    <div className="h-full max-h-full w-full max-w-5xl mx-auto p-2 sm:p-4 overflow-y-auto space-y-4 animate-in fade-in duration-200">
       {/* Header Banner */}
       <div className="text-center space-y-2">
         <div className="flex flex-wrap items-center justify-center gap-2">
@@ -494,10 +833,6 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
             <span>Memicu dialog cetak printer...</span>
           </div>
         )}
-
-        <p className="text-stone-400 text-xs sm:text-sm max-w-lg mx-auto">
-          Hasil foto telah diproses. Tekan <strong>Cetak Cepat</strong> untuk langsung mencetak atau unduh file resolusi tinggi.
-        </p>
       </div>
 
       {/* Quick Print Notification Status Toast/Bar */}
@@ -536,7 +871,13 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
               <img
                 src={currentPrintData}
                 alt="High Res Photo Strip"
-                className="max-h-[500px] w-auto rounded shadow-md object-contain"
+                className="max-h-[500px] w-auto rounded shadow-md object-contain transition-all"
+                style={{
+                  imageRendering:
+                    (activePrinter.type === 'thermal_80mm' || activePrinter.type === 'thermal_58mm') && thermalDither
+                      ? 'pixelated'
+                      : 'auto',
+                }}
               />
             )}
           </div>
@@ -551,42 +892,6 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
               </div>
             </div>
           )}
-
-          {/* Active Connected Printer & Paper Format Badge */}
-          <div className="w-full space-y-2.5 bg-[#131110] border border-stone-800 p-3.5 rounded-xl">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-stone-400 font-mono uppercase tracking-wider flex items-center gap-1.5">
-                <HardDrive className="w-3.5 h-3.5 text-orange-400" /> PRINTER AKTIF
-              </span>
-              <button
-                type="button"
-                onClick={() => setIsPrinterSelectorOpen(true)}
-                className="text-[10px] font-mono font-bold px-2.5 py-1 rounded bg-stone-900 hover:bg-stone-800 text-stone-200 border border-stone-800 flex items-center gap-1 transition-all cursor-pointer"
-              >
-                <Sliders className="w-3 h-3 text-orange-400" /> Ganti Printer
-              </button>
-            </div>
-
-            <div
-              onClick={() => setIsPrinterSelectorOpen(true)}
-              className="bg-[#181615] p-3 rounded-lg border border-stone-800 hover:border-stone-700 transition-all flex items-center gap-3 cursor-pointer group"
-            >
-              <div className="p-2 rounded-md bg-stone-900 text-orange-400 border border-stone-800">
-                <Printer className="w-5 h-5" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between gap-1">
-                  <span className="text-xs font-bold text-stone-100 truncate">{activePrinter.name}</span>
-                  <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-emerald-950/80 text-emerald-300 border border-emerald-800 shrink-0">
-                    ONLINE
-                  </span>
-                </div>
-                <p className="text-[11px] text-stone-400 font-mono leading-tight mt-0.5 truncate">
-                  {activePrinter.paperDescription} ({activePrinter.connectionType})
-                </p>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Right: Actions, Quick Print, QR Code Scan, and Social Sharing */}
@@ -606,7 +911,7 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
                     </span>
                   </h3>
                   <p className="text-xs text-stone-400">
-                    Mencetak langsung ke printer yang terhubung tanpa perlu dialog konfirmasi
+                    Mencetak langsung ke printer yang terhubung ({activePrinter.name})
                   </p>
                 </div>
               </div>
@@ -659,45 +964,84 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
               </div>
             </div>
 
-            {/* THE MAIN HERO "CETAK CEPAT" BUTTON */}
+            {/* THE MAIN HERO "PRINT LANGSUNG KE PRINTER" BUTTON */}
             <button
               type="button"
               onClick={handleQuickPrint}
               disabled={isGenerating || quickPrintStatus === 'printing'}
-              className="w-full relative group py-3.5 px-6 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-bold text-base shadow-sm active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 cursor-pointer border border-orange-500"
+              className="w-full relative group py-4 px-6 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-bold text-base shadow-lg hover:shadow-orange-600/25 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3.5 cursor-pointer border border-orange-500"
             >
-              <Zap className="w-5 h-5 text-white fill-white" />
-              <div className="text-left leading-tight">
+              <Printer className="w-6 h-6 text-white shrink-0 animate-pulse" />
+              <div className="text-left leading-tight flex-1">
                 <div className="flex items-center gap-2">
-                  <span>Cetak Cepat</span>
-                  <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-black/30 text-white">
+                  <span className="text-base sm:text-lg font-bold tracking-wide">PRINT LANGSUNG KE PRINTER</span>
+                  <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-black/40 text-white border border-white/20">
                     {printCopies}x Lembar
                   </span>
                 </div>
                 <span className="text-xs font-normal text-orange-100 block mt-0.5">
-                  Langsung kirim spooling ke {activePrinter.name}
+                  Kirim perintah cetak langsung ke printer {activePrinter.name}
                 </span>
               </div>
             </button>
 
-            {/* Secondary Option: Download & Standard Print */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1 border-t border-stone-800">
+            {/* Secondary Options: Multi-Channel Print & Download */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-stone-800">
               <button
                 type="button"
                 onClick={() => executeDirectPrint(1)}
-                disabled={isGenerating}
-                className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-200 hover:text-white font-mono font-bold text-xs border border-stone-800 transition-all cursor-pointer"
+                disabled={isGenerating || quickPrintStatus === 'printing'}
+                className="flex flex-col items-center justify-center gap-1 py-2.5 px-2 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-200 hover:text-white font-mono font-bold text-xs border border-stone-800 transition-all cursor-pointer"
+                title="Cetak 1 Lembar langsung"
               >
-                <Printer className="w-4 h-4 text-orange-400" /> Cetak Standar (1x)
+                <Printer className="w-4 h-4 text-orange-400" />
+                <span className="text-[11px]">Print 1x</span>
+              </button>
+
+              {blockedBlobUrl ? (
+                <a
+                  href={blockedBlobUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex flex-col items-center justify-center gap-1 py-2.5 px-2 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-200 hover:text-white font-mono font-bold text-xs border border-stone-800 transition-all cursor-pointer"
+                  title="Buka tampilan cetak di tab baru"
+                >
+                  <ExternalLink className="w-4 h-4 text-orange-400" />
+                  <span className="text-[11px]">Tab Cetak</span>
+                </a>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => executeDirectPrint(printCopies)}
+                  disabled={isGenerating || quickPrintStatus === 'printing'}
+                  className="flex flex-col items-center justify-center gap-1 py-2.5 px-2 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-200 hover:text-white font-mono font-bold text-xs border border-stone-800 transition-all cursor-pointer"
+                  title="Buka tampilan cetak di tab baru"
+                >
+                  <ExternalLink className="w-4 h-4 text-orange-400" />
+                  <span className="text-[11px]">Tab Cetak</span>
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={handleSystemPrint}
+                disabled={isGenerating}
+                className="flex flex-col items-center justify-center gap-1 py-2.5 px-2 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-200 hover:text-white font-mono font-bold text-xs border border-stone-800 transition-all cursor-pointer"
+                title="Dialog cetak bawaan browser (Ctrl+P)"
+              >
+                <Printer className="w-4 h-4 text-stone-400" />
+                <span className="text-[11px]">Dialog OS</span>
               </button>
 
               <button
                 type="button"
                 onClick={handleDownload}
                 disabled={isGenerating}
-                className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-200 hover:text-white font-mono font-bold text-xs border border-stone-800 transition-all cursor-pointer"
+                className="flex flex-col items-center justify-center gap-1 py-2.5 px-2 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-200 hover:text-white font-mono font-bold text-xs border border-stone-800 transition-all cursor-pointer"
+                title="Simpan file foto ke komputer"
               >
-                <Download className="w-4 h-4 text-orange-400" /> Unduh File Foto (PNG)
+                <Download className="w-4 h-4 text-orange-400" />
+                <span className="text-[11px]">Unduh PNG</span>
               </button>
             </div>
           </div>
@@ -939,6 +1283,33 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
           </div>
         </div>
       )}
+
+      {/* Hidden container dedicated for native Ctrl+P / browser print isolation */}
+      <div id="snapbooth-print-area" className="hidden">
+        {Array.from({ length: printCopies }).map((_, i) => (
+          <div
+            key={i}
+            style={{
+              pageBreakAfter: i < printCopies - 1 ? 'always' : 'auto',
+              breakAfter: i < printCopies - 1 ? 'page' : 'auto',
+              width: activePrinter.type === 'thermal_58mm' ? '48mm' : activePrinter.type === 'dual_4x6' ? '4in' : '72mm',
+              margin: '0 auto',
+              padding: '0',
+            }}
+          >
+            <img
+              src={currentPrintData || highResDataUrl}
+              alt={`Printout Lembar ${i + 1}`}
+              style={{
+                width: '100%',
+                display: 'block',
+                margin: '0 auto',
+                imageRendering: 'crisp-edges',
+              }}
+            />
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

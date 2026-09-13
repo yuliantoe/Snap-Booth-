@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   X,
   Sliders,
@@ -18,6 +18,7 @@ import {
   Layout,
   MousePointer,
   Maximize,
+  Maximize2,
   Crown,
   Zap,
   Columns,
@@ -35,6 +36,10 @@ import {
   ShoppingBag,
   Plus,
   Play,
+  Tv,
+  GraduationCap,
+  Building2,
+  Camera,
 } from 'lucide-react';
 import { EventTheme, UserAccount } from '../types';
 import { DEFAULT_THEMES } from '../utils/themePresets';
@@ -44,6 +49,10 @@ import {
   PRODUCT_CATEGORIES,
   DEFAULT_SLIDESHOW_PRODUCT_PHOTOS,
 } from '../utils/productPresets';
+import {
+  SCREENSAVER_PRESETS,
+  DEFAULT_SCREENSAVER_PHOTOS,
+} from '../utils/screensaverPresets';
 
 interface ControlPanelModalProps {
   isOpen: boolean;
@@ -54,6 +63,7 @@ interface ControlPanelModalProps {
   currentUser?: UserAccount | null;
   onLogout?: () => void;
   onOpenAuthModal?: () => void;
+  onOpenScreensaver?: () => void;
 }
 
 const PRESET_VIDEOS = [
@@ -178,10 +188,12 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
   currentUser,
   onLogout,
   onOpenAuthModal,
+  onOpenScreensaver,
 }) => {
-  const [activeTab, setActiveTab] = useState<'home' | 'theme' | 'upload_custom' | 'media' | 'system'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'theme' | 'upload_custom' | 'media' | 'system' | 'screensaver'>('home');
   const [themeForm, setThemeForm] = useState<EventTheme>({ ...currentTheme });
   const [themeCategoryFilter, setThemeCategoryFilter] = useState<string>('all');
+  const [newScreensaverPhotoUrl, setNewScreensaverPhotoUrl] = useState<string>('');
   const logoFileInputRef = useRef<HTMLInputElement | null>(null);
   const welcomePhotoFileInputRef = useRef<HTMLInputElement | null>(null);
   const videoFileInputRef = useRef<HTMLInputElement | null>(null);
@@ -190,6 +202,7 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
   const bgImageFileInputRef = useRef<HTMLInputElement | null>(null);
   const customStickerFileInputRef = useRef<HTMLInputElement | null>(null);
   const productPhotosFileInputRef = useRef<HTMLInputElement | null>(null);
+  const screensaverPhotoFileInputRef = useRef<HTMLInputElement | null>(null);
   const [productCategoryFilter, setProductCategoryFilter] = useState<string>('all');
 
   const isSuperAdmin = currentUser?.role === 'super_admin';
@@ -199,12 +212,76 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
   const isTrial = !isSuperAdmin && currentUser?.subscriptionStatus === 'trial' && !isExpired;
   const isExpiringSoon = !isSuperAdmin && !isUnl && !isExpired && remainingDays < 3 && remainingDays >= 0;
 
+  const [isMinimized, setIsMinimized] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setIsMinimized(false);
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const handleSaveAndApply = () => {
     onSaveTheme(themeForm);
+    setIsMinimized(false);
     onClose();
   };
+
+  // Minimized floating dock at bottom of screen
+  if (isMinimized) {
+    return (
+      <aside aria-label="Dashboard Sistem Minimized" className="fixed bottom-4 right-4 sm:right-6 z-50 flex items-center gap-3 p-3 rounded-2xl bg-[#181615]/95 backdrop-blur-md border border-orange-500/40 shadow-2xl text-white font-sans animate-in slide-in-from-bottom-3 duration-200">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-orange-600/20 border border-orange-500/40 flex items-center justify-center text-orange-400">
+            <Sliders className="w-4 h-4" />
+          </div>
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-bold text-stone-100">Dashboard Sistem</span>
+              <span className="text-[9px] font-mono px-1.5 py-0.2 bg-stone-900 text-orange-400 border border-orange-500/30 rounded uppercase">
+                {activeTab}
+              </span>
+            </div>
+            <p className="text-[11px] text-stone-400 truncate max-w-[180px]">
+              {themeForm.eventTitle || 'Tema Kustom'}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-1.5 border-l border-stone-800 pl-2">
+          <button
+            type="button"
+            onClick={() => setIsMinimized(false)}
+            className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs shadow cursor-pointer transition-all active:scale-95"
+            title="Buka kembali tampilan penuh Dashboard"
+          >
+            <Maximize2 className="w-3.5 h-3.5" />
+            <span>Buka</span>
+          </button>
+          <button
+            type="button"
+            onClick={handleSaveAndApply}
+            className="px-2.5 py-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-medium cursor-pointer transition-all"
+            title="Simpan & Terapkan Perubahan"
+          >
+            Simpan
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setIsMinimized(false);
+              onClose();
+            }}
+            className="p-1.5 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-400 hover:text-stone-200 cursor-pointer transition-all"
+            title="Tutup Dashboard"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      </aside>
+    );
+  }
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -421,17 +498,26 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
               </button>
             )}
             <button
+              type="button"
+              onClick={() => setIsMinimized(true)}
+              className="p-1.5 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-400 hover:text-stone-200 transition-all cursor-pointer"
+              title="Minimize Dashboard Sistem ke Dock Bawah"
+            >
+              <Minus className="w-5 h-5" />
+            </button>
+            <button
               onClick={onClose}
               className="p-1.5 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-400 hover:text-stone-200 transition-all cursor-pointer"
+              title="Tutup Dashboard Sistem"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
         </div>
 
-        {/* Control Panel Tab Navigation - 5 Clean Tabs */}
+        {/* Control Panel Tab Navigation - 6 Clean Tabs */}
         <div className="p-3 bg-[#100f0e] border-b border-stone-800">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
             {/* Tab 1: Home */}
             <button
               onClick={() => setActiveTab('home')}
@@ -585,6 +671,32 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                 <p className="text-xs font-bold leading-tight truncate">Sistem Kiosk</p>
                 <p className={`text-[10px] leading-tight truncate ${activeTab === 'system' ? 'text-white/80' : 'text-stone-500'}`}>
                   Auto-Reset & Print
+                </p>
+              </div>
+            </button>
+
+            {/* Tab 6: Screensaver Promosi */}
+            <button
+              onClick={() => setActiveTab('screensaver')}
+              type="button"
+              className={`p-2.5 rounded-xl border text-left transition-all flex flex-col justify-between gap-1.5 relative overflow-hidden cursor-pointer ${
+                activeTab === 'screensaver'
+                  ? 'bg-orange-600 text-white border-orange-500 shadow-sm'
+                  : 'bg-[#181615] text-stone-300 border-stone-800 hover:border-stone-700 hover:bg-stone-900'
+              }`}
+            >
+              <div className="flex items-center justify-between w-full">
+                <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${
+                  activeTab === 'screensaver' ? 'bg-black/20 text-white' : 'bg-stone-900 text-stone-400'
+                }`}>
+                  TAB 6
+                </span>
+                <Tv className={`w-4 h-4 ${activeTab === 'screensaver' ? 'text-white' : 'text-orange-400'}`} />
+              </div>
+              <div>
+                <p className="text-xs font-bold leading-tight truncate">Screensaver</p>
+                <p className={`text-[10px] leading-tight truncate ${activeTab === 'screensaver' ? 'text-white/80' : 'text-stone-500'}`}>
+                  Media Promosi
                 </p>
               </div>
             </button>
@@ -1167,7 +1279,6 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                 <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-3 scrollbar-none">
                   {[
                     { id: 'all', label: 'Semua Tema' },
-                    { id: 'newspaper', label: '📰 Koran Harian' },
                     { id: 'calendar', label: '🗓️ Kalender' },
                     { id: 'magazine', label: '📖 Majalah Cover' },
                     { id: 'receipt', label: '🛒 Struk Pembelian' },
@@ -1277,14 +1388,45 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
 
                   <div>
                     <label className="block text-xs font-semibold text-slate-400 mb-1.5">Warna Tulisan Teks</label>
-                    <div className="flex items-center gap-2 bg-slate-900 p-2 rounded-xl border border-slate-800">
-                      <input
-                        type="color"
-                        value={themeForm.textColor}
-                        onChange={(e) => setThemeForm({ ...themeForm, textColor: e.target.value })}
-                        className="w-8 h-8 rounded-lg cursor-pointer bg-transparent border-0"
-                      />
-                      <span className="text-xs font-mono text-slate-300 uppercase">{themeForm.textColor}</span>
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-2 bg-slate-900 p-2 rounded-xl border border-slate-800">
+                        <input
+                          type="color"
+                          value={themeForm.textColor}
+                          onChange={(e) => setThemeForm({ ...themeForm, textColor: e.target.value })}
+                          className="w-8 h-8 rounded-lg cursor-pointer bg-transparent border-0"
+                        />
+                        <span className="text-xs font-mono text-slate-300 uppercase">{themeForm.textColor}</span>
+                        {themeForm.textColor?.toUpperCase() === '#000000' && (
+                          <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                            Hitam Pekat (Optimal)
+                          </span>
+                        )}
+                      </div>
+                      {/* Quick Color Presets */}
+                      <div className="flex items-center gap-1.5 pt-0.5">
+                        {[
+                          { label: 'Hitam', color: '#000000' },
+                          { label: 'Putih', color: '#FFFFFF' },
+                          { label: 'Slate', color: '#1E293B' },
+                          { label: 'Emas', color: '#D4AF37' },
+                          { label: 'Marun', color: '#881337' },
+                        ].map((c) => (
+                          <button
+                            key={c.color}
+                            type="button"
+                            onClick={() => setThemeForm({ ...themeForm, textColor: c.color })}
+                            className={`px-2 py-1 rounded-lg text-[10px] font-medium border transition-all cursor-pointer flex items-center gap-1 ${
+                              themeForm.textColor?.toUpperCase() === c.color.toUpperCase()
+                                ? 'bg-slate-700 text-white border-slate-500 font-bold ring-1 ring-rose-500'
+                                : 'bg-slate-900 text-slate-400 hover:text-slate-200 border-slate-800'
+                            }`}
+                          >
+                            <span className="w-2.5 h-2.5 rounded-full border border-white/20 inline-block" style={{ backgroundColor: c.color }} />
+                            {c.label}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
 
@@ -2352,6 +2494,522 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                   >
                     <RefreshCw className="w-3.5 h-3.5" /> Mulai Foto Baru
                   </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 6: SCREENSAVER MEDIA PROMOSI SEKOLAH & PERUSAHAAN */}
+          {activeTab === 'screensaver' && (
+            <div className="space-y-6 animate-in fade-in duration-150">
+              {/* Header Hero Card */}
+              <div className="bg-gradient-to-r from-stone-950 via-[#191512] to-stone-950 p-5 sm:p-6 rounded-2xl border border-orange-500/40 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex items-start gap-3.5">
+                  <div className="w-12 h-12 rounded-2xl bg-orange-600/20 border border-orange-500/50 flex items-center justify-center text-orange-400 shrink-0 shadow-lg">
+                    <Tv className="w-6 h-6" />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-base sm:text-lg font-bold text-white tracking-tight">
+                        Screensaver Media Promosi Fullscreen
+                      </h3>
+                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/40">
+                        KIOSK SHOWCASE
+                      </span>
+                    </div>
+                    <p className="text-xs sm:text-sm text-stone-300 max-w-2xl leading-relaxed">
+                      Tampilan visual layar penuh interaktif untuk media promosi sekolah, kampus, perusahaan & sponsor saat kios sedang standby. Dilengkapi foto latar sinematik beresolusi tinggi dan menu/tombol Start yang menarik perhatian.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Quick Test / Live Preview Button */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    onSaveTheme(themeForm);
+                    onOpenScreensaver?.();
+                    onClose();
+                  }}
+                  className="px-5 py-3 rounded-xl bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-mono font-bold text-xs tracking-wider shadow-lg flex items-center justify-center gap-2.5 transition-all transform active:scale-95 border border-orange-400/50 cursor-pointer shrink-0"
+                >
+                  <Play className="w-4 h-4 fill-current" />
+                  <span>Jalankan Screensaver Sekarang</span>
+                </button>
+              </div>
+
+              {/* 1. Toggle & Idle Inactivity Timer */}
+              <div className="bg-[#181615] p-5 rounded-2xl border border-stone-800 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-800">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-orange-600/10 border border-orange-500/30 flex items-center justify-center text-orange-400">
+                      <Sparkles className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <span className="font-bold text-sm text-white block">
+                        Aktifkan Screensaver Otomatis
+                      </span>
+                      <p className="text-xs text-stone-400">
+                        Layar screensaver promosi akan otomatis muncul saat kios menganggur (idle)
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setThemeForm({
+                        ...themeForm,
+                        screensaverEnabled:
+                          themeForm.screensaverEnabled !== undefined
+                            ? !themeForm.screensaverEnabled
+                            : false,
+                      })
+                    }
+                    className={`px-4 py-2 rounded-xl text-xs font-mono font-bold transition-all flex items-center gap-2 cursor-pointer border ${
+                      themeForm.screensaverEnabled !== false
+                        ? 'bg-emerald-600 text-white border-emerald-500'
+                        : 'bg-stone-900 text-stone-400 border-stone-800'
+                    }`}
+                  >
+                    <Check className="w-3.5 h-3.5" />
+                    <span>{themeForm.screensaverEnabled !== false ? 'AKTIF (ON)' : 'NONAKTIF (OFF)'}</span>
+                  </button>
+                </div>
+
+                {/* Idle Timeout Selection */}
+                <div className="space-y-2 pt-1">
+                  <label className="text-xs font-mono font-bold text-stone-300 uppercase tracking-wider block">
+                    ⏱️ Waktu Tunggu Inaktivitas (Kios Idle):
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
+                    {[
+                      { label: '15 Detik', sec: 15 },
+                      { label: '30 Detik', sec: 30 },
+                      { label: '45 Detik (Standar)', sec: 45 },
+                      { label: '1 Menit', sec: 60 },
+                      { label: '2 Menit', sec: 120 },
+                      { label: 'Manual Saja', sec: 0 },
+                    ].map((opt) => {
+                      const currentSec =
+                        themeForm.screensaverIdleSeconds !== undefined
+                          ? themeForm.screensaverIdleSeconds
+                          : 45;
+                      const isSelected = currentSec === opt.sec;
+                      return (
+                        <button
+                          key={opt.sec}
+                          type="button"
+                          onClick={() =>
+                            setThemeForm({
+                              ...themeForm,
+                              screensaverIdleSeconds: opt.sec,
+                            })
+                          }
+                          className={`p-2.5 rounded-xl border text-xs font-mono font-bold transition-all cursor-pointer text-center ${
+                            isSelected
+                              ? 'bg-orange-600 text-white border-orange-500 shadow-sm'
+                              : 'bg-stone-900 text-stone-300 border-stone-800 hover:border-stone-700 hover:bg-stone-850'
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* 2. Preset Tema Promosi Siap Pakai (1-Klik) */}
+              <div className="bg-[#181615] p-5 rounded-2xl border border-stone-800 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-xs font-bold text-stone-300 uppercase tracking-wider flex items-center gap-2">
+                      <Building2 className="w-4 h-4 text-orange-400" /> Preset Media Promosi Siap Pakai (1-Klik)
+                    </h3>
+                    <p className="text-xs text-stone-400 mt-0.5">
+                      Pilih kategori promosi untuk mengisi otomatis teks promosi, highlight keunggulan, dan foto-foto latar beresolusi tinggi
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
+                  {SCREENSAVER_PRESETS.map((preset) => {
+                    const isSelected =
+                      (themeForm.screensaverPreset || 'school') === preset.id;
+                    return (
+                      <button
+                        key={preset.id}
+                        type="button"
+                        onClick={() => {
+                          setThemeForm({
+                            ...themeForm,
+                            screensaverPreset: preset.id,
+                            screensaverTitle: preset.title,
+                            screensaverSubtitle: preset.subtitle,
+                            screensaverTagline: preset.tagline,
+                            screensaverBadgeText: preset.badgeText,
+                            screensaverCtaText: preset.ctaText,
+                            screensaverHighlights: [...preset.highlights],
+                            screensaverPhotos: [...preset.photos],
+                            screensaverSpeedSeconds: preset.speedSeconds,
+                            screensaverOverlayDarkness: preset.overlayDarkness,
+                          });
+                        }}
+                        className={`p-4 rounded-xl border text-left transition-all relative overflow-hidden flex flex-col justify-between gap-3 cursor-pointer group ${
+                          isSelected
+                            ? 'border-orange-500 bg-orange-950/20 text-white ring-1 ring-orange-500/40'
+                            : 'border-stone-800 bg-stone-900 text-stone-300 hover:border-stone-700 hover:bg-stone-850'
+                        }`}
+                      >
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-2xl">{preset.icon}</span>
+                            {isSelected && (
+                              <span className="p-1 rounded-full bg-orange-500 text-white shadow-xs">
+                                <Check className="w-3 h-3" />
+                              </span>
+                            )}
+                          </div>
+                          <div>
+                            <p className="text-xs font-bold text-white group-hover:text-orange-300 transition-colors">
+                              {preset.name}
+                            </p>
+                            <p className="text-[11px] text-stone-400 mt-1 line-clamp-2">
+                              {preset.tagline}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Thumbnail Preview */}
+                        <div className="h-16 rounded-lg overflow-hidden relative border border-white/10">
+                          <img
+                            src={preset.photos[0]}
+                            alt={preset.name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                          />
+                          <div className="absolute inset-0 bg-black/40" />
+                          <span className="absolute bottom-1 right-1 text-[9px] font-mono px-1 rounded bg-black/70 text-white">
+                            {preset.photos.length} Foto HD
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 3. Kustomisasi Teks Promosi & Tombol Start */}
+              <div className="bg-[#181615] p-5 rounded-2xl border border-stone-800 space-y-4">
+                <h3 className="text-xs font-bold text-stone-300 uppercase tracking-wider flex items-center gap-2">
+                  <Type className="w-4 h-4 text-orange-400" /> Kustomisasi Teks & Menu Start
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Nama Institusi / Cafe / Sekolah / Perusahaan */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-mono font-bold text-stone-300">
+                      NAMA CAFE / RESTO / BISNIS / SEKOLAH:
+                    </label>
+                    <input
+                      type="text"
+                      value={themeForm.screensaverTitle || ''}
+                      onChange={(e) =>
+                        setThemeForm({ ...themeForm, screensaverTitle: e.target.value })
+                      }
+                      placeholder="e.g. AROMA NUSANTARA COFFEE & RESTO / WARUNG MAKAN SEDAP"
+                      className="w-full px-3 py-2 rounded-xl bg-stone-900 border border-stone-700 text-white text-xs font-medium focus:border-orange-500 focus:outline-none"
+                    />
+                  </div>
+
+                  {/* Subtitle / Acara Promosi */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-mono font-bold text-stone-300">
+                      JUDUL EVENT / PROMOSI:
+                    </label>
+                    <input
+                      type="text"
+                      value={themeForm.screensaverSubtitle || ''}
+                      onChange={(e) =>
+                        setThemeForm({ ...themeForm, screensaverSubtitle: e.target.value })
+                      }
+                      placeholder="e.g. PENERIMAAN PESERTA DIDIK BARU (PPDB) 2026"
+                      className="w-full px-3 py-2 rounded-xl bg-stone-900 border border-stone-700 text-white text-xs font-medium focus:border-orange-500 focus:outline-none"
+                    />
+                  </div>
+
+                  {/* Tagline / Slogan Promosi */}
+                  <div className="space-y-1.5 md:col-span-2">
+                    <label className="text-xs font-mono font-bold text-stone-300">
+                      TAGLINE / MOTTO PROMOSI:
+                    </label>
+                    <input
+                      type="text"
+                      value={themeForm.screensaverTagline || ''}
+                      onChange={(e) =>
+                        setThemeForm({ ...themeForm, screensaverTagline: e.target.value })
+                      }
+                      placeholder="e.g. Membentuk Generasi Cerdas Berkarakter & Berdaya Saing Global"
+                      className="w-full px-3 py-2 rounded-xl bg-stone-900 border border-stone-700 text-white text-xs font-medium focus:border-orange-500 focus:outline-none"
+                    />
+                  </div>
+
+                  {/* Label Badge Atas */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-mono font-bold text-stone-300">
+                      LABEL BADGE PROMOSI (HEADER):
+                    </label>
+                    <input
+                      type="text"
+                      value={themeForm.screensaverBadgeText || ''}
+                      onChange={(e) =>
+                        setThemeForm({ ...themeForm, screensaverBadgeText: e.target.value })
+                      }
+                      placeholder="e.g. 🏫 MEDIA PROMOSI SEKOLAH RESMI"
+                      className="w-full px-3 py-2 rounded-xl bg-stone-900 border border-stone-700 text-white text-xs font-medium focus:border-orange-500 focus:outline-none"
+                    />
+                  </div>
+
+                  {/* TEKS MENU / TOMBOL START */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-mono font-bold text-orange-400 flex items-center gap-1.5">
+                      <Camera className="w-3.5 h-3.5" /> TEKS TOMBOL START PHOTOBOOTH:
+                    </label>
+                    <input
+                      type="text"
+                      value={themeForm.screensaverCtaText || ''}
+                      onChange={(e) =>
+                        setThemeForm({ ...themeForm, screensaverCtaText: e.target.value })
+                      }
+                      placeholder="e.g. ✨ SENTUH LAYAR UNTUK MULAI FOTOBOOTH"
+                      className="w-full px-3 py-2 rounded-xl bg-stone-900 border border-orange-500/60 text-white text-xs font-bold focus:border-orange-400 focus:outline-none shadow-sm"
+                    />
+                    <p className="text-[10px] text-stone-400">
+                      Teks tombol start interaktif yang berdenyut di bagian bawah screensaver
+                    </p>
+                  </div>
+                </div>
+
+                {/* Highlight Poin Keunggulan */}
+                <div className="space-y-2 pt-2 border-t border-stone-800">
+                  <label className="text-xs font-mono font-bold text-stone-300 uppercase tracking-wider block">
+                    ✨ 4 Poin Highlight Keunggulan (Pills):
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {[0, 1, 2, 3].map((idx) => {
+                      const currentHighlights = themeForm.screensaverHighlights || [
+                        'Akreditasi A Unggul',
+                        'Lab Sains & Komputer Canggih',
+                        'Beasiswa Prestasi 100%',
+                        'Ekstrakurikuler Lengkap',
+                      ];
+                      return (
+                        <input
+                          key={idx}
+                          type="text"
+                          value={currentHighlights[idx] || ''}
+                          onChange={(e) => {
+                            const updated = [...currentHighlights];
+                            updated[idx] = e.target.value;
+                            setThemeForm({
+                              ...themeForm,
+                              screensaverHighlights: updated,
+                            });
+                          }}
+                          placeholder={`Poin Keunggulan #${idx + 1}`}
+                          className="px-3 py-2 rounded-xl bg-stone-900 border border-stone-750 text-white text-xs font-medium focus:border-orange-500 focus:outline-none"
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* 4. Pengelolaan Foto Latar Fullscreen & Slideshow */}
+              <div className="bg-[#181615] p-5 rounded-2xl border border-stone-800 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <h3 className="text-xs font-bold text-stone-300 uppercase tracking-wider flex items-center gap-2">
+                      <Images className="w-4 h-4 text-orange-400" /> Galeri Foto Latar Fullscreen
+                    </h3>
+                    <p className="text-xs text-stone-400 mt-0.5">
+                      Foto-foto ini akan ditampilkan sebagai slideshow layar penuh secara bergantian
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="file"
+                      ref={screensaverPhotoFileInputRef}
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onload = (uploadEvent) => {
+                            const result = uploadEvent.target?.result as string;
+                            if (result) {
+                              const currentPhotos = themeForm.screensaverPhotos || [];
+                              setThemeForm({
+                                ...themeForm,
+                                screensaverPhotos: [result, ...currentPhotos],
+                              });
+                            }
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => screensaverPhotoFileInputRef.current?.click()}
+                      className="px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+                    >
+                      <Upload className="w-3.5 h-3.5" /> Upload Foto Baru
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const preset =
+                          SCREENSAVER_PRESETS.find(
+                            (p) => p.id === (themeForm.screensaverPreset || 'school')
+                          ) || SCREENSAVER_PRESETS[0];
+                        setThemeForm({
+                          ...themeForm,
+                          screensaverPhotos: [...preset.photos],
+                        });
+                      }}
+                      className="px-3 py-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs font-mono transition-all cursor-pointer"
+                    >
+                      Reset Foto Preset
+                    </button>
+                  </div>
+                </div>
+
+                {/* Input URL Foto Tambahan */}
+                <div className="flex gap-2">
+                  <input
+                    type="url"
+                    value={newScreensaverPhotoUrl}
+                    onChange={(e) => setNewScreensaverPhotoUrl(e.target.value)}
+                    placeholder="Masukkan URL foto online (e.g. https://images.unsplash.com/...)"
+                    className="flex-1 px-3 py-2 rounded-xl bg-stone-900 border border-stone-700 text-white text-xs focus:border-orange-500 focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (newScreensaverPhotoUrl.trim()) {
+                        const current = themeForm.screensaverPhotos || [];
+                        setThemeForm({
+                          ...themeForm,
+                          screensaverPhotos: [...current, newScreensaverPhotoUrl.trim()],
+                        });
+                        setNewScreensaverPhotoUrl('');
+                      }
+                    }}
+                    className="px-4 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-white text-xs font-bold cursor-pointer"
+                  >
+                    + Tambah URL
+                  </button>
+                </div>
+
+                {/* List Thumbnail Foto Aktif */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                  {((themeForm.screensaverPhotos && themeForm.screensaverPhotos.length > 0)
+                    ? themeForm.screensaverPhotos
+                    : DEFAULT_SCREENSAVER_PHOTOS
+                  ).map((url, idx) => (
+                    <div
+                      key={`${url}-${idx}`}
+                      className="group relative h-28 rounded-xl overflow-hidden border border-stone-800 bg-black shadow-md"
+                    >
+                      <img
+                        src={url}
+                        alt={`Slide ${idx + 1}`}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-between p-2">
+                        <span className="text-[10px] font-mono font-bold text-white bg-black/60 px-1.5 py-0.5 rounded">
+                          Slide #{idx + 1}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const current = themeForm.screensaverPhotos || DEFAULT_SCREENSAVER_PHOTOS;
+                            const filtered = current.filter((_, i) => i !== idx);
+                            setThemeForm({
+                              ...themeForm,
+                              screensaverPhotos: filtered,
+                            });
+                          }}
+                          className="p-1 rounded bg-red-600/90 text-white hover:bg-red-500 transition-colors cursor-pointer"
+                          title="Hapus Foto Ini"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Kecepatan Slideshow & Keredupan Latar */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-stone-800">
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between text-xs font-mono font-bold text-stone-300">
+                      <span>KECEPATAN SLIDESHOW:</span>
+                      <span className="text-orange-400">
+                        {themeForm.screensaverSpeedSeconds || 6} Detik/Foto
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min="3"
+                      max="15"
+                      step="1"
+                      value={themeForm.screensaverSpeedSeconds || 6}
+                      onChange={(e) =>
+                        setThemeForm({
+                          ...themeForm,
+                          screensaverSpeedSeconds: Number(e.target.value),
+                        })
+                      }
+                      className="w-full accent-orange-500 cursor-pointer"
+                    />
+                    <div className="flex justify-between text-[10px] text-stone-500 font-mono">
+                      <span>Cepat (3s)</span>
+                      <span>Sedang (6s)</span>
+                      <span>Lambat (15s)</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between text-xs font-mono font-bold text-stone-300">
+                      <span>KEREDUPAN OVERLAY BACKGROUND:</span>
+                      <span className="text-orange-400">
+                        {Math.round((themeForm.screensaverOverlayDarkness ?? 0.55) * 100)}%
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0.2"
+                      max="0.8"
+                      step="0.05"
+                      value={themeForm.screensaverOverlayDarkness ?? 0.55}
+                      onChange={(e) =>
+                        setThemeForm({
+                          ...themeForm,
+                          screensaverOverlayDarkness: Number(e.target.value),
+                        })
+                      }
+                      className="w-full accent-orange-500 cursor-pointer"
+                    />
+                    <div className="flex justify-between text-[10px] text-stone-500 font-mono">
+                      <span>Terang (20%)</span>
+                      <span>Standar (55%)</span>
+                      <span>Gelap (80%)</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

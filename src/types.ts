@@ -1,4 +1,17 @@
-export type LayoutType = 'strip4' | 'strip3' | 'grid2x2' | 'polaroid' | 'photocard' | 'korean_receipt' | 'magazine' | 'shopping_receipt' | 'newspaper' | 'calendar' | 'calendar_single';
+export type LayoutType = 
+  | 'strip4' 
+  | 'strip3' 
+  | 'grid2x2' 
+  | 'polaroid' 
+  | 'photocard' 
+  | 'korean_receipt' 
+  | 'magazine' 
+  | 'shopping_receipt' 
+  | 'calendar' 
+  | 'calendar_single'
+  | 'instagram_story'
+  | 'tiktok_viral'
+  | 'instagram_post';
 
 export type FilterType = 
   | 'normal' 
@@ -33,7 +46,7 @@ export interface StickerItem {
 export interface EventTheme {
   id: string;
   name: string;
-  category: 'wedding' | 'birthday' | 'party' | 'retro' | 'corporate' | 'minimal' | 'cafe' | 'restaurant' | 'magazine' | 'receipt' | 'newspaper' | 'calendar';
+  category: 'wedding' | 'birthday' | 'party' | 'retro' | 'corporate' | 'minimal' | 'cafe' | 'restaurant' | 'magazine' | 'receipt' | 'calendar';
   frameColor: string; // hex
   textColor: string; // hex
   backgroundColor: string; // hex or CSS gradient
@@ -66,6 +79,21 @@ export interface EventTheme {
   customFrameOverlayUrl?: string;
   customBgImageUrl?: string;
   customStickerUrls?: string[];
+
+  // Screensaver Media Promosi Fullscreen (Sekolah, Perusahaan, Kampus, Sponsor)
+  screensaverEnabled?: boolean;
+  screensaverIdleSeconds?: number; // Waktu inaktif sebelum screensaver aktif (e.g. 30, 45, 60, 120, atau 0 = dinonaktifkan)
+  screensaverPreset?: 'school' | 'corporate' | 'graduation' | 'expo' | 'cafe_resto' | 'custom';
+  screensaverTitle?: string;
+  screensaverSubtitle?: string;
+  screensaverTagline?: string;
+  screensaverBadgeText?: string;
+  screensaverPhotos?: string[];
+  screensaverSpeedSeconds?: number;
+  screensaverCtaText?: string;
+  screensaverLogoUrl?: string;
+  screensaverOverlayDarkness?: number; // 0.2 to 0.8
+  screensaverHighlights?: string[];
 }
 
 export interface PhotoSlot {

@@ -72,13 +72,6 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
       badge: 'Desain Editorial 📖',
     },
     {
-      id: 'newspaper',
-      title: 'Koran Harian & Warta Berita (The Daily News)',
-      description: 'Format koran vintage & berita pers lengkap dengan masthead, headline utama, dan kolom artikel.',
-      slotsCount: 4,
-      badge: 'Model Koran 📰',
-    },
-    {
       id: 'calendar',
       title: 'Kalender & Tanggalan Kenangan (Wall Calendar 4 Foto)',
       description: 'Format tanggalan bulanan lengkap dengan grid 4 foto kenangan, nama bulan, dan penanda tanggal acara.',
@@ -99,6 +92,27 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
       slotsCount: 4,
       badge: 'Struk Belanja 🛒',
     },
+    {
+      id: 'instagram_story',
+      title: 'Instagram Story (9:16)',
+      description: 'Format vertikal IG Story 1 foto dengan progress bar, profile header, audio pill, dan reply bar.',
+      slotsCount: 1,
+      badge: 'Instagram Story 📸',
+    },
+    {
+      id: 'tiktok_viral',
+      title: 'TikTok Viral Reels (9:16)',
+      description: 'Format vertikal TikTok 1 foto dengan For You tabs, action column Like/Komentar, dan piringan vinyl.',
+      slotsCount: 1,
+      badge: 'TikTok FYP 🎵',
+    },
+    {
+      id: 'instagram_post',
+      title: 'Instagram Feed Post (4:5)',
+      description: 'Format feed post 4:5 elegan 1 foto berbingkai dengan post header, like/comment icon, dan caption.',
+      slotsCount: 1,
+      badge: 'Instagram Feed 📱',
+    },
   ];
 
   const renderSlotImage = (idx: number, className: string) => {
@@ -116,42 +130,44 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-4 sm:p-6 space-y-8 animate-in fade-in duration-200">
-      {/* Welcome Banner */}
-      <div className="relative rounded-xl bg-[#131110] border border-stone-800 p-6 sm:p-7 text-stone-100 shadow-sm">
-        <div className="max-w-2xl space-y-3">
-          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded bg-stone-900 border border-stone-800 text-stone-300 text-[11px] font-mono uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5 text-orange-400" /> Sesi Selesai • {photos.length} Foto Siap
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-serif font-bold tracking-tight text-stone-100">
-            Pilih Format Cetak & Tata Letak
-          </h2>
-          <p className="text-stone-400 text-xs sm:text-sm leading-relaxed">
-            Foto Anda telah siap. Tentukan format strip atau lembar cetak kenangan yang ingin dicetak dan dibagikan.
-          </p>
-
-          <div className="pt-2 flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-stone-900 border border-stone-800 text-xs text-stone-300 font-mono">
-              <span className="text-stone-500">TEMA AKTIF:</span>
-              <span className="font-bold text-orange-400">{currentTheme.eventTitle}</span>
+    <div className="h-full max-h-full w-full max-w-5xl mx-auto p-2 sm:p-4 flex flex-col justify-between overflow-hidden animate-in fade-in duration-200">
+      {/* Scrollable Layout Selection Content */}
+      <div className="flex-1 min-h-0 overflow-y-auto pr-1 space-y-3 sm:space-y-4">
+        {/* Welcome Banner (Compact) */}
+        <div className="relative rounded-xl bg-[#131110] border border-stone-800 p-3.5 sm:p-5 text-stone-100 shadow-sm">
+          <div className="max-w-2xl space-y-1.5">
+            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-stone-900 border border-stone-800 text-stone-300 text-[10px] sm:text-[11px] font-mono uppercase tracking-wider">
+              <Sparkles className="w-3 h-3 text-orange-400" /> Sesi Selesai • {photos.length} Foto Siap
             </div>
-            <button
-              onClick={onOpenThemeCustomizer}
-              className="text-xs font-mono font-medium text-orange-400 hover:text-orange-300 underline underline-offset-4 transition-colors"
-            >
-              Ubah Tema & Judul Acara →
-            </button>
+            <h2 className="text-xl sm:text-2xl font-serif font-bold tracking-tight text-stone-100">
+              Pilih Format Cetak & Tata Letak
+            </h2>
+            <p className="text-stone-400 text-xs leading-relaxed">
+              Foto Anda telah siap. Tentukan format strip atau lembar cetak kenangan yang ingin dicetak dan dibagikan.
+            </p>
+
+            <div className="pt-1 flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-stone-900 border border-stone-800 text-xs text-stone-300 font-mono">
+                <span className="text-stone-500 text-[10px]">TEMA:</span>
+                <span className="font-bold text-orange-400 text-xs">{currentTheme.eventTitle}</span>
+              </div>
+              <button
+                onClick={onOpenThemeCustomizer}
+                className="text-xs font-mono font-medium text-orange-400 hover:text-orange-300 underline underline-offset-4 transition-colors"
+              >
+                Ubah Tema →
+              </button>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Layout Selection Cards */}
-      <div>
-        <h3 className="text-xs font-mono uppercase tracking-widest text-stone-400 font-bold mb-4 flex items-center gap-2">
-          FORMAT TATA LETAK STRIP ({layouts.length} OPSI)
-        </h3>
+        {/* Layout Selection Cards */}
+        <div>
+          <h3 className="text-xs font-mono uppercase tracking-widest text-stone-400 font-bold mb-2.5 flex items-center gap-2">
+            FORMAT TATA LETAK STRIP ({layouts.length} OPSI)
+          </h3>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {layouts.map((layout) => {
             const isSelected = selectedLayout === layout.id;
 
@@ -191,11 +207,7 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
 
                   {/* Visual Strip Thumbnail Simulation with Real Photos */}
                   <div
-                    className="p-3 rounded-lg border flex flex-col items-center justify-between gap-1.5 min-h-[140px] max-w-[160px] mx-auto shadow-inner overflow-hidden"
-                    style={{
-                      backgroundColor: currentTheme.frameColor || '#FFFFFF',
-                      borderColor: currentTheme.accentColor || '#333333',
-                    }}
+                    className="p-3 rounded-lg border flex flex-col items-center justify-between gap-1.5 min-h-[140px] max-w-[160px] mx-auto shadow-sm overflow-hidden bg-white border-slate-200"
                   >
                     <div className="w-full flex-1 flex flex-col justify-center gap-1 overflow-hidden">
                       {layout.id === 'strip4' && (
@@ -229,7 +241,7 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
                         </>
                       )}
                       {layout.id === 'korean_receipt' && (
-                        <div className="flex flex-col gap-0.5 text-[7px] font-mono leading-tight py-1 bg-amber-50/50 p-1 rounded-xs border border-dashed border-slate-300">
+                        <div className="flex flex-col gap-0.5 text-[7px] font-mono leading-tight py-1 bg-white p-1 rounded-xs border border-dashed border-slate-300">
                           <div className="text-center font-bold text-slate-800 border-b border-dashed border-slate-300 pb-0.5">KR RECEIPT PHOTO</div>
                           {renderSlotImage(0, 'w-full h-5 rounded-xs')}
                           {renderSlotImage(1, 'w-full h-5 rounded-xs')}
@@ -239,28 +251,10 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
                         </div>
                       )}
                       {layout.id === 'magazine' && (
-                        <div className="flex flex-col gap-1 text-[7px] font-serif leading-tight p-1 bg-slate-950/80 text-amber-100 rounded-xs border border-amber-500/30">
-                          <div className="text-center font-black tracking-widest text-[9px] text-amber-300 border-b border-amber-500/30 pb-0.5">VOGUE</div>
-                          {renderSlotImage(0, 'w-full h-16 rounded-xs')}
-                          <div className="text-[6px] text-center text-slate-300 pt-0.5 font-sans">SPECIAL ISSUE • 2026</div>
-                        </div>
-                      )}
-                      {layout.id === 'newspaper' && (
-                        <div className="flex flex-col gap-1 text-[6px] font-serif leading-tight p-1 bg-[#F7F4EC] text-slate-900 rounded-xs border border-slate-400">
-                          <div className="flex items-center justify-between text-[5px] border-b border-slate-400 pb-0.5 px-0.5 text-slate-600 font-sans">
-                            <span>VOL. 2026</span>
-                            <span className="font-bold">DAILY NEWS</span>
-                            <span>EDISI KHUSUS</span>
-                          </div>
-                          <div className="text-center font-black tracking-wider text-[8px] border-b border-double border-slate-600 pb-0.5">THE CHRONICLE</div>
-                          <div className="text-[5.5px] font-bold text-red-700 uppercase tracking-tight">BREAKING NEWS TODAY</div>
-                          {renderSlotImage(0, 'w-full h-8 rounded-xs border border-slate-700')}
-                          <div className="grid grid-cols-3 gap-0.5 pt-0.5 border-t border-slate-300">
-                            {renderSlotImage(1, 'w-full h-4 rounded-xs border border-slate-400')}
-                            {renderSlotImage(2, 'w-full h-4 rounded-xs border border-slate-400')}
-                            {renderSlotImage(3, 'w-full h-4 rounded-xs border border-slate-400')}
-                          </div>
-                          <div className="text-[4.5px] text-slate-500 pt-0.5 text-center font-mono">DOKUMEN PERS • SNAPBOOTH</div>
+                        <div className="flex flex-col gap-1 text-[7px] font-serif leading-tight p-1 bg-white text-slate-900 rounded-xs border border-slate-300 shadow-sm">
+                          <div className="text-center font-black tracking-widest text-[9px] text-rose-700 border-b border-slate-200 pb-0.5">VOGUE</div>
+                          {renderSlotImage(0, 'w-full h-16 rounded-xs border border-slate-200')}
+                          <div className="text-[6px] text-center text-slate-500 pt-0.5 font-sans">SPECIAL ISSUE • 2026</div>
                         </div>
                       )}
                       {layout.id === 'calendar' && (
@@ -312,7 +306,7 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
                         </div>
                       )}
                       {layout.id === 'shopping_receipt' && (
-                        <div className="flex flex-col gap-0.5 text-[7px] font-mono leading-tight py-1 bg-amber-50/60 p-1 rounded-xs border border-dashed border-slate-400">
+                        <div className="flex flex-col gap-0.5 text-[7px] font-mono leading-tight py-1 bg-white p-1 rounded-xs border border-dashed border-slate-400">
                           <div className="text-center font-bold text-slate-900 border-b border-dashed border-slate-400 pb-0.5">SUPERMARKET MART</div>
                           {renderSlotImage(0, 'w-full h-5 rounded-xs')}
                           {renderSlotImage(1, 'w-full h-5 rounded-xs')}
@@ -321,9 +315,102 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
                           <div className="text-[6px] text-center text-slate-800 pt-0.5 border-t border-dashed border-slate-400">TOTAL: RP 0 (LUNAS)</div>
                         </div>
                       )}
+                      {layout.id === 'instagram_story' && (
+                        <div className="flex flex-col gap-1 text-[6.5px] font-sans leading-tight p-1.5 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-950 text-white rounded-xs border border-slate-700 shadow-md w-full">
+                          <div className="pb-0.5">
+                            <div className="h-0.5 w-full bg-white/90 rounded-full" />
+                          </div>
+                          <div className="flex items-center justify-between pb-0.5">
+                            <div className="flex items-center gap-1">
+                              <div className="w-3.5 h-3.5 rounded-full bg-gradient-to-tr from-amber-400 via-rose-500 to-fuchsia-600 p-[1px] flex items-center justify-center">
+                                <div className="w-full h-full bg-slate-900 rounded-full flex items-center justify-center text-[5px] font-black text-white">S</div>
+                              </div>
+                              <div>
+                                <div className="flex items-center gap-0.5">
+                                  <span className="font-bold text-[6.5px] text-white tracking-tight">snapbooth</span>
+                                  <span className="w-1.5 h-1.5 rounded-full bg-sky-500 text-[4px] flex items-center justify-center text-white">✓</span>
+                                  <span className="text-[5px] text-slate-400">12m</span>
+                                </div>
+                                <div className="text-[4.5px] text-slate-300 font-medium">♫ Audio Resmi</div>
+                              </div>
+                            </div>
+                            <span className="text-[6px] text-slate-300 font-bold">✕</span>
+                          </div>
+                          <div className="my-0.5 relative rounded-xs overflow-hidden border border-white/10">
+                            {renderSlotImage(0, 'w-full h-20 rounded-xs')}
+                            <div className="absolute top-1 left-1 px-1 py-0.5 rounded-full bg-white/90 text-slate-900 font-bold text-[4.5px] shadow-xs">
+                              📍 Jakarta
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between text-[5px] pt-0.5">
+                            <div className="px-2 py-0.5 rounded-full bg-white/20 text-white border border-white/30 text-[5px] flex-1 mr-1">
+                              Kirim pesan...
+                            </div>
+                            <span className="text-red-500 font-bold text-[7px]">❤️</span>
+                          </div>
+                        </div>
+                      )}
+                      {layout.id === 'tiktok_viral' && (
+                        <div className="flex flex-col gap-1 text-[6.5px] font-sans leading-tight p-1.5 bg-gradient-to-b from-black via-zinc-900 to-black text-white rounded-xs border border-zinc-700 shadow-md w-full">
+                          <div className="flex items-center justify-between pb-0.5 text-[5px] border-b border-white/10">
+                            <span className="text-rose-500 font-bold text-[5px]">● LIVE</span>
+                            <span className="font-extrabold text-white text-[6px]">Untuk Anda</span>
+                            <span className="text-white/80">🔍</span>
+                          </div>
+                          <div className="my-0.5 relative rounded-xs overflow-hidden border border-white/10">
+                            {renderSlotImage(0, 'w-full h-20 rounded-xs')}
+                            <div className="absolute bottom-1 left-1 right-6 text-[4.5px] text-white leading-tight bg-black/40 backdrop-blur-xs p-0.5 rounded-xs">
+                              <div className="font-bold text-amber-300">@snapbooth ✨</div>
+                              <div className="text-white/90 truncate">Trend Foto Viral Reels 2026</div>
+                            </div>
+                            <div className="absolute right-1 bottom-1 flex flex-col items-center gap-1 text-[5px]">
+                              <span className="text-rose-500 font-bold">❤️</span>
+                              <span className="text-white">💬</span>
+                              <span className="text-amber-400">★</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between text-[5px] pt-0.5 text-slate-300">
+                            <span className="text-[5px] truncate font-mono">♫ Suara Asli Viral</span>
+                            <span className="text-white">💿</span>
+                          </div>
+                        </div>
+                      )}
+                      {layout.id === 'instagram_post' && (
+                        <div className="flex flex-col gap-1 text-[6.5px] font-sans leading-tight p-1.5 bg-white text-slate-900 rounded-xs border border-slate-300 shadow-sm w-full">
+                          <div className="flex items-center justify-between border-b border-slate-100 pb-0.5">
+                            <div className="flex items-center gap-1">
+                              <div className="w-3.5 h-3.5 rounded-full bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 p-[1px] flex items-center justify-center">
+                                <div className="w-full h-full bg-white rounded-full flex items-center justify-center text-[5px] font-bold text-slate-800">S</div>
+                              </div>
+                              <div>
+                                <div className="flex items-center gap-0.5">
+                                  <span className="font-bold text-[6.5px] text-slate-900">snapbooth</span>
+                                  <span className="w-1.5 h-1.5 rounded-full bg-sky-500 text-[4px] flex items-center justify-center text-white">✓</span>
+                                </div>
+                                <div className="text-[4.5px] text-slate-400">Kenangan Spesial</div>
+                              </div>
+                            </div>
+                            <span className="text-slate-400 font-bold">···</span>
+                          </div>
+                          <div className="my-0.5">
+                            {renderSlotImage(0, 'w-full h-16 rounded-xs border border-slate-200')}
+                          </div>
+                          <div className="flex items-center justify-between text-[6px] pt-0.5 border-t border-slate-100">
+                            <div className="flex gap-1.5 text-[6px]">
+                              <span className="text-rose-600 font-bold">❤️</span>
+                              <span>💬</span>
+                              <span>✈️</span>
+                            </div>
+                            <span className="text-slate-700 font-bold">🔖</span>
+                          </div>
+                          <div className="text-[5px] text-slate-700 font-medium">
+                            <span className="font-bold text-slate-900">snapbooth</span> Best moments ✨
+                          </div>
+                        </div>
+                      )}
                     </div>
                     <div className="w-full text-center">
-                      <div className="w-12 h-1 bg-slate-400 rounded-xs mx-auto" />
+                      <div className="w-12 h-1 bg-slate-300 rounded-xs mx-auto" />
                     </div>
                   </div>
                 </div>
@@ -337,15 +424,16 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
           })}
         </div>
       </div>
+    </div>
 
-      {/* Continue Button Centered */}
-      <div className="flex flex-col items-center justify-center pt-4 pb-2">
+      {/* Continue Button Centered (Always visible at bottom) */}
+      <div className="shrink-0 flex flex-col items-center justify-center pt-2 sm:pt-3 pb-1">
         <button
           onClick={onContinueToExport}
-          className="flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-bold text-sm sm:text-base shadow-sm active:scale-[0.98] transition-all cursor-pointer w-full max-w-sm border border-orange-500"
+          className="flex items-center justify-center gap-2 px-6 py-2.5 sm:py-3 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs sm:text-sm shadow-sm active:scale-[0.98] transition-all cursor-pointer w-full max-w-sm border border-orange-500"
         >
           <span>Lanjut ke Cetak & Bagikan</span>
-          <ChevronRight className="w-5 h-5" />
+          <ChevronRight className="w-4 h-4" />
         </button>
       </div>
     </div>

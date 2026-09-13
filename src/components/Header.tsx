@@ -18,6 +18,11 @@ import {
   ExternalLink,
   Sparkles,
   Zap,
+  Minimize2,
+  Maximize2,
+  Monitor,
+  EyeOff,
+  Tv,
 } from 'lucide-react';
 import { EventTheme, UserAccount } from '../types';
 import { calculateRemainingDays, SUBSCRIPTION_PLANS, isDurationUnlimited } from '../services/subscriptionService';
@@ -32,6 +37,11 @@ interface HeaderProps {
   onLogout: () => void;
   onResetSession: () => void;
   onToggleOrientation?: () => void;
+  isDashboardMinimized?: boolean;
+  onToggleMinimizeDashboard?: () => void;
+  isFullscreen?: boolean;
+  onToggleFullscreen?: () => void;
+  onOpenScreensaver?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -43,9 +53,16 @@ export const Header: React.FC<HeaderProps> = ({
   onLogout,
   onResetSession,
   onToggleOrientation,
+  isDashboardMinimized = false,
+  onToggleMinimizeDashboard,
+  isFullscreen = false,
+  onToggleFullscreen,
+  onOpenScreensaver,
 }) => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isMinimizeMenuOpen, setIsMinimizeMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement | null>(null);
+  const minimizeMenuRef = useRef<HTMLDivElement | null>(null);
 
   const orientationState = useScreenOrientation(currentTheme.tabletOrientation || 'auto');
   const isSuperAdmin = currentUser?.role === 'super_admin';
@@ -61,6 +78,9 @@ export const Header: React.FC<HeaderProps> = ({
     const handleClickOutside = (event: MouseEvent) => {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
         setIsUserMenuOpen(false);
+      }
+      if (minimizeMenuRef.current && !minimizeMenuRef.current.contains(event.target as Node)) {
+        setIsMinimizeMenuOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -353,6 +373,110 @@ export const Header: React.FC<HeaderProps> = ({
             <Sliders className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-400" />
             <span>Dashboard</span>
           </button>
+
+          {/* Menu Minimize Tampilan Dashboard Screen Utama */}
+          <div className="relative" ref={minimizeMenuRef}>
+            <button
+              type="button"
+              onClick={() => setIsMinimizeMenuOpen(!isMinimizeMenuOpen)}
+              className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-2 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 hover:text-stone-900 text-xs sm:text-sm font-medium transition-all border border-stone-200 active:scale-95 cursor-pointer shadow-xs"
+              title="Menu Minimize Tampilan Dashboard Screen Utama"
+            >
+              <Minimize2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-stone-600" />
+              <span className="hidden sm:inline">Minimize</span>
+              <ChevronDown className={`w-3 h-3 text-stone-400 transition-transform ${isMinimizeMenuOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {isMinimizeMenuOpen && (
+              <div className="absolute right-0 mt-2 w-72 rounded-xl bg-white border border-stone-200 shadow-xl py-2 z-50 text-stone-800 text-xs animate-in fade-in slide-in-from-top-2">
+                <div className="px-3.5 py-2 border-b border-stone-100">
+                  <span className="font-mono text-[10px] font-bold text-stone-400 uppercase tracking-wider block">
+                    Mode Layar & Dashboard
+                  </span>
+                  <p className="text-[11px] text-stone-500 mt-0.5">
+                    Atur visibilitas dashboard pada screen utama
+                  </p>
+                </div>
+
+                <div className="p-1.5 space-y-1">
+                  {/* Minimize Dashboard Header */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsMinimizeMenuOpen(false);
+                      onToggleMinimizeDashboard?.();
+                    }}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-stone-700 hover:bg-orange-50 hover:text-orange-900 transition-colors text-left cursor-pointer group"
+                  >
+                    <div className="p-1.5 rounded-lg bg-orange-100 text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition-colors">
+                      <Minimize2 className="w-4 h-4" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-bold text-stone-900 group-hover:text-orange-950">
+                        {isDashboardMinimized ? 'Tampilkan Dashboard Penuh' : 'Minimize Dashboard Header'}
+                      </div>
+                      <div className="text-[10px] text-stone-500">
+                        {isDashboardMinimized
+                          ? 'Buka kembali header navigasi'
+                          : 'Sembunyikan panel atas agar screen utama luas'}
+                      </div>
+                    </div>
+                  </button>
+
+                  {/* Toggle Fullscreen / Kiosk Mode */}
+                  {onToggleFullscreen && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsMinimizeMenuOpen(false);
+                        onToggleFullscreen();
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-stone-700 hover:bg-stone-100 transition-colors text-left cursor-pointer group"
+                    >
+                      <div className="p-1.5 rounded-lg bg-stone-100 text-stone-600 group-hover:bg-stone-200 transition-colors">
+                        <Monitor className="w-4 h-4" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-bold text-stone-900">
+                          {isFullscreen ? 'Keluar Layar Penuh' : 'Layar Penuh (Kiosk)'}
+                        </div>
+                        <div className="text-[10px] text-stone-500">
+                          {isFullscreen ? 'Kembali ke ukuran jendela biasa' : 'Sembunyikan browser chrome'}
+                        </div>
+                      </div>
+                    </button>
+                  )}
+
+                  {/* Open Screensaver Promosi */}
+                  {onOpenScreensaver && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsMinimizeMenuOpen(false);
+                        onOpenScreensaver();
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-stone-700 hover:bg-orange-50 hover:text-orange-950 transition-colors text-left cursor-pointer group border-t border-stone-100 pt-2"
+                    >
+                      <div className="p-1.5 rounded-lg bg-orange-100 text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition-colors">
+                        <Tv className="w-4 h-4" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-bold text-stone-900 group-hover:text-orange-950 flex items-center gap-1.5">
+                          <span>Screensaver Promosi</span>
+                          <span className="text-[9px] font-mono px-1 rounded bg-orange-200 text-orange-800">
+                            SHOWCASE
+                          </span>
+                        </div>
+                        <div className="text-[10px] text-stone-500">
+                          Tampilan full-screen sekolah & perusahaan
+                        </div>
+                      </div>
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* New Session Reset */}
           <button

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Maximize2, Sliders, RefreshCw, Tv } from 'lucide-react';
 import {
   LayoutType,
   EventTheme,
@@ -20,6 +21,7 @@ import { ControlPanelModal } from './components/ControlPanelModal';
 import { AuthModal } from './components/AuthModal';
 import { SuperAdminModal } from './components/SuperAdminModal';
 import { SubscriptionExpiredModal } from './components/SubscriptionExpiredModal';
+import { ScreensaverView } from './components/ScreensaverView';
 import {
   DEFAULT_USERS,
   subscribeToUsers,
@@ -54,6 +56,32 @@ export default function App() {
   const [isSuperAdminOpen, setIsSuperAdminOpen] = useState<boolean>(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
   const [isExpiredModalOpen, setIsExpiredModalOpen] = useState<boolean>(false);
+  const [isScreensaverOpen, setIsScreensaverOpen] = useState<boolean>(false);
+
+  // Dashboard view minimize state for clean photobooth kiosk screen
+  const [isDashboardMinimized, setIsDashboardMinimized] = useState<boolean>(false);
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+
+  // Sync fullscreen state
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(Boolean(document.fullscreenElement));
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
+  const handleToggleFullscreen = () => {
+    try {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    } catch {
+      // ignore
+    }
+  };
 
   // Clean up legacy gallery storage
   useEffect(() => {
@@ -297,6 +325,75 @@ export default function App() {
     currentTheme.idleTimeoutSeconds,
   ]);
 
+  // Auto-launch fullscreen promotional screensaver when kiosk is idle on welcome screen
+  useEffect(() => {
+    if (
+      currentStep !== 'welcome' ||
+      isScreensaverOpen ||
+      isControlPanelOpen ||
+      isSuperAdminOpen ||
+      isAuthModalOpen ||
+      isExpiredModalOpen
+    ) {
+      return;
+    }
+
+    if (currentTheme.screensaverEnabled === false) {
+      return;
+    }
+
+    const idleSeconds =
+      currentTheme.screensaverIdleSeconds !== undefined
+        ? currentTheme.screensaverIdleSeconds
+        : 45;
+
+    if (idleSeconds <= 0) {
+      return; // 0 means manual only
+    }
+
+    const SCREENSAVER_TIMEOUT_MS = idleSeconds * 1000;
+    let timer: NodeJS.Timeout;
+
+    const resetScreensaverTimer = () => {
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => {
+        setIsScreensaverOpen(true);
+      }, SCREENSAVER_TIMEOUT_MS);
+    };
+
+    resetScreensaverTimer();
+
+    const interactionEvents = [
+      'mousemove',
+      'mousedown',
+      'touchstart',
+      'touchmove',
+      'keydown',
+      'scroll',
+      'click',
+    ];
+
+    interactionEvents.forEach((evt) => {
+      window.addEventListener(evt, resetScreensaverTimer, { passive: true });
+    });
+
+    return () => {
+      if (timer) clearTimeout(timer);
+      interactionEvents.forEach((evt) => {
+        window.removeEventListener(evt, resetScreensaverTimer);
+      });
+    };
+  }, [
+    currentStep,
+    isScreensaverOpen,
+    isControlPanelOpen,
+    isSuperAdminOpen,
+    isAuthModalOpen,
+    isExpiredModalOpen,
+    currentTheme.screensaverEnabled,
+    currentTheme.screensaverIdleSeconds,
+  ]);
+
   // Step navigation rules: before login, photo steps (capture, layout, export) are inactive
   const canNavigateTo = (step: StepType) => {
     if (step === 'welcome') return true;
@@ -340,30 +437,96 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f0f2f5] text-stone-900 flex flex-col font-sans selection:bg-orange-600 selection:text-white antialiased">
+    <div className="h-[100dvh] max-h-[100dvh] w-screen overflow-hidden bg-[#f0f2f5] text-stone-900 flex flex-col font-sans selection:bg-orange-600 selection:text-white antialiased select-none">
       {/* Navbar Header with Multi-Role Badges, User Dropdown, and Logout */}
-      <Header
-        currentTheme={currentTheme}
-        currentUser={currentUser}
-        onOpenControlPanel={handleOpenControlPanel}
-        onOpenSuperAdmin={() => setIsSuperAdminOpen(true)}
-        onOpenAuthModal={() => setIsAuthModalOpen(true)}
-        onLogout={handleLogout}
-        onResetSession={handleResetSession}
-        onToggleOrientation={handleToggleOrientation}
-      />
+      {!isDashboardMinimized ? (
+        <div className="shrink-0 z-40 bg-white/95 backdrop-blur-md">
+          <Header
+            currentTheme={currentTheme}
+            currentUser={currentUser}
+            onOpenControlPanel={handleOpenControlPanel}
+            onOpenSuperAdmin={() => setIsSuperAdminOpen(true)}
+            onOpenAuthModal={() => setIsAuthModalOpen(true)}
+            onLogout={handleLogout}
+            onResetSession={handleResetSession}
+            onToggleOrientation={handleToggleOrientation}
+            isDashboardMinimized={isDashboardMinimized}
+            onToggleMinimizeDashboard={() => setIsDashboardMinimized(true)}
+            isFullscreen={isFullscreen}
+            onToggleFullscreen={handleToggleFullscreen}
+            onOpenScreensaver={() => setIsScreensaverOpen(true)}
+          />
 
-      {/* Step Progress Wizard Bar */}
-      <StepIndicator
-        currentStep={currentStep}
-        currentUser={currentUser}
-        onSelectStep={(step) => canNavigateTo(step) && setCurrentStep(step)}
-        canNavigateTo={canNavigateTo}
-        onOpenAuthModal={() => setIsAuthModalOpen(true)}
-      />
+          {/* Step Progress Wizard Bar */}
+          <StepIndicator
+            currentStep={currentStep}
+            currentUser={currentUser}
+            onSelectStep={(step) => canNavigateTo(step) && setCurrentStep(step)}
+            canNavigateTo={canNavigateTo}
+            onOpenAuthModal={() => setIsAuthModalOpen(true)}
+          />
+        </div>
+      ) : (
+        /* Sleek Floating Minimized Dashboard Dock on Main Screen */
+        <header className="sticky top-2 z-50 flex justify-center px-3 pointer-events-none shrink-0">
+          <div className="pointer-events-auto flex items-center gap-2 sm:gap-3 px-3.5 py-1.5 sm:py-2 rounded-full bg-stone-900/90 text-white border border-stone-700/90 shadow-xl backdrop-blur-md text-xs font-mono animate-in slide-in-from-top-2 duration-200">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <div className="flex items-center gap-1.5">
+              <span className="font-bold tracking-wider text-[10px] sm:text-[11px] text-stone-100">DASHBOARD MINIMIZED</span>
+              <span className="text-stone-500 text-[10px] hidden sm:inline">•</span>
+              <span className="text-stone-300 text-[10px] truncate max-w-[140px] hidden sm:inline font-sans">
+                {currentTheme.eventTitle || 'SnapBooth Event'}
+              </span>
+            </div>
 
-      {/* Main Content Area */}
-      <main className="flex-1 pb-12">
+            <div className="flex items-center gap-1.5 border-l border-stone-700/80 pl-2 ml-1">
+              <button
+                type="button"
+                onClick={() => setIsDashboardMinimized(false)}
+                className="flex items-center gap-1 px-2.5 sm:px-3 py-1 rounded-full bg-orange-600 hover:bg-orange-500 text-white font-bold text-[10px] sm:text-[11px] transition-all cursor-pointer shadow-sm active:scale-95"
+                title="Buka kembali tampilan dashboard utama"
+              >
+                <Maximize2 className="w-3 h-3" />
+                <span className="hidden xs:inline">Buka</span>
+                <span>Dashboard</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsScreensaverOpen(true)}
+                className="p-1.5 rounded-full bg-stone-800 hover:bg-stone-700 text-orange-400 hover:text-white transition-all cursor-pointer"
+                title="Buka Media Promosi (Screensaver Fullscreen)"
+              >
+                <Tv className="w-3.5 h-3.5" />
+              </button>
+
+              <button
+                type="button"
+                onClick={handleOpenControlPanel}
+                className="p-1.5 rounded-full bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white transition-all cursor-pointer"
+                title="Buka Pengaturan Booth"
+              >
+                <Sliders className="w-3.5 h-3.5 text-orange-400" />
+              </button>
+
+              <button
+                type="button"
+                onClick={handleResetSession}
+                className="p-1.5 rounded-full bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white transition-all cursor-pointer"
+                title="Mulai Sesi Foto Baru"
+              >
+                <RefreshCw className="w-3.5 h-3.5 text-stone-300" />
+              </button>
+            </div>
+          </div>
+        </header>
+      )}
+
+      {/* Main Content Area - 100% Screen Height, Zero External Scroll */}
+      <main className="flex-1 min-h-0 w-full overflow-hidden flex flex-col relative">
         {currentStep === 'welcome' && (
           <StartScreen
             currentTheme={currentTheme}
@@ -372,6 +535,9 @@ export default function App() {
             onStartPhotobooth={handleStartPhotobooth}
             onOpenThemeCustomizer={handleOpenControlPanel}
             onOpenAuthModal={() => setIsAuthModalOpen(true)}
+            isDashboardMinimized={isDashboardMinimized}
+            onToggleMinimizeDashboard={() => setIsDashboardMinimized(!isDashboardMinimized)}
+            onOpenScreensaver={() => setIsScreensaverOpen(true)}
           />
         )}
 
@@ -421,6 +587,7 @@ export default function App() {
         currentUser={currentUser}
         onLogout={handleLogout}
         onOpenAuthModal={() => setIsAuthModalOpen(true)}
+        onOpenScreensaver={() => setIsScreensaverOpen(true)}
       />
 
       {/* Super Admin Management Portal Modal */}
@@ -456,10 +623,24 @@ export default function App() {
         onOpenAuth={() => setIsAuthModalOpen(true)}
       />
 
-      {/* Footer */}
-      <footer className="border-t border-stone-200 bg-[#e8eaed] py-4 text-center text-xs text-stone-500 font-mono">
-        <p>SnapBooth Receipt • Photobooth Digital Kiosk System</p>
-      </footer>
+      {/* Fullscreen Promotional Screensaver for Schools & Companies */}
+      {isScreensaverOpen && (
+        <ScreensaverView
+          currentTheme={currentTheme}
+          onStartPhotobooth={() => {
+            setIsScreensaverOpen(false);
+            handleStartPhotobooth();
+          }}
+          onClose={() => setIsScreensaverOpen(false)}
+        />
+      )}
+
+      {/* Footer - Slim & hidden when minimized or on mobile to preserve full screen height without scroll */}
+      {!isDashboardMinimized && (
+        <footer className="border-t border-stone-200/70 bg-[#e8eaed] py-1 px-3 text-center text-[10px] text-stone-400 font-mono shrink-0 hidden md:block select-none">
+          <p>SnapBooth Receipt • Photobooth Digital Kiosk System</p>
+        </footer>
+      )}
     </div>
   );
 }
