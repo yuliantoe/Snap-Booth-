@@ -20,6 +20,8 @@ export const DEFAULT_THEMES: EventTheme[] = [
     homeCtaText: 'SENTUH UNTUK MULAI FOTO',
     homeCtaColor: 'rose_amber',
     homeBgBlur: 'light',
+    screensaverPreset: 'cafe_resto',
+    screensaverEnabled: true,
   },
   {
     id: 'wedding_elegance',

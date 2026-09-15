@@ -56,7 +56,7 @@ export default function App() {
   const [isSuperAdminOpen, setIsSuperAdminOpen] = useState<boolean>(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
   const [isExpiredModalOpen, setIsExpiredModalOpen] = useState<boolean>(false);
-  const [isScreensaverOpen, setIsScreensaverOpen] = useState<boolean>(false);
+  const [isScreensaverOpen, setIsScreensaverOpen] = useState<boolean>(true);
 
   // Dashboard view minimize state for clean photobooth kiosk screen
   const [isDashboardMinimized, setIsDashboardMinimized] = useState<boolean>(false);
@@ -212,7 +212,8 @@ export default function App() {
     setCurrentStep('welcome');
     setIsControlPanelOpen(false);
     setIsSuperAdminOpen(false);
-    setIsAuthModalOpen(true);
+    setIsAuthModalOpen(false);
+    setIsScreensaverOpen(true);
   };
 
   // Handle Super Admin Updates
@@ -623,15 +624,29 @@ export default function App() {
         onOpenAuth={() => setIsAuthModalOpen(true)}
       />
 
-      {/* Fullscreen Promotional Screensaver for Schools & Companies */}
+      {/* Fullscreen Promotional Screensaver for Schools, Cafes & Companies */}
       {isScreensaverOpen && (
         <ScreensaverView
           currentTheme={currentTheme}
+          currentUser={currentUser}
           onStartPhotobooth={() => {
             setIsScreensaverOpen(false);
-            handleStartPhotobooth();
+            if (!currentUser) {
+              setIsAuthModalOpen(true);
+            } else {
+              handleStartPhotobooth();
+            }
           }}
-          onClose={() => setIsScreensaverOpen(false)}
+          onOpenLogin={() => {
+            setIsScreensaverOpen(false);
+            setIsAuthModalOpen(true);
+          }}
+          onClose={() => {
+            setIsScreensaverOpen(false);
+            if (!currentUser) {
+              setIsAuthModalOpen(true);
+            }
+          }}
         />
       )}
 

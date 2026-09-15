@@ -2155,66 +2155,66 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
     ctx.fill();
 
     // 2. Story Header (Extra-Large crisp Logo Avatar with IG Story Ring, Username, Time, Audio)
-    const headerY = 40;
-    const avatarR = 58; // 116px diameter - prominent, crystal clear logo
+    const headerY = 36;
+    const avatarR = 66; // 132px diameter - prominent, crystal clear logo
     const avatarCx = padding + avatarR + 6;
     const avatarCy = headerY + avatarR;
 
     // Signature colorful story ring
-    drawInstagramGradientRing(ctx, avatarCx, avatarCy, avatarR + 7, 5.0);
+    drawInstagramGradientRing(ctx, avatarCx, avatarCy, avatarR + 8, 5.5);
 
     // High-resolution Logo Avatar
     await drawCrispLogoAvatar(ctx, theme.logoUrl, (theme.eventTitle || 'S').charAt(0), avatarCx, avatarCy, avatarR, '#FFFFFF');
 
     // Username & Verified badge
-    const unameX = avatarCx + avatarR + 22;
+    const unameX = avatarCx + avatarR + 24;
     const rawUname = (theme.eventTitle || 'snapbooth.studio').toLowerCase().replace(/\s+/g, '.');
     const uname = rawUname.length > 20 ? rawUname.substring(0, 20) : rawUname;
 
     ctx.fillStyle = textColor;
-    ctx.font = `bold 48px ${sansFont}`;
+    ctx.font = `bold 54px ${sansFont}`;
     ctx.textAlign = 'left';
     ctx.textBaseline = 'alphabetic';
     ctx.fillText(uname, unameX, avatarCy - 6);
 
     const unameMeasure = ctx.measureText(uname).width;
-    drawVerifiedBadge(ctx, unameX + unameMeasure + 20, avatarCy - 18, 18, '#3897F0');
+    drawVerifiedBadge(ctx, unameX + unameMeasure + 20, avatarCy - 20, 20, '#3897F0');
 
     // Time elapsed badge
     ctx.fillStyle = subtextColor;
-    ctx.font = `bold 32px ${sansFont}`;
-    ctx.fillText('• 12m', unameX + unameMeasure + 50, avatarCy - 6);
+    ctx.font = `bold 36px ${sansFont}`;
+    ctx.fillText('• 12m', unameX + unameMeasure + 54, avatarCy - 6);
 
     // Audio / Subtitle row below username
     ctx.fillStyle = subtextColor;
-    ctx.font = `bold 30px ${sansFont}`;
-    drawMusicNoteVector(ctx, unameX + 14, avatarCy + 32, 26, subtextColor);
+    ctx.font = `bold 34px ${sansFont}`;
+    drawMusicNoteVector(ctx, unameX + 14, avatarCy + 36, 28, subtextColor);
     const audioText = `♫ ${theme.eventSubtitle || theme.eventTitle || 'Original Audio'} • SnapBooth Official`;
     const maxAudioW = canvasWidth - padding - unameX - 190;
-    drawAutoFitText(ctx, audioText, unameX + 38, avatarCy + 38, maxAudioW, 30, sansFont, '600', 'left');
+    drawAutoFitText(ctx, audioText, unameX + 42, avatarCy + 42, maxAudioW, 34, sansFont, '600', 'left');
 
     // Close 'X' and '···' on top right
     ctx.fillStyle = textColor;
-    ctx.font = `bold 50px ${sansFont}`;
+    ctx.font = `bold 54px ${sansFont}`;
     ctx.textAlign = 'center';
     ctx.fillText('···', canvasWidth - padding - 85, avatarCy + 10);
-    ctx.font = `bold 42px ${sansFont}`;
+    ctx.font = `bold 46px ${sansFont}`;
     ctx.fillText('✕', canvasWidth - padding - 22, avatarCy + 10);
 
     // 3. Floating Aesthetic Story Stickers
     // Sticker 1: Location Sticker Pill (Top-Left on photo)
-    const locY = 195;
+    const locY = 205;
     const locText = theme.eventSubtitle || 'Jakarta, Indonesia';
-    ctx.font = `bold 32px ${sansFont}`;
-    const locW = ctx.measureText(locText).width + 90;
-    const locH = 68;
+    ctx.font = `bold 36px ${sansFont}`;
+    const locW = ctx.measureText(locText).width + 96;
+    const locH = 74;
     const locX = padding + 16;
     ctx.save();
     ctx.shadowColor = 'rgba(0, 0, 0, 0.25)';
     ctx.shadowBlur = 14;
     ctx.shadowOffsetY = 4;
     ctx.fillStyle = '#FFFFFF';
-    drawRoundedRectPath(ctx, locX, locY, locW, locH, 34);
+    drawRoundedRectPath(ctx, locX, locY, locW, locH, 37);
     ctx.fill();
     ctx.shadowColor = 'transparent';
 
@@ -2222,26 +2222,26 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
     ctx.lineWidth = 1.5;
     ctx.stroke();
 
-    ctx.font = '30px sans-serif';
+    ctx.font = '34px sans-serif';
     ctx.textAlign = 'left';
-    ctx.fillText('📍', locX + 20, locY + 44);
+    ctx.fillText('📍', locX + 22, locY + 48);
     ctx.fillStyle = '#0F172A';
-    ctx.font = `bold 32px ${sansFont}`;
-    ctx.fillText(locText, locX + 60, locY + 44);
+    ctx.font = `bold 36px ${sansFont}`;
+    ctx.fillText(locText, locX + 66, locY + 48);
     ctx.restore();
 
     // Sticker 2: Date Pill (Top-Right on photo)
     const dateText = theme.eventDate || 'HARI INI';
-    ctx.font = `bold 30px ${sansFont}`;
-    const dateW = ctx.measureText(dateText).width + 80;
-    const dateH = 68;
+    ctx.font = `bold 34px ${sansFont}`;
+    const dateW = ctx.measureText(dateText).width + 88;
+    const dateH = 74;
     const dateX = canvasWidth - padding - dateW - 16;
     ctx.save();
     ctx.shadowColor = 'rgba(0, 0, 0, 0.25)';
     ctx.shadowBlur = 14;
     ctx.shadowOffsetY = 4;
     ctx.fillStyle = '#FFFFFF';
-    drawRoundedRectPath(ctx, dateX, locY, dateW, dateH, 34);
+    drawRoundedRectPath(ctx, dateX, locY, dateW, dateH, 37);
     ctx.fill();
     ctx.shadowColor = 'transparent';
 
@@ -2251,24 +2251,24 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
 
     ctx.fillStyle = '#0F172A';
     ctx.textAlign = 'center';
-    ctx.font = `bold 30px ${sansFont}`;
-    ctx.fillText(`🗓️ ${dateText}`, dateX + dateW / 2, locY + 44);
+    ctx.font = `bold 34px ${sansFont}`;
+    ctx.fillText(`🗓️ ${dateText}`, dateX + dateW / 2, locY + 48);
     ctx.restore();
 
     // Sticker 3: Official Brand Filter Tag on photo (if logoUrl exists)
     if (theme.logoUrl) {
-      const brandY = canvasHeight - 275;
-      const brandH = 74;
+      const brandY = canvasHeight - 280;
+      const brandH = 80;
       const brandTitle = theme.eventTitle || 'SnapBooth';
-      ctx.font = `bold 32px ${sansFont}`;
-      const brandW = Math.min(ctx.measureText(brandTitle).width + 120, 520);
+      ctx.font = `bold 36px ${sansFont}`;
+      const brandW = Math.min(ctx.measureText(brandTitle).width + 130, 560);
       const brandX = padding + 16;
       ctx.save();
       ctx.shadowColor = 'rgba(0, 0, 0, 0.28)';
       ctx.shadowBlur = 14;
       ctx.shadowOffsetY = 4;
       ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
-      drawRoundedRectPath(ctx, brandX, brandY, brandW, brandH, 37);
+      drawRoundedRectPath(ctx, brandX, brandY, brandW, brandH, 40);
       ctx.fill();
       ctx.shadowColor = 'transparent';
 
@@ -2278,21 +2278,21 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
 
       try {
         const thumbImg = await loadImage(theme.logoUrl);
-        const tSize = 54;
+        const tSize = 60;
         const tScale = Math.min(tSize / thumbImg.width, tSize / thumbImg.height);
         const tW = thumbImg.width * tScale;
         const tH = thumbImg.height * tScale;
         ctx.drawImage(thumbImg, brandX + 16 + (tSize - tW) / 2, brandY + (brandH - tH) / 2, tW, tH);
       } catch {
         ctx.fillStyle = '#F59E0B';
-        ctx.font = '30px sans-serif';
-        ctx.fillText('✨', brandX + 18, brandY + 46);
+        ctx.font = '34px sans-serif';
+        ctx.fillText('✨', brandX + 18, brandY + 50);
       }
 
       ctx.fillStyle = '#FFFFFF';
-      ctx.font = `bold 32px ${sansFont}`;
+      ctx.font = `bold 36px ${sansFont}`;
       ctx.textAlign = 'left';
-      drawAutoFitText(ctx, brandTitle, brandX + 78, brandY + 46, brandW - 95, 32, sansFont, 'bold', 'left');
+      drawAutoFitText(ctx, brandTitle, brandX + 86, brandY + 50, brandW - 105, 36, sansFont, 'bold', 'left');
       ctx.restore();
     }
 
@@ -2319,8 +2319,8 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
 
     // Placeholder text
     ctx.fillStyle = subtextColor;
-    ctx.font = `bold 32px ${sansFont}`;
-    ctx.fillText('Kirim pesan...', inputX + 80, bottomBarY + 56);
+    ctx.font = `bold 36px ${sansFont}`;
+    ctx.fillText('Kirim pesan...', inputX + 84, bottomBarY + 56);
 
     // Share Paper Plane
     const shareCx = canvasWidth - padding - 145;
@@ -2458,9 +2458,9 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
     // 3. Right Floating Action Column
     const actionX = canvasWidth - padding - 54;
 
-    // Creator Avatar with 3D Chromatic Glitch Ring & Follow '+' Badge (Enlarged 120px)
+    // Creator Avatar with 3D Chromatic Glitch Ring & Follow '+' Badge (Enlarged 140px)
     const avY = 440;
-    const avR = 60; // 120px diameter - big and stunning!
+    const avR = 70; // 140px diameter - extra prominent and bold!
     drawTikTokGlitchRing(ctx, actionX, avY, avR);
     await drawCrispLogoAvatar(ctx, theme.logoUrl, (theme.eventTitle || 'T').charAt(0), actionX, avY, avR, '#FFFFFF');
 
@@ -2468,68 +2468,68 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
     ctx.save();
     ctx.fillStyle = '#FE2C55';
     ctx.beginPath();
-    ctx.arc(actionX, avY + avR + 2, 18, 0, Math.PI * 2);
+    ctx.arc(actionX, avY + avR + 2, 20, 0, Math.PI * 2);
     ctx.fill();
     ctx.strokeStyle = '#FFFFFF';
     ctx.lineWidth = 3;
     ctx.stroke();
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = `bold 28px ${sansFont}`;
+    ctx.font = `bold 30px ${sansFont}`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('+', actionX, avY + avR + 2);
     ctx.restore();
 
     // Action 1: Like Heart (Bright Red with Soft Glow)
-    const likeY = 595;
+    const likeY = 600;
     ctx.save();
     ctx.shadowColor = 'rgba(254, 44, 85, 0.6)';
     ctx.shadowBlur = 16;
-    drawHeartVector(ctx, actionX, likeY, 60, '#FE2C55', true);
+    drawHeartVector(ctx, actionX, likeY, 62, '#FE2C55', true);
     ctx.restore();
     ctx.save();
     ctx.shadowColor = 'rgba(0, 0, 0, 0.95)';
     ctx.shadowBlur = 8;
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = `bold 34px ${sansFont}`;
+    ctx.font = `bold 38px ${sansFont}`;
     ctx.textAlign = 'center';
-    ctx.fillText('842.5K', actionX, likeY + 56);
+    ctx.fillText('842.5K', actionX, likeY + 58);
     ctx.restore();
 
     // Action 2: Comment Bubble
-    const commentY = 745;
-    drawCommentVector(ctx, actionX, commentY, 56, '#FFFFFF');
+    const commentY = 755;
+    drawCommentVector(ctx, actionX, commentY, 58, '#FFFFFF');
     ctx.save();
     ctx.shadowColor = 'rgba(0, 0, 0, 0.95)';
     ctx.shadowBlur = 8;
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = `bold 34px ${sansFont}`;
+    ctx.font = `bold 38px ${sansFont}`;
     ctx.textAlign = 'center';
-    ctx.fillText('14.8K', actionX, commentY + 54);
+    ctx.fillText('14.8K', actionX, commentY + 56);
     ctx.restore();
 
     // Action 3: Bookmark Ribbon (Golden Yellow)
-    const bookmarkY = 890;
-    drawBookmarkVector(ctx, actionX, bookmarkY, 54, '#FACD3D');
+    const bookmarkY = 905;
+    drawBookmarkVector(ctx, actionX, bookmarkY, 56, '#FACD3D');
     ctx.save();
     ctx.shadowColor = 'rgba(0, 0, 0, 0.95)';
     ctx.shadowBlur = 8;
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = `bold 34px ${sansFont}`;
+    ctx.font = `bold 38px ${sansFont}`;
     ctx.textAlign = 'center';
-    ctx.fillText('98.2K', actionX, bookmarkY + 54);
+    ctx.fillText('98.2K', actionX, bookmarkY + 56);
     ctx.restore();
 
     // Action 4: Share Arrow
-    const shareY = 1035;
-    drawShareVector(ctx, actionX, shareY, 54, '#FFFFFF');
+    const shareY = 1055;
+    drawShareVector(ctx, actionX, shareY, 56, '#FFFFFF');
     ctx.save();
     ctx.shadowColor = 'rgba(0, 0, 0, 0.95)';
     ctx.shadowBlur = 8;
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = `bold 34px ${sansFont}`;
+    ctx.font = `bold 38px ${sansFont}`;
     ctx.textAlign = 'center';
-    ctx.fillText('35.4K', actionX, shareY + 54);
+    ctx.fillText('35.4K', actionX, shareY + 56);
     ctx.restore();
 
     // Action 5: Realistic Rotating Vinyl Record Disc
@@ -2592,67 +2592,67 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
       ctx.fillStyle = '#FACD3D';
       ctx.font = `bold 22px ${sansFont}`;
       ctx.textAlign = 'left';
-      ctx.fillText('⚡ PARTNER RESMI', captionX + 20, spY + 33);
+      ctx.fillText('⚡ PARTNER RESMI', captionX + 20, spY + 34);
       ctx.fillStyle = '#FFFFFF';
-      ctx.font = `bold 22px ${sansFont}`;
-      drawAutoFitText(ctx, `• ${theme.eventTitle || 'SnapBooth'}`, captionX + 198, spY + 33, 145, 22, sansFont, 'bold', 'left');
+      ctx.font = `bold 24px ${sansFont}`;
+      drawAutoFitText(ctx, `• ${theme.eventTitle || 'SnapBooth'}`, captionX + 210, spY + 34, 140, 24, sansFont, 'bold', 'left');
       ctx.restore();
     }
 
     // Username & Verified checkmark & Creator Pill
     const ttUsername = `@${theme.eventTitle ? theme.eventTitle.toLowerCase().replace(/[^a-z0-9]/g, '') : 'snapbooth.studio'}`;
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = `900 50px ${sansFont}`;
+    ctx.font = `900 56px ${sansFont}`;
     ctx.textAlign = 'left';
     ctx.textBaseline = 'alphabetic';
     ctx.fillText(ttUsername, captionX, captionY);
     const ttUnameW = ctx.measureText(ttUsername).width;
-    drawVerifiedBadge(ctx, captionX + ttUnameW + 22, captionY - 16, 19, '#20D5EC');
+    drawVerifiedBadge(ctx, captionX + ttUnameW + 22, captionY - 18, 22, '#20D5EC');
 
     // Creator badge pill
-    const badgeX = captionX + ttUnameW + 52;
+    const badgeX = captionX + ttUnameW + 54;
     ctx.fillStyle = '#FE2C55';
-    drawRoundedRectPath(ctx, badgeX, captionY - 36, 110, 36, 8);
+    drawRoundedRectPath(ctx, badgeX, captionY - 40, 116, 40, 9);
     ctx.fill();
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = `bold 20px ${sansFont}`;
+    ctx.font = `bold 22px ${sansFont}`;
     ctx.textAlign = 'center';
-    ctx.fillText('Kreator', badgeX + 55, captionY - 11);
+    ctx.fillText('Kreator', badgeX + 58, captionY - 12);
 
     // Event title / caption
-    captionY += 56;
+    captionY += 60;
     ctx.textAlign = 'left';
-    ctx.font = `bold 40px ${sansFont}`;
+    ctx.font = `bold 44px ${sansFont}`;
     ctx.fillStyle = '#FFFFFF';
     const ttTitle = theme.eventTitle || 'SnapBooth Photo Moments';
     const ttSub = theme.eventSubtitle ? ` — ${theme.eventSubtitle}` : '';
     const fullCaption = `${ttTitle}${ttSub} ✨📸🔥`;
-    drawAutoFitText(ctx, fullCaption, captionX, captionY, canvasWidth - padding * 2 - 200, 40, sansFont, 'bold', 'left');
+    drawAutoFitText(ctx, fullCaption, captionX, captionY, canvasWidth - padding * 2 - 200, 44, sansFont, 'bold', 'left');
 
     // Hashtags
-    captionY += 48;
-    ctx.font = `bold 32px ${sansFont}`;
+    captionY += 52;
+    ctx.font = `bold 36px ${sansFont}`;
     ctx.fillStyle = '#F8FAFC';
     ctx.fillText('#fyp #viral #photobooth #trend2026 #aesthetic #foryou', captionX, captionY);
 
     // Sound Ticker Pill (Modern Frosted Marquee Pill)
-    captionY += 42;
-    const tickerH = 68;
-    const tickerW = Math.min(canvasWidth - padding * 2 - 190, 600);
+    captionY += 46;
+    const tickerH = 72;
+    const tickerW = Math.min(canvasWidth - padding * 2 - 190, 620);
     ctx.save();
     ctx.fillStyle = 'rgba(255, 255, 255, 0.24)';
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
     ctx.lineWidth = 1.5;
-    drawRoundedRectPath(ctx, captionX, captionY, tickerW, tickerH, 34);
+    drawRoundedRectPath(ctx, captionX, captionY, tickerW, tickerH, 36);
     ctx.fill();
     ctx.stroke();
 
     // Sound Icon & Text
-    drawMusicNoteVector(ctx, captionX + 32, captionY + tickerH / 2, 26, '#FFFFFF');
+    drawMusicNoteVector(ctx, captionX + 32, captionY + tickerH / 2, 28, '#FFFFFF');
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = `bold 28px ${sansFont}`;
+    ctx.font = `bold 32px ${sansFont}`;
     const soundText = `♫ Suara Asli - ${theme.eventTitle || 'SnapBooth Hits'} (Audio Resmi)`;
-    drawAutoFitText(ctx, soundText, captionX + 58, captionY + 43, tickerW - 80, 28, sansFont, 'bold', 'left');
+    drawAutoFitText(ctx, soundText, captionX + 60, captionY + 46, tickerW - 85, 32, sansFont, 'bold', 'left');
     ctx.restore();
 
     // Optional QR code badge on right bottom if enabled
@@ -2688,58 +2688,58 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
     const subtextColor = isDarkBg ? '#94A3B8' : '#64748B';
 
     // 1. Top Post Header (Extra-Large Avatar, Gradient Story Ring, Username, Location, Menu)
-    const headerY = 16;
-    const avatarR = 54; // 108px diameter - large and bold
+    const headerY = 14;
+    const avatarR = 64; // 128px diameter - large, crisp and bold
     const avatarCx = padding + avatarR + 4;
     const avatarCy = headerY + avatarR;
 
     // Instagram colorful story ring with crisp gap
-    drawInstagramGradientRing(ctx, avatarCx, avatarCy, avatarR + 6, 4.5);
+    drawInstagramGradientRing(ctx, avatarCx, avatarCy, avatarR + 7, 5.0);
 
     // High-resolution Logo Avatar
     await drawCrispLogoAvatar(ctx, theme.logoUrl, (theme.eventTitle || 'S').charAt(0), avatarCx, avatarCy, avatarR, '#FFFFFF');
 
     // Username, Verified Badge, and Location Subtitle
-    const postUnameX = avatarCx + avatarR + 22;
+    const postUnameX = avatarCx + avatarR + 24;
     const rawPostUname = (theme.eventTitle || 'snapbooth.studio').toLowerCase().replace(/\s+/g, '.');
     const displayUname = rawPostUname.length > 22 ? rawPostUname.substring(0, 22) : rawPostUname;
 
     ctx.fillStyle = textColor;
-    ctx.font = `bold 42px ${sansFont}`;
+    ctx.font = `bold 50px ${sansFont}`;
     ctx.textAlign = 'left';
     ctx.textBaseline = 'alphabetic';
     ctx.fillText(displayUname, postUnameX, avatarCy - 6);
 
     const postUnameW = ctx.measureText(displayUname).width;
-    drawVerifiedBadge(ctx, postUnameX + postUnameW + 20, avatarCy - 18, 16, '#3897F0');
+    drawVerifiedBadge(ctx, postUnameX + postUnameW + 20, avatarCy - 20, 20, '#3897F0');
 
     // Location & Event Subtitle
     ctx.fillStyle = subtextColor;
-    ctx.font = `bold 28px ${sansFont}`;
+    ctx.font = `bold 34px ${sansFont}`;
     const locPost = theme.eventSubtitle || 'Jakarta, Indonesia';
-    ctx.fillText(`📍 ${locPost}`, postUnameX, avatarCy + 28);
+    ctx.fillText(`📍 ${locPost}`, postUnameX, avatarCy + 32);
 
     // Right Action: Follow Button Pill + Options '···'
     const rightActionsX = canvasWidth - padding;
     ctx.save();
     // '···' options
     ctx.fillStyle = textColor;
-    ctx.font = `bold 42px ${sansFont}`;
+    ctx.font = `bold 48px ${sansFont}`;
     ctx.textAlign = 'right';
     ctx.fillText('···', rightActionsX, avatarCy + 8);
 
     // 'Ikuti' follow pill
-    const followW = 110;
-    const followH = 46;
-    const followX = rightActionsX - 75 - followW;
-    const followY = avatarCy - 23;
+    const followW = 124;
+    const followH = 52;
+    const followX = rightActionsX - 82 - followW;
+    const followY = avatarCy - 26;
     ctx.fillStyle = isDarkBg ? 'rgba(255, 255, 255, 0.18)' : '#EFF6FF';
-    drawRoundedRectPath(ctx, followX, followY, followW, followH, 10);
+    drawRoundedRectPath(ctx, followX, followY, followW, followH, 12);
     ctx.fill();
     ctx.fillStyle = '#2563EB';
-    ctx.font = `bold 24px ${sansFont}`;
+    ctx.font = `bold 28px ${sansFont}`;
     ctx.textAlign = 'center';
-    ctx.fillText('Ikuti', followX + followW / 2, followY + 31);
+    ctx.fillText('Ikuti', followX + followW / 2, followY + 36);
     ctx.restore();
 
     // 2. Photo Overlay Badges (Carousel 1/3 pill & Person tag icon)
@@ -2822,37 +2822,37 @@ export async function generatePhotoStripCanvas(options: RenderOptions): Promise<
     // 4. Likes Counter Typography
     let textRowY = actionY + 54;
     ctx.fillStyle = textColor;
-    ctx.font = `bold 36px ${sansFont}`;
+    ctx.font = `bold 42px ${sansFont}`;
     ctx.textAlign = 'left';
     ctx.fillText('Disukai oleh kawan.kenangan dan 14.820 lainnya', padding, textRowY);
 
     // 5. Caption Typography (Much Clearer & Larger)
-    textRowY += 48;
-    ctx.font = `bold 34px ${sansFont}`;
+    textRowY += 52;
+    ctx.font = `bold 40px ${sansFont}`;
     ctx.fillText(displayUname, padding, textRowY);
     const uLen = ctx.measureText(displayUname).width;
 
-    ctx.font = `32px ${sansFont}`;
+    ctx.font = `36px ${sansFont}`;
     ctx.fillStyle = textColor;
     const postCaption = `  ${theme.eventTitle || 'SnapBooth'} — ${theme.eventSubtitle || 'Momen manis yang terekam abadi selamanya.'} ✨📸`;
     const maxCaptionW = canvasWidth - padding * 2 - uLen - (qrImage ? 160 : 0);
-    drawAutoFitText(ctx, postCaption, padding + uLen, textRowY, maxCaptionW, 32, sansFont, 'normal', 'left');
+    drawAutoFitText(ctx, postCaption, padding + uLen, textRowY, maxCaptionW, 36, sansFont, 'normal', 'left');
 
     // 6. Hashtags
-    textRowY += 44;
-    ctx.font = `bold 28px ${sansFont}`;
+    textRowY += 46;
+    ctx.font = `bold 32px ${sansFont}`;
     ctx.fillStyle = '#2563EB';
     ctx.fillText('#photobooth #memories #estetik #instadaily #feedgoals #photooftheday', padding, textRowY);
 
     // 7. View Comments Link
-    textRowY += 42;
-    ctx.font = `bold 28px ${sansFont}`;
+    textRowY += 44;
+    ctx.font = `bold 32px ${sansFont}`;
     ctx.fillStyle = subtextColor;
     ctx.fillText('Lihat semua 184 komentar', padding, textRowY);
 
     // 8. Date & Translation
-    textRowY += 38;
-    ctx.font = `bold 24px ${sansFont}`;
+    textRowY += 40;
+    ctx.font = `bold 28px ${sansFont}`;
     ctx.fillStyle = subtextColor;
     const datePost = (theme.eventDate || '3 JAM YANG LALU').toUpperCase();
     ctx.fillText(`${datePost} • LIHAT TERJEMAHAN`, padding, textRowY);

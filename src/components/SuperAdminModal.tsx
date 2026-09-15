@@ -398,9 +398,9 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/85 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-slate-900 border border-slate-800 w-full max-w-5xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+      <div className="bg-slate-900 border border-slate-800 w-full max-w-6xl xl:max-w-7xl h-[92vh] max-h-[94vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col">
         {/* Header Super Admin */}
-        <div className="p-4 sm:p-5 bg-gradient-to-r from-slate-950 via-slate-900 to-amber-950/40 border-b border-slate-800 flex items-center justify-between">
+        <div className="p-4 sm:p-5 bg-gradient-to-r from-slate-950 via-slate-900 to-amber-950/40 border-b border-slate-800 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <div className="p-2.5 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-300 shadow-inner">
               <Crown className="w-6 h-6" />
@@ -443,74 +443,280 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
           </div>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex border-b border-slate-800 bg-slate-950 p-2 gap-2 overflow-x-auto scrollbar-none">
-          <button
-            onClick={() => setActiveTab('customers')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${
-              activeTab === 'customers'
-                ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-extrabold'
-                : 'text-slate-400 hover:text-white hover:bg-slate-900'
-            }`}
-          >
-            <Users className="w-4 h-4" />
-            <span>Daftar Customer ({totalClients})</span>
-          </button>
+        {/* Main Flex Layout: Vertical Sidebar (Ke Bawah) + Main Content */}
+        <div className="flex-1 flex flex-col md:flex-row overflow-hidden min-h-0">
+          {/* Left Vertical Sidebar Navigation - Tata Letak Menu Ke Bawah */}
+          <aside className="w-full md:w-72 lg:w-80 shrink-0 border-b md:border-b-0 md:border-r border-slate-800 bg-slate-950/90 flex flex-col justify-between overflow-y-auto p-3 sm:p-4">
+            <div className="space-y-3">
+              <div className="px-2 py-1 flex items-center justify-between text-slate-400 font-mono text-[11px] uppercase tracking-wider font-bold border-b border-slate-800/80 pb-2">
+                <span className="flex items-center gap-1.5 text-slate-300">
+                  <Sliders className="w-3.5 h-3.5 text-amber-400" />
+                  Menu Super Admin
+                </span>
+                <span className="text-[10px] bg-amber-500/10 text-amber-300 px-2 py-0.5 rounded-full border border-amber-500/30 font-bold">
+                  4 Modul
+                </span>
+              </div>
 
-          <button
-            onClick={() => setActiveTab('approvals')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap relative ${
-              activeTab === 'approvals'
-                ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-extrabold'
-                : 'text-amber-300 hover:text-amber-200 hover:bg-slate-900 border border-amber-500/30'
-            }`}
-          >
-            <Clock className="w-4 h-4 text-amber-400" />
-            <span>Persetujuan User Baru</span>
-            {pendingApprovalClients.length > 0 && (
-              <span className="ml-1 px-2 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-black font-mono animate-pulse shadow">
-                {pendingApprovalClients.length}
-              </span>
+              {/* 4 Menu Pilihan Tata Letak Ke Bawah (Vertical Sidebar) */}
+              <div className="flex flex-col gap-2">
+                {/* 1. Daftar Customer */}
+                <button
+                  onClick={() => setActiveTab('customers')}
+                  type="button"
+                  className={`w-full p-3 rounded-2xl border text-left transition-all flex items-center justify-between gap-3 cursor-pointer group ${
+                    activeTab === 'customers'
+                      ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 border-amber-400 shadow-lg shadow-amber-500/20 font-extrabold ring-1 ring-amber-400/40'
+                      : 'bg-slate-900/90 text-slate-300 border-slate-800/90 hover:border-slate-700 hover:bg-slate-850'
+                  }`}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className={`p-2.5 rounded-xl shrink-0 transition-colors ${
+                      activeTab === 'customers' ? 'bg-slate-950 text-amber-400' : 'bg-slate-800 text-slate-300 group-hover:bg-slate-700'
+                    }`}>
+                      <Users className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="text-xs sm:text-sm font-bold leading-tight truncate block">
+                        Daftar Customer
+                      </span>
+                      <p className={`text-[10px] sm:text-[11px] leading-tight truncate mt-0.5 ${
+                        activeTab === 'customers' ? 'text-slate-900 font-medium' : 'text-slate-400'
+                      }`}>
+                        Monitoring {totalClients} klien aktif
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
+                      activeTab === 'customers' ? 'bg-slate-950 text-amber-300' : 'bg-slate-800 text-slate-400 border border-slate-700'
+                    }`}>
+                      {totalClients}
+                    </span>
+                    <ChevronRight className={`w-3.5 h-3.5 transition-transform ${
+                      activeTab === 'customers' ? 'text-slate-950 translate-x-0.5' : 'text-slate-600'
+                    }`} />
+                  </div>
+                </button>
+
+                {/* 2. Persetujuan Baru */}
+                <button
+                  onClick={() => setActiveTab('approvals')}
+                  type="button"
+                  className={`w-full p-3 rounded-2xl border text-left transition-all flex items-center justify-between gap-3 cursor-pointer group ${
+                    activeTab === 'approvals'
+                      ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 border-amber-400 shadow-lg shadow-amber-500/20 font-extrabold ring-1 ring-amber-400/40'
+                      : pendingApprovalClients.length > 0
+                      ? 'bg-amber-500/10 text-amber-200 border-amber-500/40 hover:bg-amber-500/20'
+                      : 'bg-slate-900/90 text-slate-300 border-slate-800/90 hover:border-slate-700 hover:bg-slate-850'
+                  }`}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className={`p-2.5 rounded-xl shrink-0 transition-colors relative ${
+                      activeTab === 'approvals' ? 'bg-slate-950 text-amber-400' : 'bg-slate-800 text-amber-400 group-hover:bg-slate-700'
+                    }`}>
+                      <Clock className="w-4 h-4" />
+                      {pendingApprovalClients.length > 0 && (
+                        <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full animate-ping" />
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <span className="text-xs sm:text-sm font-bold leading-tight truncate block">
+                        Persetujuan Baru
+                      </span>
+                      <p className={`text-[10px] sm:text-[11px] leading-tight truncate mt-0.5 ${
+                        activeTab === 'approvals' ? 'text-slate-900 font-medium' : 'text-slate-400'
+                      }`}>
+                        Verifikasi pendaftaran mandiri
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    {pendingApprovalClients.length > 0 ? (
+                      <span className={`text-[10px] font-mono font-black px-2 py-0.5 rounded-full shadow ${
+                        activeTab === 'approvals'
+                          ? 'bg-rose-600 text-white'
+                          : 'bg-rose-500 text-white animate-pulse'
+                      }`}>
+                        {pendingApprovalClients.length} Pending
+                      </span>
+                    ) : (
+                      <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
+                        activeTab === 'approvals' ? 'bg-slate-950 text-amber-300' : 'bg-slate-800 text-slate-500 border border-slate-700'
+                      }`}>
+                        0
+                      </span>
+                    )}
+                    <ChevronRight className={`w-3.5 h-3.5 transition-transform ${
+                      activeTab === 'approvals' ? 'text-slate-950 translate-x-0.5' : 'text-slate-600'
+                    }`} />
+                  </div>
+                </button>
+
+                {/* 3. Tambah Klien Baru */}
+                <button
+                  onClick={() => setActiveTab('add_new')}
+                  type="button"
+                  className={`w-full p-3 rounded-2xl border text-left transition-all flex items-center justify-between gap-3 cursor-pointer group ${
+                    activeTab === 'add_new'
+                      ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 border-amber-400 shadow-lg shadow-amber-500/20 font-extrabold ring-1 ring-amber-400/40'
+                      : 'bg-slate-900/90 text-slate-300 border-slate-800/90 hover:border-slate-700 hover:bg-slate-850'
+                  }`}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className={`p-2.5 rounded-xl shrink-0 transition-colors ${
+                      activeTab === 'add_new' ? 'bg-slate-950 text-amber-400' : 'bg-slate-800 text-slate-300 group-hover:bg-slate-700'
+                    }`}>
+                      <UserPlus className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="text-xs sm:text-sm font-bold leading-tight truncate block">
+                        Tambah Klien Baru
+                      </span>
+                      <p className={`text-[10px] sm:text-[11px] leading-tight truncate mt-0.5 ${
+                        activeTab === 'add_new' ? 'text-slate-900 font-medium' : 'text-slate-400'
+                      }`}>
+                        Registrasi manual studio klien
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
+                      activeTab === 'add_new' ? 'bg-slate-950 text-amber-300' : 'bg-slate-800 text-slate-500 border border-slate-700'
+                    }`}>
+                      + Baru
+                    </span>
+                    <ChevronRight className={`w-3.5 h-3.5 transition-transform ${
+                      activeTab === 'add_new' ? 'text-slate-950 translate-x-0.5' : 'text-slate-600'
+                    }`} />
+                  </div>
+                </button>
+
+                {/* 4. Akun Super Admin */}
+                <button
+                  onClick={() => setActiveTab('admin_profile')}
+                  type="button"
+                  className={`w-full p-3 rounded-2xl border text-left transition-all flex items-center justify-between gap-3 cursor-pointer group ${
+                    activeTab === 'admin_profile'
+                      ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 border-amber-400 shadow-lg shadow-amber-500/20 font-extrabold ring-1 ring-amber-400/40'
+                      : 'bg-slate-900/90 text-slate-300 border-slate-800/90 hover:border-slate-700 hover:bg-slate-850'
+                  }`}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className={`p-2.5 rounded-xl shrink-0 transition-colors ${
+                      activeTab === 'admin_profile' ? 'bg-slate-950 text-amber-400' : 'bg-slate-800 text-amber-400 group-hover:bg-slate-700'
+                    }`}>
+                      <Crown className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="text-xs sm:text-sm font-bold leading-tight truncate block">
+                        Akun Super Admin
+                      </span>
+                      <p className={`text-[10px] sm:text-[11px] leading-tight truncate mt-0.5 ${
+                        activeTab === 'admin_profile' ? 'text-slate-900 font-medium' : 'text-slate-400'
+                      }`}>
+                        Ganti username & password master
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
+                      activeTab === 'admin_profile' ? 'bg-slate-950 text-amber-300' : 'bg-slate-800 text-amber-400/80 border border-amber-500/30'
+                    }`}>
+                      Master
+                    </span>
+                    <ChevronRight className={`w-3.5 h-3.5 transition-transform ${
+                      activeTab === 'admin_profile' ? 'text-slate-950 translate-x-0.5' : 'text-slate-600'
+                    }`} />
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            {/* Bottom Sidebar Info Card */}
+            <div className="mt-4 pt-4 border-t border-slate-800/80 space-y-3">
+              <div className="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 text-slate-300 space-y-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold">
+                    <Crown className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-bold text-white truncate">
+                      {adminDisplayName || 'Super Admin Master'}
+                    </p>
+                    <p className="text-[10px] text-slate-400 font-mono truncate">
+                      @{adminUsername}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between text-[10px] pt-1 border-t border-slate-800/60 font-mono text-slate-400">
+                  <span>Database:</span>
+                  <span className="text-emerald-400 font-bold flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    Firestore Live
+                  </span>
+                </div>
+              </div>
+            </div>
+          </aside>
+
+          {/* Right Main Content Area */}
+          <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-7 flex flex-col bg-slate-900/40 min-h-0 space-y-6">
+            {/* Breadcrumb & Section Header */}
+            <div className="pb-4 border-b border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <div className="flex items-center gap-2 text-xs font-mono text-amber-400 font-bold uppercase tracking-wider">
+                  <span>Super Admin Portal</span>
+                  <span>/</span>
+                  <span className="text-slate-300">
+                    {activeTab === 'customers' && 'Daftar Customer'}
+                    {activeTab === 'approvals' && 'Persetujuan User Baru'}
+                    {activeTab === 'add_new' && 'Tambah Klien Baru'}
+                    {activeTab === 'admin_profile' && 'Akun Super Admin'}
+                  </span>
+                </div>
+                <h3 className="text-base sm:text-lg font-black text-white mt-1">
+                  {activeTab === 'customers' && `Database Customer & Langganan (${totalClients} Klien)`}
+                  {activeTab === 'approvals' && `Verifikasi & Persetujuan Klien Baru (${pendingApprovalClients.length} Menunggu)`}
+                  {activeTab === 'add_new' && 'Formulir Registrasi Klien Baru'}
+                  {activeTab === 'admin_profile' && 'Pengaturan Akun Super Administrator'}
+                </h3>
+              </div>
+
+              {activeTab === 'customers' && (
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setActiveTab('add_new')}
+                    type="button"
+                    className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black flex items-center gap-1.5 shadow-md shadow-amber-500/20 transition-all cursor-pointer"
+                  >
+                    <UserPlus className="w-3.5 h-3.5" />
+                    <span>+ Klien Baru</span>
+                  </button>
+                  {pendingApprovalClients.length > 0 && (
+                    <button
+                      onClick={() => setActiveTab('approvals')}
+                      type="button"
+                      className="px-3 py-1.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
+                    >
+                      <Clock className="w-3.5 h-3.5 text-rose-400" />
+                      <span>{pendingApprovalClients.length} Approval</span>
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Success Alert */}
+            {successMessage && (
+              <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2 font-bold animate-in fade-in">
+                <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+                <span>{successMessage}</span>
+              </div>
             )}
-          </button>
 
-          <button
-            onClick={() => setActiveTab('add_new')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${
-              activeTab === 'add_new'
-                ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-extrabold'
-                : 'text-slate-400 hover:text-white hover:bg-slate-900'
-            }`}
-          >
-            <UserPlus className="w-4 h-4" />
-            <span>+ Tambah Klien Baru</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('admin_profile')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${
-              activeTab === 'admin_profile'
-                ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-extrabold'
-                : 'text-slate-400 hover:text-white hover:bg-slate-900'
-            }`}
-          >
-            <Crown className="w-4 h-4" />
-            <span>Akun Super Admin (Ganti Password)</span>
-          </button>
-        </div>
-
-        {/* Success Alert */}
-        {successMessage && (
-          <div className="mx-6 mt-4 p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2 font-bold animate-in fade-in">
-            <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
-            <span>{successMessage}</span>
-          </div>
-        )}
-
-        {/* Modal Body */}
-        <div className="p-4 sm:p-6 overflow-y-auto space-y-6 flex-1">
-          {/* TAB 1: CUSTOMER LIST */}
-          {activeTab === 'customers' && (
+            {/* TAB 1: CUSTOMER LIST */}
+            {activeTab === 'customers' && (
             <div className="space-y-5 animate-in fade-in duration-150">
               {/* Peringatan Sisa Masa Aktif Klien (< 3 Hari) */}
               {expiringSoonClients.length > 0 && (
@@ -1333,6 +1539,7 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
               </div>
             </form>
           )}
+          </main>
         </div>
       </div>
     </div>

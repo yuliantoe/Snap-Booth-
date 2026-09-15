@@ -14,25 +14,32 @@ import {
   Pause,
   Maximize2,
   Tv,
+  LogIn,
 } from 'lucide-react';
-import { EventTheme } from '../types';
+import { EventTheme, UserAccount } from '../types';
 import { SCREENSAVER_PRESETS, DEFAULT_SCREENSAVER_PHOTOS } from '../utils/screensaverPresets';
 
 interface ScreensaverViewProps {
   currentTheme: EventTheme;
+  currentUser?: UserAccount | null;
   onStartPhotobooth: () => void;
+  onOpenLogin?: () => void;
   onClose: () => void;
 }
 
 export const ScreensaverView: React.FC<ScreensaverViewProps> = ({
   currentTheme,
+  currentUser,
   onStartPhotobooth,
+  onOpenLogin,
   onClose,
 }) => {
-  // Determine preset fallback
-  const presetType = currentTheme.screensaverPreset || 'school';
+  // Determine preset fallback - default to cafe_resto
+  const presetType = currentTheme.screensaverPreset || 'cafe_resto';
   const defaultPreset =
-    SCREENSAVER_PRESETS.find((p) => p.id === presetType) || SCREENSAVER_PRESETS[0];
+    SCREENSAVER_PRESETS.find((p) => p.id === presetType) ||
+    SCREENSAVER_PRESETS.find((p) => p.id === 'cafe_resto') ||
+    SCREENSAVER_PRESETS[0];
 
   // Resolve active photos list
   const photos =
@@ -69,12 +76,16 @@ export const ScreensaverView: React.FC<ScreensaverViewProps> = ({
     return () => clearInterval(interval);
   }, [isPlaying, photos.length, speedSeconds]);
 
-  // Handle keyboard (Space / Enter = Start, Escape = Close, ArrowLeft/Right = navigate)
+  // Handle keyboard (Space / Enter = Start/Login, Escape = Close, ArrowLeft/Right = navigate)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === ' ' || e.key === 'Enter') {
         e.preventDefault();
-        onStartPhotobooth();
+        if (onOpenLogin) {
+          onOpenLogin();
+        } else {
+          onStartPhotobooth();
+        }
       } else if (e.key === 'Escape') {
         e.preventDefault();
         onClose();
@@ -87,17 +98,20 @@ export const ScreensaverView: React.FC<ScreensaverViewProps> = ({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onStartPhotobooth, onClose, photos.length]);
+  }, [onStartPhotobooth, onOpenLogin, onClose, photos.length]);
 
   return (
     <div
       className="fixed inset-0 z-50 select-none bg-black text-white flex flex-col justify-between overflow-hidden animate-in fade-in duration-300 cursor-pointer"
       onClick={(e) => {
-        // Klik di area latar belakang langsung memulai photobooth
-        // kecuali klik pada tombol kontrol navigasi/tutup
+        // Klik di area latar belakang langsung menuju ke tampilan login / photobooth
         const target = e.target as HTMLElement;
         if (target.closest('button')) return;
-        onStartPhotobooth();
+        if (onOpenLogin) {
+          onOpenLogin();
+        } else {
+          onStartPhotobooth();
+        }
       }}
     >
       {/* 1. Fullscreen Background Photo Slideshow with Smooth Cross-fade */}
@@ -168,7 +182,7 @@ export const ScreensaverView: React.FC<ScreensaverViewProps> = ({
           </div>
         </div>
 
-        {/* Controls: Slideshow pause/play & Exit Screensaver */}
+        {/* Controls: Slideshow pause/play, Login & Exit Screensaver */}
         <div className="flex items-center gap-2">
           {photos.length > 1 && (
             <button
@@ -184,6 +198,21 @@ export const ScreensaverView: React.FC<ScreensaverViewProps> = ({
             </button>
           )}
 
+          {onOpenLogin && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenLogin();
+              }}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-orange-600 hover:bg-orange-500 text-white border border-orange-400/50 shadow-md transition-all cursor-pointer backdrop-blur-md text-xs font-mono font-bold active:scale-95"
+              title="Buka Tampilan Login"
+            >
+              <LogIn className="w-3.5 h-3.5" />
+              <span>Login</span>
+            </button>
+          )}
+
           <button
             type="button"
             onClick={(e) => {
@@ -191,7 +220,7 @@ export const ScreensaverView: React.FC<ScreensaverViewProps> = ({
               onClose();
             }}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/50 hover:bg-stone-900 text-stone-300 hover:text-white border border-white/20 transition-all cursor-pointer backdrop-blur-md text-xs font-mono"
-            title="Tutup Screensaver (Kembali ke Kiosk)"
+            title="Tutup Screensaver"
           >
             <X className="w-4 h-4" />
             <span className="hidden sm:inline">Tutup</span>
@@ -243,17 +272,29 @@ export const ScreensaverView: React.FC<ScreensaverViewProps> = ({
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              onStartPhotobooth();
+              if (onOpenLogin) {
+                onOpenLogin();
+              } else {
+                onStartPhotobooth();
+              }
             }}
             className="relative px-6 sm:px-8 py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-mono font-bold text-xs sm:text-sm md:text-base tracking-wider shadow-lg transition-all transform active:scale-95 flex items-center gap-2.5 sm:gap-3 border border-orange-400/60 cursor-pointer"
           >
             <div className="p-1.5 rounded-full bg-white/20 text-white shadow-inner flex items-center justify-center">
-              <Camera className="w-4 h-4 sm:w-5 sm:h-5 animate-bounce" />
+              {currentUser ? (
+                <Camera className="w-4 h-4 sm:w-5 sm:h-5 animate-bounce" />
+              ) : (
+                <LogIn className="w-4 h-4 sm:w-5 sm:h-5 animate-pulse" />
+              )}
             </div>
             <div className="flex flex-col items-start text-left">
-              <span className="leading-tight drop-shadow">{ctaText}</span>
+              <span className="leading-tight drop-shadow">
+                {currentUser ? ctaText : '🔐 MASUK / LOGIN KE SISTEM PHOTOBOOTH'}
+              </span>
               <span className="text-[9px] sm:text-[10px] font-sans font-normal text-white/85 tracking-normal">
-                Sentuh untuk membuka kamera & cetak struk foto instan
+                {currentUser
+                  ? 'Sentuh untuk membuka kamera & cetak struk foto instan'
+                  : 'Klik atau sentuh layar untuk membuka halaman login akun & PIN'}
               </span>
             </div>
           </button>
@@ -307,8 +348,10 @@ export const ScreensaverView: React.FC<ScreensaverViewProps> = ({
           </div>
         )}
 
-        <p className="text-[11px] sm:text-xs text-stone-400 font-mono text-center drop-shadow">
-          💡 Sentuh di mana saja pada layar atau tekan tombol untuk memulai sesi foto
+        <p className="text-[11px] sm:text-xs text-stone-300 font-mono text-center drop-shadow">
+          {currentUser
+            ? '💡 Sentuh di mana saja pada layar atau tekan tombol untuk memulai sesi foto'
+            : '💡 Sentuh di mana saja pada layar atau tekan tombol untuk masuk ke tampilan login'}
         </p>
       </footer>
     </div>

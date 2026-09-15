@@ -40,6 +40,7 @@ import {
   GraduationCap,
   Building2,
   Camera,
+  ChevronRight,
 } from 'lucide-react';
 import { EventTheme, UserAccount } from '../types';
 import { DEFAULT_THEMES } from '../utils/themePresets';
@@ -457,7 +458,7 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-[#131110] border border-stone-800 rounded-2xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden text-stone-100">
+      <div className="bg-[#131110] border border-stone-800 rounded-2xl w-full max-w-6xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden text-stone-100">
         {/* Header Bar */}
         <div className="px-6 py-4 border-b border-stone-800 flex items-center justify-between bg-[#171514]">
           <div className="flex items-center gap-3">
@@ -515,196 +516,324 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
           </div>
         </div>
 
-        {/* Control Panel Tab Navigation - 6 Clean Tabs */}
-        <div className="p-3 bg-[#100f0e] border-b border-stone-800">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
-            {/* Tab 1: Home */}
-            <button
-              onClick={() => setActiveTab('home')}
-              type="button"
-              className={`p-2.5 rounded-xl border text-left transition-all flex flex-col justify-between gap-1.5 cursor-pointer ${
-                activeTab === 'home'
-                  ? 'bg-orange-600 text-white border-orange-500 shadow-sm'
-                  : 'bg-[#181615] text-stone-300 border-stone-800 hover:border-stone-700 hover:bg-stone-900'
-              }`}
-            >
-              <div className="flex items-center justify-between w-full">
-                <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${
-                  activeTab === 'home' ? 'bg-black/20 text-white' : 'bg-stone-900 text-stone-400'
-                }`}>
-                  TAB 1
+        {/* Main Body Layout: Left Vertical Sidebar Menu (Ke Bawah) + Right Content Area */}
+        <div className="flex-1 flex flex-col md:flex-row overflow-hidden min-h-0">
+          {/* Left Vertical Sidebar Navigation - Menu Pilihan Ke Bawah */}
+          <aside className="w-full md:w-72 lg:w-80 shrink-0 border-b md:border-b-0 md:border-r border-stone-800 bg-[#0e0d0c] flex flex-col justify-between overflow-y-auto p-3 sm:p-4">
+            <div className="space-y-3">
+              <div className="px-2 py-1 flex items-center justify-between text-stone-400 font-mono text-[11px] uppercase tracking-wider font-bold border-b border-stone-800/80 pb-2">
+                <span className="flex items-center gap-1.5 text-stone-300">
+                  <Sliders className="w-3.5 h-3.5 text-orange-400" />
+                  Menu Dashboard
                 </span>
-                <div className="flex items-center gap-1">
-                  {isTrial && (
-                    <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-stone-900 text-orange-400 border border-orange-500/40 flex items-center gap-0.5">
-                      <Lock className="w-2.5 h-2.5" /> Trial
+                <span className="text-[10px] bg-stone-900 text-orange-400 px-1.5 py-0.5 rounded border border-orange-500/20 font-bold">
+                  6 Modul
+                </span>
+              </div>
+
+              {/* 6 Menu Pilihan Stacked Downwards (Ke Bawah) */}
+              <div className="flex flex-col gap-2">
+                {/* 1. Tema Home */}
+                <button
+                  onClick={() => setActiveTab('home')}
+                  type="button"
+                  className={`w-full p-3 rounded-xl border text-left transition-all flex items-center justify-between gap-3 cursor-pointer group ${
+                    activeTab === 'home'
+                      ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white border-orange-500 shadow-md ring-1 ring-orange-400/40'
+                      : 'bg-[#161514] text-stone-300 border-stone-800/90 hover:border-stone-700 hover:bg-[#1d1b19]'
+                  }`}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className={`p-2 rounded-lg shrink-0 transition-colors ${
+                      activeTab === 'home' ? 'bg-black/25 text-white' : 'bg-stone-900 text-orange-400 group-hover:bg-stone-800'
+                    }`}>
+                      <Layout className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-bold leading-tight truncate">Tema Home</span>
+                        {isTrial && (
+                          <span className="text-[8px] font-mono font-bold px-1 py-0.2 rounded bg-black/30 text-amber-300 border border-amber-400/30 flex items-center gap-0.5">
+                            <Lock className="w-2 h-2" /> Trial
+                          </span>
+                        )}
+                      </div>
+                      <p className={`text-[10px] leading-tight truncate mt-0.5 ${
+                        activeTab === 'home' ? 'text-white/85' : 'text-stone-500'
+                      }`}>
+                        Layout, Tombol & Tampilan Kiosk
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${
+                      activeTab === 'home' ? 'bg-black/25 text-white' : 'bg-stone-900 text-stone-500'
+                    }`}>
+                      01
                     </span>
-                  )}
-                  <Layout className={`w-4 h-4 ${activeTab === 'home' ? 'text-white' : 'text-orange-400'}`} />
+                    <ChevronRight className={`w-3.5 h-3.5 transition-transform ${
+                      activeTab === 'home' ? 'text-white translate-x-0.5' : 'text-stone-600'
+                    }`} />
+                  </div>
+                </button>
+
+                {/* 2. Preset Frame */}
+                <button
+                  onClick={() => setActiveTab('theme')}
+                  type="button"
+                  className={`w-full p-3 rounded-xl border text-left transition-all flex items-center justify-between gap-3 cursor-pointer group ${
+                    activeTab === 'theme'
+                      ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white border-orange-500 shadow-md ring-1 ring-orange-400/40'
+                      : 'bg-[#161514] text-stone-300 border-stone-800/90 hover:border-stone-700 hover:bg-[#1d1b19]'
+                  }`}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className={`p-2 rounded-lg shrink-0 transition-colors ${
+                      activeTab === 'theme' ? 'bg-black/25 text-white' : 'bg-stone-900 text-orange-400 group-hover:bg-stone-800'
+                    }`}>
+                      <Palette className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="text-xs font-bold leading-tight truncate block">Preset Frame</span>
+                      <p className={`text-[10px] leading-tight truncate mt-0.5 ${
+                        activeTab === 'theme' ? 'text-white/85' : 'text-stone-500'
+                      }`}>
+                        Pilihan Frame, Warna & Teks Acara
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${
+                      activeTab === 'theme' ? 'bg-black/25 text-white' : 'bg-stone-900 text-stone-500'
+                    }`}>
+                      02
+                    </span>
+                    <ChevronRight className={`w-3.5 h-3.5 transition-transform ${
+                      activeTab === 'theme' ? 'text-white translate-x-0.5' : 'text-stone-600'
+                    }`} />
+                  </div>
+                </button>
+
+                {/* 3. Upload Desain */}
+                <button
+                  onClick={() => setActiveTab('upload_custom')}
+                  type="button"
+                  className={`w-full p-3 rounded-xl border text-left transition-all flex items-center justify-between gap-3 cursor-pointer group ${
+                    activeTab === 'upload_custom'
+                      ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white border-orange-500 shadow-md ring-1 ring-orange-400/40'
+                      : 'bg-[#161514] text-stone-300 border-stone-800/90 hover:border-stone-700 hover:bg-[#1d1b19]'
+                  }`}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className={`p-2 rounded-lg shrink-0 transition-colors ${
+                      activeTab === 'upload_custom' ? 'bg-black/25 text-white' : 'bg-stone-900 text-orange-400 group-hover:bg-stone-800'
+                    }`}>
+                      <Upload className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-bold leading-tight truncate">Upload Desain</span>
+                        {isTrial && (
+                          <span className="text-[8px] font-mono font-bold px-1 py-0.2 rounded bg-black/30 text-amber-300 border border-amber-400/30 flex items-center gap-0.5">
+                            <Lock className="w-2 h-2" /> Trial
+                          </span>
+                        )}
+                      </div>
+                      <p className={`text-[10px] leading-tight truncate mt-0.5 ${
+                        activeTab === 'upload_custom' ? 'text-white/85' : 'text-stone-500'
+                      }`}>
+                        Upload PNG Frame Transparan & Stiker
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${
+                      activeTab === 'upload_custom' ? 'bg-black/25 text-white' : 'bg-stone-900 text-stone-500'
+                    }`}>
+                      03
+                    </span>
+                    <ChevronRight className={`w-3.5 h-3.5 transition-transform ${
+                      activeTab === 'upload_custom' ? 'text-white translate-x-0.5' : 'text-stone-600'
+                    }`} />
+                  </div>
+                </button>
+
+                {/* 4. Media Brand */}
+                <button
+                  onClick={() => setActiveTab('media')}
+                  type="button"
+                  className={`w-full p-3 rounded-xl border text-left transition-all flex items-center justify-between gap-3 cursor-pointer group ${
+                    activeTab === 'media'
+                      ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white border-orange-500 shadow-md ring-1 ring-orange-400/40'
+                      : 'bg-[#161514] text-stone-300 border-stone-800/90 hover:border-stone-700 hover:bg-[#1d1b19]'
+                  }`}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className={`p-2 rounded-lg shrink-0 transition-colors ${
+                      activeTab === 'media' ? 'bg-black/25 text-white' : 'bg-stone-900 text-orange-400 group-hover:bg-stone-800'
+                    }`}>
+                      <Video className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-bold leading-tight truncate">Media Brand</span>
+                        {isTrial && (
+                          <span className="text-[8px] font-mono font-bold px-1 py-0.2 rounded bg-black/30 text-amber-300 border border-amber-400/30 flex items-center gap-0.5">
+                            <Lock className="w-2 h-2" /> Trial
+                          </span>
+                        )}
+                      </div>
+                      <p className={`text-[10px] leading-tight truncate mt-0.5 ${
+                        activeTab === 'media' ? 'text-white/85' : 'text-stone-500'
+                      }`}>
+                        Logo Acara, Video & Foto Promosi
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${
+                      activeTab === 'media' ? 'bg-black/25 text-white' : 'bg-stone-900 text-stone-500'
+                    }`}>
+                      04
+                    </span>
+                    <ChevronRight className={`w-3.5 h-3.5 transition-transform ${
+                      activeTab === 'media' ? 'text-white translate-x-0.5' : 'text-stone-600'
+                    }`} />
+                  </div>
+                </button>
+
+                {/* 5. Sistem Kios */}
+                <button
+                  onClick={() => setActiveTab('system')}
+                  type="button"
+                  className={`w-full p-3 rounded-xl border text-left transition-all flex items-center justify-between gap-3 cursor-pointer group ${
+                    activeTab === 'system'
+                      ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white border-orange-500 shadow-md ring-1 ring-orange-400/40'
+                      : 'bg-[#161514] text-stone-300 border-stone-800/90 hover:border-stone-700 hover:bg-[#1d1b19]'
+                  }`}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className={`p-2 rounded-lg shrink-0 transition-colors ${
+                      activeTab === 'system' ? 'bg-black/25 text-white' : 'bg-stone-900 text-orange-400 group-hover:bg-stone-800'
+                    }`}>
+                      <Settings className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="text-xs font-bold leading-tight truncate block">Sistem Kios</span>
+                      <p className={`text-[10px] leading-tight truncate mt-0.5 ${
+                        activeTab === 'system' ? 'text-white/85' : 'text-stone-500'
+                      }`}>
+                        Auto-Reset, Printer & Kiosk Hardware
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${
+                      activeTab === 'system' ? 'bg-black/25 text-white' : 'bg-stone-900 text-stone-500'
+                    }`}>
+                      05
+                    </span>
+                    <ChevronRight className={`w-3.5 h-3.5 transition-transform ${
+                      activeTab === 'system' ? 'text-white translate-x-0.5' : 'text-stone-600'
+                    }`} />
+                  </div>
+                </button>
+
+                {/* 6. Screen Saver */}
+                <button
+                  onClick={() => setActiveTab('screensaver')}
+                  type="button"
+                  className={`w-full p-3 rounded-xl border text-left transition-all flex items-center justify-between gap-3 cursor-pointer group ${
+                    activeTab === 'screensaver'
+                      ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white border-orange-500 shadow-md ring-1 ring-orange-400/40'
+                      : 'bg-[#161514] text-stone-300 border-stone-800/90 hover:border-stone-700 hover:bg-[#1d1b19]'
+                  }`}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className={`p-2 rounded-lg shrink-0 transition-colors ${
+                      activeTab === 'screensaver' ? 'bg-black/25 text-white' : 'bg-stone-900 text-orange-400 group-hover:bg-stone-800'
+                    }`}>
+                      <Tv className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="text-xs font-bold leading-tight truncate block">Screen Saver</span>
+                      <p className={`text-[10px] leading-tight truncate mt-0.5 ${
+                        activeTab === 'screensaver' ? 'text-white/85' : 'text-stone-500'
+                      }`}>
+                        Slideshow Promosi & Layar Standby
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${
+                      activeTab === 'screensaver' ? 'bg-black/25 text-white' : 'bg-stone-900 text-stone-500'
+                    }`}>
+                      06
+                    </span>
+                    <ChevronRight className={`w-3.5 h-3.5 transition-transform ${
+                      activeTab === 'screensaver' ? 'text-white translate-x-0.5' : 'text-stone-600'
+                    }`} />
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            {/* Sidebar Footer Info Card */}
+            <div className="mt-4 pt-3 border-t border-stone-800/80 hidden md:block">
+              <div className="p-3 rounded-xl bg-[#151312] border border-stone-800/70 text-stone-400 space-y-2 text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-[10px] uppercase font-bold text-stone-400">Preset Aktif</span>
+                  <span className="text-[10px] font-mono font-bold text-orange-400 truncate max-w-[120px]">
+                    {themeForm.eventTitle || 'SnapBooth'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-[11px]">
+                  <span>Status Kiosk:</span>
+                  <span className="text-emerald-400 font-bold flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> Ready
+                  </span>
                 </div>
               </div>
-              <div>
-                <p className="text-xs font-bold leading-tight truncate flex items-center gap-1">
-                  Tema Home
-                </p>
-                <p className={`text-[10px] leading-tight truncate ${activeTab === 'home' ? 'text-white/80' : 'text-stone-500'}`}>
-                  Layout & Tombol
-                </p>
-              </div>
-            </button>
+            </div>
+          </aside>
 
-            {/* Tab 2: Preset Frame */}
-            <button
-              onClick={() => setActiveTab('theme')}
-              type="button"
-              className={`p-2.5 rounded-xl border text-left transition-all flex flex-col justify-between gap-1.5 cursor-pointer ${
-                activeTab === 'theme'
-                  ? 'bg-orange-600 text-white border-orange-500 shadow-sm'
-                  : 'bg-[#181615] text-stone-300 border-stone-800 hover:border-stone-700 hover:bg-stone-900'
-              }`}
-            >
-              <div className="flex items-center justify-between w-full">
-                <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${
-                  activeTab === 'theme' ? 'bg-black/20 text-white' : 'bg-stone-900 text-stone-400'
-                }`}>
-                  TAB 2
-                </span>
-                <Palette className={`w-4 h-4 ${activeTab === 'theme' ? 'text-white' : 'text-orange-400'}`} />
-              </div>
-              <div>
-                <p className="text-xs font-bold leading-tight truncate">Preset Frame</p>
-                <p className={`text-[10px] leading-tight truncate ${activeTab === 'theme' ? 'text-white/80' : 'text-stone-500'}`}>
-                  Warna & Teks Acara
-                </p>
-              </div>
-            </button>
-
-            {/* Tab 3: Upload Custom */}
-            <button
-              onClick={() => setActiveTab('upload_custom')}
-              type="button"
-              className={`p-2.5 rounded-xl border text-left transition-all flex flex-col justify-between gap-1.5 cursor-pointer ${
-                activeTab === 'upload_custom'
-                  ? 'bg-orange-600 text-white border-orange-500 shadow-sm'
-                  : 'bg-[#181615] text-stone-300 border-stone-800 hover:border-stone-700 hover:bg-stone-900'
-              }`}
-            >
-              <div className="flex items-center justify-between w-full">
-                <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${
-                  activeTab === 'upload_custom' ? 'bg-black/20 text-white' : 'bg-stone-900 text-stone-400'
-                }`}>
-                  TAB 3
-                </span>
-                <div className="flex items-center gap-1">
-                  {isTrial && (
-                    <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-stone-900 text-orange-400 border border-orange-500/40 flex items-center gap-0.5">
-                      <Lock className="w-2.5 h-2.5" /> Trial
+          {/* Right Main Content Area */}
+          <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-7 bg-[#141211] space-y-6">
+            {/* Active Section Header Bar */}
+            <div className="flex items-center justify-between pb-4 border-b border-stone-800/70">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-stone-900 border border-stone-800 text-orange-400">
+                  {activeTab === 'home' && <Layout className="w-5 h-5" />}
+                  {activeTab === 'theme' && <Palette className="w-5 h-5" />}
+                  {activeTab === 'upload_custom' && <Upload className="w-5 h-5" />}
+                  {activeTab === 'media' && <Video className="w-5 h-5" />}
+                  {activeTab === 'system' && <Settings className="w-5 h-5" />}
+                  {activeTab === 'screensaver' && <Tv className="w-5 h-5" />}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 text-[11px] font-mono text-stone-400 uppercase tracking-wider">
+                    <span>Dashboard Sistem</span>
+                    <span>/</span>
+                    <span className="text-orange-400 font-bold">
+                      {activeTab === 'home' && 'Tema Home'}
+                      {activeTab === 'theme' && 'Preset Frame'}
+                      {activeTab === 'upload_custom' && 'Upload Desain'}
+                      {activeTab === 'media' && 'Media Brand'}
+                      {activeTab === 'system' && 'Sistem Kios'}
+                      {activeTab === 'screensaver' && 'Screen Saver'}
                     </span>
-                  )}
-                  <Upload className={`w-4 h-4 ${activeTab === 'upload_custom' ? 'text-white' : 'text-orange-400'}`} />
+                  </div>
+                  <h3 className="text-base sm:text-lg font-bold text-stone-100">
+                    {activeTab === 'home' && 'Kustomisasi Tema Home & Tombol Kiosk'}
+                    {activeTab === 'theme' && 'Preset Frame & Teks Acara'}
+                    {activeTab === 'upload_custom' && 'Upload Desain Frame & Stiker'}
+                    {activeTab === 'media' && 'Media Brand, Logo & Video Promosi'}
+                    {activeTab === 'system' && 'Konfigurasi Sistem Kios & Hardware'}
+                    {activeTab === 'screensaver' && 'Pengaturan Screen Saver & Media Promosi'}
+                  </h3>
                 </div>
               </div>
-              <div>
-                <p className="text-xs font-bold leading-tight truncate flex items-center gap-1">
-                  Upload Desain
-                </p>
-                <p className={`text-[10px] leading-tight truncate ${activeTab === 'upload_custom' ? 'text-white/80' : 'text-stone-500'}`}>
-                  Overlay PNG & Stiker
-                </p>
-              </div>
-            </button>
-
-            {/* Tab 4: Media */}
-            <button
-              onClick={() => setActiveTab('media')}
-              type="button"
-              className={`p-2.5 rounded-xl border text-left transition-all flex flex-col justify-between gap-1.5 cursor-pointer ${
-                activeTab === 'media'
-                  ? 'bg-orange-600 text-white border-orange-500 shadow-sm'
-                  : 'bg-[#181615] text-stone-300 border-stone-800 hover:border-stone-700 hover:bg-stone-900'
-              }`}
-            >
-              <div className="flex items-center justify-between w-full">
-                <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${
-                  activeTab === 'media' ? 'bg-black/20 text-white' : 'bg-stone-900 text-stone-400'
-                }`}>
-                  TAB 4
-                </span>
-                <div className="flex items-center gap-1">
-                  {isTrial && (
-                    <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-stone-900 text-orange-400 border border-orange-500/40 flex items-center gap-0.5">
-                      <Lock className="w-2.5 h-2.5" /> Trial
-                    </span>
-                  )}
-                  <Video className={`w-4 h-4 ${activeTab === 'media' ? 'text-white' : 'text-orange-400'}`} />
-                </div>
-              </div>
-              <div>
-                <p className="text-xs font-bold leading-tight truncate flex items-center gap-1">
-                  Media Brand
-                </p>
-                <p className={`text-[10px] leading-tight truncate ${activeTab === 'media' ? 'text-white/80' : 'text-stone-500'}`}>
-                  Logo, Foto & Video
-                </p>
-              </div>
-            </button>
-
-            {/* Tab 5: Sistem Kiosk */}
-            <button
-              onClick={() => setActiveTab('system')}
-              type="button"
-              className={`p-2.5 rounded-xl border text-left transition-all flex flex-col justify-between gap-1.5 relative overflow-hidden cursor-pointer ${
-                activeTab === 'system'
-                  ? 'bg-orange-600 text-white border-orange-500 shadow-sm'
-                  : 'bg-[#181615] text-stone-300 border-stone-800 hover:border-stone-700 hover:bg-stone-900'
-              }`}
-            >
-              <div className="flex items-center justify-between w-full">
-                <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${
-                  activeTab === 'system' ? 'bg-black/20 text-white' : 'bg-stone-900 text-stone-400'
-                }`}>
-                  TAB 5
-                </span>
-                <Settings className={`w-4 h-4 ${activeTab === 'system' ? 'text-white' : 'text-orange-400'}`} />
-              </div>
-              <div>
-                <p className="text-xs font-bold leading-tight truncate">Sistem Kiosk</p>
-                <p className={`text-[10px] leading-tight truncate ${activeTab === 'system' ? 'text-white/80' : 'text-stone-500'}`}>
-                  Auto-Reset & Print
-                </p>
-              </div>
-            </button>
-
-            {/* Tab 6: Screensaver Promosi */}
-            <button
-              onClick={() => setActiveTab('screensaver')}
-              type="button"
-              className={`p-2.5 rounded-xl border text-left transition-all flex flex-col justify-between gap-1.5 relative overflow-hidden cursor-pointer ${
-                activeTab === 'screensaver'
-                  ? 'bg-orange-600 text-white border-orange-500 shadow-sm'
-                  : 'bg-[#181615] text-stone-300 border-stone-800 hover:border-stone-700 hover:bg-stone-900'
-              }`}
-            >
-              <div className="flex items-center justify-between w-full">
-                <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${
-                  activeTab === 'screensaver' ? 'bg-black/20 text-white' : 'bg-stone-900 text-stone-400'
-                }`}>
-                  TAB 6
-                </span>
-                <Tv className={`w-4 h-4 ${activeTab === 'screensaver' ? 'text-white' : 'text-orange-400'}`} />
-              </div>
-              <div>
-                <p className="text-xs font-bold leading-tight truncate">Screensaver</p>
-                <p className={`text-[10px] leading-tight truncate ${activeTab === 'screensaver' ? 'text-white/80' : 'text-stone-500'}`}>
-                  Media Promosi
-                </p>
-              </div>
-            </button>
-          </div>
-        </div>
-
-        {/* Tab Contents */}
-        <div className="p-6 overflow-y-auto flex-1 space-y-6">
+            </div>
           {/* Peringatan Sisa Masa Aktif (< 3 Hari) */}
           {isExpiringSoon && (
             <div className="p-4 sm:p-5 rounded-xl bg-[#181615] border border-orange-500/50 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-stone-200 animate-in fade-in slide-in-from-top-2">
@@ -3014,6 +3143,7 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
               </div>
             </div>
           )}
+          </main>
         </div>
 
         {/* Footer Actions */}
