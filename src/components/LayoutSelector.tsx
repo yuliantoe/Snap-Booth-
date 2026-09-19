@@ -117,7 +117,7 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
 
   const renderSlotImage = (idx: number, className: string) => {
     const photo = photos[idx];
-    if (photo && photo.dataUrl) {
+    if (photo && photo.dataUrl && photo.dataUrl.trim() !== '') {
       return (
         <img
           src={photo.dataUrl}

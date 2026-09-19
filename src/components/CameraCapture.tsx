@@ -657,7 +657,7 @@ const createDemoPosePhoto = (poseIndex: number): string => {
                       </div>
                     )}
 
-                    {photo ? (
+                    {photo && photo.dataUrl && photo.dataUrl.trim() !== '' ? (
                       <>
                         <img
                           src={photo.dataUrl}

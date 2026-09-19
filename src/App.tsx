@@ -634,7 +634,7 @@ export default function App() {
             if (!currentUser) {
               setIsAuthModalOpen(true);
             } else {
-              handleStartPhotobooth();
+              setCurrentStep('welcome');
             }
           }}
           onOpenLogin={() => {
@@ -645,6 +645,8 @@ export default function App() {
             setIsScreensaverOpen(false);
             if (!currentUser) {
               setIsAuthModalOpen(true);
+            } else {
+              setCurrentStep('welcome');
             }
           }}
         />

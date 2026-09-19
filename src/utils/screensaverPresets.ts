@@ -121,7 +121,7 @@ export const SCREENSAVER_PRESETS: ScreensaverPreset[] = [
     title: 'AROMA NUSANTARA COFFEE & RESTO',
     subtitle: 'CITA RASA AUTENTIK & RUANG KUMPUL HANGAT',
     tagline: 'Nikmati Sajian Kopi Istimewa, Kuliner Nusantara Lezat, dan Abadikan Momen Hangat Bersama Teman & Keluarga',
-    badgeText: '☕ CAFE & RESTO PROMOTION',
+    badgeText: '',
     ctaText: '📸 SENTUH LAYAR & AMBIL STRUK FOTO',
     highlights: [
       'Menu Autentik & Racikan Barista',

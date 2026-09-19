@@ -1219,7 +1219,7 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                     <span className="text-xs font-bold text-cyan-200">Upload Frame Overlay PNG Dikunci pada Akun Trial</span>
                     <span className="text-[11px] text-slate-400 max-w-md">Hasil cetak foto pada akun trial menyertakan watermark SnapBooth Receipt dan menggunakan pilihan tema preset standar.</span>
                   </div>
-                ) : themeForm.customFrameOverlayUrl ? (
+                ) : (themeForm.customFrameOverlayUrl && themeForm.customFrameOverlayUrl.trim() !== '') ? (
                   <div className="p-4 bg-slate-900 rounded-2xl border border-cyan-500/30 flex items-center gap-4">
                     <div className="w-20 h-28 rounded-xl bg-slate-950 border border-slate-800 overflow-hidden flex items-center justify-center p-1 relative shadow-md">
                       <img
@@ -1296,7 +1296,7 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                     <Lock className="w-4 h-4 text-cyan-400" />
                     <span className="text-xs font-bold text-slate-300">Upload Background Kustom Terkunci pada Mode Trial</span>
                   </div>
-                ) : themeForm.customBgImageUrl ? (
+                ) : (themeForm.customBgImageUrl && themeForm.customBgImageUrl.trim() !== '') ? (
                   <div className="p-4 bg-slate-900 rounded-2xl border border-emerald-500/30 flex items-center gap-4">
                     <div className="w-24 h-20 rounded-xl bg-slate-950 border border-slate-800 overflow-hidden relative shadow-md">
                       <img
@@ -1367,9 +1367,11 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                   </div>
                 ) : themeForm.customStickerUrls && themeForm.customStickerUrls.length > 0 ? (
                   <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
-                    {themeForm.customStickerUrls.map((stickerUrl, idx) => (
-                      <div key={idx} className="p-2.5 bg-slate-900 rounded-2xl border border-slate-800 flex flex-col items-center gap-2 relative group">
-                        <img src={stickerUrl} alt={`Custom Sticker ${idx + 1}`} className="w-14 h-14 object-contain" />
+                    {themeForm.customStickerUrls
+                      .filter((u) => Boolean(u && typeof u === 'string' && u.trim() !== ''))
+                      .map((stickerUrl, idx) => (
+                        <div key={idx} className="p-2.5 bg-slate-900 rounded-2xl border border-slate-800 flex flex-col items-center gap-2 relative group">
+                          <img src={stickerUrl} alt={`Custom Sticker ${idx + 1}`} className="w-14 h-14 object-contain" />
                         <button
                           type="button"
                           onClick={() => {
@@ -1877,7 +1879,9 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
 
                   {/* Active Photos List Grid */}
                   <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-                    {(themeForm.slideshowPhotos || DEFAULT_SLIDESHOW_PRODUCT_PHOTOS).map((photoUrl, idx) => (
+                    {(themeForm.slideshowPhotos || DEFAULT_SLIDESHOW_PRODUCT_PHOTOS)
+                      .filter((photoUrl) => Boolean(photoUrl && typeof photoUrl === 'string' && photoUrl.trim() !== ''))
+                      .map((photoUrl, idx) => (
                       <div
                         key={`${photoUrl}-${idx}`}
                         className="relative group rounded-xl overflow-hidden border border-slate-800 bg-slate-900 aspect-video sm:aspect-square flex items-center justify-center"
@@ -2812,11 +2816,15 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
 
                         {/* Thumbnail Preview */}
                         <div className="h-16 rounded-lg overflow-hidden relative border border-white/10">
-                          <img
-                            src={preset.photos[0]}
-                            alt={preset.name}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                          />
+                          {preset.photos && preset.photos[0] && preset.photos[0].trim() !== '' ? (
+                            <img
+                              src={preset.photos[0]}
+                              alt={preset.name}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-slate-800" />
+                          )}
                           <div className="absolute inset-0 bg-black/40" />
                           <span className="absolute bottom-1 right-1 text-[9px] font-mono px-1 rounded bg-black/70 text-white">
                             {preset.photos.length} Foto HD
@@ -3048,7 +3056,9 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                   {((themeForm.screensaverPhotos && themeForm.screensaverPhotos.length > 0)
                     ? themeForm.screensaverPhotos
                     : DEFAULT_SCREENSAVER_PHOTOS
-                  ).map((url, idx) => (
+                  )
+                    .filter((u) => Boolean(u && typeof u === 'string' && u.trim() !== ''))
+                    .map((url, idx) => (
                     <div
                       key={`${url}-${idx}`}
                       className="group relative h-28 rounded-xl overflow-hidden border border-stone-800 bg-black shadow-md"

@@ -72,10 +72,14 @@ export const StartScreen: React.FC<StartScreenProps> = ({
   });
 
   // Receipt photos pool
-  const previewPhotos =
+  const rawPreview =
     currentTheme.slideshowPhotos && currentTheme.slideshowPhotos.length >= 3
       ? currentTheme.slideshowPhotos.slice(0, 3)
       : DEFAULT_RECEIPT_PHOTOS;
+  const previewPhotos = rawPreview
+    .filter((p) => Boolean(p && typeof p === 'string' && p.trim() !== ''))
+    .concat(DEFAULT_RECEIPT_PHOTOS)
+    .slice(0, 3);
 
   // Active photo cycling index for interactive strip
   const [activePhotoIdx, setActivePhotoIdx] = useState(0);
@@ -186,7 +190,7 @@ export const StartScreen: React.FC<StartScreenProps> = ({
               </div>
 
               {/* Brand Logo if configured */}
-              {currentTheme.logoUrl ? (
+              {currentTheme.logoUrl && currentTheme.logoUrl.trim() !== '' ? (
                 <div className="max-h-12 flex justify-center items-center py-0.5">
                   <img
                     src={currentTheme.logoUrl}
@@ -242,11 +246,15 @@ export const StartScreen: React.FC<StartScreenProps> = ({
                           : 'border-stone-300'
                       } transition-all duration-300 group`}
                     >
-                      <img
-                        src={photoUrl}
-                        alt={`Preview Frame ${idx + 1}`}
-                        className="w-full h-full object-cover filter grayscale contrast-125 brightness-95 group-hover:scale-105 transition-transform"
-                      />
+                      {photoUrl && photoUrl.trim() !== '' ? (
+                        <img
+                          src={photoUrl}
+                          alt={`Preview Frame ${idx + 1}`}
+                          className="w-full h-full object-cover filter grayscale contrast-125 brightness-95 group-hover:scale-105 transition-transform"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-stone-300" />
+                      )}
                       <div className="absolute inset-0 bg-stone-900/10 mix-blend-multiply pointer-events-none" />
                       <span className="absolute bottom-0.5 right-0.5 font-mono text-[7px] font-bold px-1 py-0.2 rounded bg-black/60 text-white backdrop-blur-xs">
                         0{idx + 1}

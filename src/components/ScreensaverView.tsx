@@ -1,20 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import {
   Camera,
-  Sparkles,
   ChevronLeft,
   ChevronRight,
-  X,
   CheckCircle,
-  Building2,
-  GraduationCap,
-  Utensils,
-  Coffee,
-  Play,
-  Pause,
-  Maximize2,
-  Tv,
   LogIn,
+  Home,
 } from 'lucide-react';
 import { EventTheme, UserAccount } from '../types';
 import { SCREENSAVER_PRESETS, DEFAULT_SCREENSAVER_PHOTOS } from '../utils/screensaverPresets';
@@ -42,46 +33,46 @@ export const ScreensaverView: React.FC<ScreensaverViewProps> = ({
     SCREENSAVER_PRESETS[0];
 
   // Resolve active photos list
-  const photos =
+  const rawPhotos =
     currentTheme.screensaverPhotos && currentTheme.screensaverPhotos.length > 0
       ? currentTheme.screensaverPhotos
       : defaultPreset.photos || DEFAULT_SCREENSAVER_PHOTOS;
+  const photos = (rawPhotos || []).filter((p) => Boolean(p && typeof p === 'string' && p.trim() !== ''));
 
   // Resolve texts
   const title = currentTheme.screensaverTitle || defaultPreset.title;
   const subtitle = currentTheme.screensaverSubtitle || defaultPreset.subtitle;
   const tagline = currentTheme.screensaverTagline || defaultPreset.tagline;
-  const badgeText = currentTheme.screensaverBadgeText || defaultPreset.badgeText;
   const ctaText = currentTheme.screensaverCtaText || defaultPreset.ctaText;
   const highlights =
     currentTheme.screensaverHighlights && currentTheme.screensaverHighlights.length > 0
       ? currentTheme.screensaverHighlights
       : defaultPreset.highlights;
-  const logoUrl = currentTheme.screensaverLogoUrl || currentTheme.logoUrl;
   const speedSeconds = currentTheme.screensaverSpeedSeconds || defaultPreset.speedSeconds || 6;
   const darkness = currentTheme.screensaverOverlayDarkness ?? defaultPreset.overlayDarkness ?? 0.55;
 
   // Active slide index
   const [currentIdx, setCurrentIdx] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(true);
 
   // Auto slide interval
   useEffect(() => {
-    if (!isPlaying || photos.length <= 1) return;
+    if (photos.length <= 1) return;
 
     const interval = setInterval(() => {
       setCurrentIdx((prev) => (prev + 1) % photos.length);
     }, speedSeconds * 1000);
 
     return () => clearInterval(interval);
-  }, [isPlaying, photos.length, speedSeconds]);
+  }, [photos.length, speedSeconds]);
 
   // Handle keyboard (Space / Enter = Start/Login, Escape = Close, ArrowLeft/Right = navigate)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === ' ' || e.key === 'Enter') {
         e.preventDefault();
-        if (onOpenLogin) {
+        if (currentUser) {
+          onStartPhotobooth();
+        } else if (onOpenLogin) {
           onOpenLogin();
         } else {
           onStartPhotobooth();
@@ -98,16 +89,18 @@ export const ScreensaverView: React.FC<ScreensaverViewProps> = ({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onStartPhotobooth, onOpenLogin, onClose, photos.length]);
+  }, [currentUser, onStartPhotobooth, onOpenLogin, onClose, photos.length]);
 
   return (
     <div
       className="fixed inset-0 z-50 select-none bg-black text-white flex flex-col justify-between overflow-hidden animate-in fade-in duration-300 cursor-pointer"
       onClick={(e) => {
-        // Klik di area latar belakang langsung menuju ke tampilan login / photobooth
+        // Klik di area layar langsung: Jika sudah login langsung ke menu foto, jika belum login ke menu login
         const target = e.target as HTMLElement;
         if (target.closest('button')) return;
-        if (onOpenLogin) {
+        if (currentUser) {
+          onStartPhotobooth();
+        } else if (onOpenLogin) {
           onOpenLogin();
         } else {
           onStartPhotobooth();
@@ -144,92 +137,8 @@ export const ScreensaverView: React.FC<ScreensaverViewProps> = ({
         <div className="absolute inset-0 bg-radial-[circle_at_center,transparent_0%,rgba(0,0,0,0.4)_100%] pointer-events-none" />
       </div>
 
-      {/* 2. Top Navigation Bar (Logo, Badge, Live Status & Close) */}
-      <header className="relative z-10 w-full px-4 sm:px-8 pt-4 sm:pt-6 pb-2 flex items-center justify-between pointer-events-auto">
-        <div className="flex items-center gap-3">
-          {/* Logo or Icon */}
-          {logoUrl ? (
-            <img
-              src={logoUrl}
-              alt="Logo Promosi"
-              className="h-10 sm:h-12 w-auto max-w-[140px] sm:max-w-[180px] object-contain drop-shadow-md rounded-md bg-white/10 p-1 backdrop-blur-xs"
-            />
-          ) : (
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-orange-600/90 border border-orange-400/50 flex items-center justify-center text-white shadow-lg backdrop-blur-xs">
-              {presetType === 'school' || presetType === 'graduation' ? (
-                <GraduationCap className="w-5 h-5 sm:w-6 sm:h-6" />
-              ) : presetType === 'cafe_resto' ? (
-                <Utensils className="w-5 h-5 sm:w-6 sm:h-6" />
-              ) : (
-                <Building2 className="w-5 h-5 sm:w-6 sm:h-6" />
-              )}
-            </div>
-          )}
-
-          {/* Badge & Live Indicator */}
-          <div className="flex flex-col gap-0.5">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/15 border border-white/20 text-[10px] sm:text-xs font-mono font-bold tracking-wider uppercase text-orange-300 backdrop-blur-md">
-              <Sparkles className="w-3 h-3 text-orange-400" />
-              {badgeText}
-            </span>
-            <div className="flex items-center gap-1.5 text-[10px] text-stone-300 font-mono">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-              </span>
-              <span>STANDBY PHOTOBOOTH KIOSK</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Controls: Slideshow pause/play, Login & Exit Screensaver */}
-        <div className="flex items-center gap-2">
-          {photos.length > 1 && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsPlaying(!isPlaying);
-              }}
-              className="p-2 rounded-full bg-black/40 hover:bg-black/70 text-stone-300 hover:text-white border border-white/15 transition-all cursor-pointer backdrop-blur-md"
-              title={isPlaying ? 'Pause Slideshow' : 'Putar Slideshow'}
-            >
-              {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-            </button>
-          )}
-
-          {onOpenLogin && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onOpenLogin();
-              }}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-orange-600 hover:bg-orange-500 text-white border border-orange-400/50 shadow-md transition-all cursor-pointer backdrop-blur-md text-xs font-mono font-bold active:scale-95"
-              title="Buka Tampilan Login"
-            >
-              <LogIn className="w-3.5 h-3.5" />
-              <span>Login</span>
-            </button>
-          )}
-
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onClose();
-            }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/50 hover:bg-stone-900 text-stone-300 hover:text-white border border-white/20 transition-all cursor-pointer backdrop-blur-md text-xs font-mono"
-            title="Tutup Screensaver"
-          >
-            <X className="w-4 h-4" />
-            <span className="hidden sm:inline">Tutup</span>
-          </button>
-        </div>
-      </header>
-
-      {/* 3. Center Promotional Body (Institusi, Judul, Tagline, & Highlight Poin) */}
-      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 sm:px-8 text-center max-w-5xl mx-auto my-auto py-6 pointer-events-auto">
+      {/* Center Promotional Body (Institusi, Judul, Tagline, & Highlight Poin) */}
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 sm:px-8 text-center max-w-5xl mx-auto my-auto pt-8 sm:pt-12 pb-6 pointer-events-auto">
         {/* Main Institution Title */}
         <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] uppercase font-display leading-tight max-w-4xl">
           {title}
@@ -272,7 +181,9 @@ export const ScreensaverView: React.FC<ScreensaverViewProps> = ({
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              if (onOpenLogin) {
+              if (currentUser) {
+                onStartPhotobooth();
+              } else if (onOpenLogin) {
                 onOpenLogin();
               } else {
                 onStartPhotobooth();
@@ -282,18 +193,18 @@ export const ScreensaverView: React.FC<ScreensaverViewProps> = ({
           >
             <div className="p-1.5 rounded-full bg-white/20 text-white shadow-inner flex items-center justify-center">
               {currentUser ? (
-                <Camera className="w-4 h-4 sm:w-5 sm:h-5 animate-bounce" />
+                <Home className="w-4 h-4 sm:w-5 sm:h-5 animate-bounce" />
               ) : (
                 <LogIn className="w-4 h-4 sm:w-5 sm:h-5 animate-pulse" />
               )}
             </div>
             <div className="flex flex-col items-start text-left">
               <span className="leading-tight drop-shadow">
-                {currentUser ? ctaText : '🔐 MASUK / LOGIN KE SISTEM PHOTOBOOTH'}
+                {currentUser ? '🏠 MASUK KE MENU HOME' : '🔐 MASUK / LOGIN KE SISTEM PHOTOBOOTH'}
               </span>
               <span className="text-[9px] sm:text-[10px] font-sans font-normal text-white/85 tracking-normal">
                 {currentUser
-                  ? 'Sentuh untuk membuka kamera & cetak struk foto instan'
+                  ? 'Sentuh untuk membuka menu utama tampilan home photobooth'
                   : 'Klik atau sentuh layar untuk membuka halaman login akun & PIN'}
               </span>
             </div>
@@ -350,7 +261,7 @@ export const ScreensaverView: React.FC<ScreensaverViewProps> = ({
 
         <p className="text-[11px] sm:text-xs text-stone-300 font-mono text-center drop-shadow">
           {currentUser
-            ? '💡 Sentuh di mana saja pada layar atau tekan tombol untuk memulai sesi foto'
+            ? '💡 Sentuh di mana saja pada layar atau tekan tombol untuk menuju tampilan home'
             : '💡 Sentuh di mana saja pada layar atau tekan tombol untuk masuk ke tampilan login'}
         </p>
       </footer>

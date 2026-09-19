@@ -867,7 +867,7 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
                 <RefreshCw className="w-8 h-8 animate-spin text-orange-500" />
                 <span className="text-xs font-semibold">Mengolah Hasil Cetak High-Res...</span>
               </div>
-            ) : (
+            ) : currentPrintData ? (
               <img
                 src={currentPrintData}
                 alt="High Res Photo Strip"
@@ -879,6 +879,10 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
                       : 'auto',
                 }}
               />
+            ) : (
+              <div className="w-64 h-96 flex flex-col items-center justify-center space-y-3 text-stone-500">
+                <span className="text-xs">Menyiapkan pratinjau cetak...</span>
+              </div>
             )}
           </div>
 
@@ -1286,29 +1290,34 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
 
       {/* Hidden container dedicated for native Ctrl+P / browser print isolation */}
       <div id="snapbooth-print-area" className="hidden">
-        {Array.from({ length: printCopies }).map((_, i) => (
-          <div
-            key={i}
-            style={{
-              pageBreakAfter: i < printCopies - 1 ? 'always' : 'auto',
-              breakAfter: i < printCopies - 1 ? 'page' : 'auto',
-              width: activePrinter.type === 'thermal_58mm' ? '48mm' : activePrinter.type === 'dual_4x6' ? '4in' : '72mm',
-              margin: '0 auto',
-              padding: '0',
-            }}
-          >
-            <img
-              src={currentPrintData || highResDataUrl}
-              alt={`Printout Lembar ${i + 1}`}
-              style={{
-                width: '100%',
-                display: 'block',
-                margin: '0 auto',
-                imageRendering: 'crisp-edges',
-              }}
-            />
-          </div>
-        ))}
+        {Boolean(currentPrintData || highResDataUrl) &&
+          Array.from({ length: printCopies }).map((_, i) => {
+            const printSource = currentPrintData || highResDataUrl;
+            if (!printSource) return null;
+            return (
+              <div
+                key={i}
+                style={{
+                  pageBreakAfter: i < printCopies - 1 ? 'always' : 'auto',
+                  breakAfter: i < printCopies - 1 ? 'page' : 'auto',
+                  width: activePrinter.type === 'thermal_58mm' ? '48mm' : activePrinter.type === 'dual_4x6' ? '4in' : '72mm',
+                  margin: '0 auto',
+                  padding: '0',
+                }}
+              >
+                <img
+                  src={printSource}
+                  alt={`Printout Lembar ${i + 1}`}
+                  style={{
+                    width: '100%',
+                    display: 'block',
+                    margin: '0 auto',
+                    imageRendering: 'crisp-edges',
+                  }}
+                />
+              </div>
+            );
+          })}
       </div>
     </div>
   );
