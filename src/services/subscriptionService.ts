@@ -377,10 +377,10 @@ export const saveClientThemeToCloud = async (clientId: string, theme: EventTheme
 
     // Also sync in user profile
     const userRef = doc(db, 'users', clientId);
-    await updateDoc(userRef, {
+    await setDoc(userRef, {
       customTheme: theme,
       updatedAt: new Date().toISOString(),
-    });
+    }, { merge: true });
   } catch (err) {
     console.warn('Could not save theme to cloud, saved locally:', err);
   }

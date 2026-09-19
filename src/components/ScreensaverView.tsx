@@ -6,6 +6,7 @@ import {
   CheckCircle,
   LogIn,
   Home,
+  Sparkles,
 } from 'lucide-react';
 import { EventTheme, UserAccount } from '../types';
 import { SCREENSAVER_PRESETS, DEFAULT_SCREENSAVER_PHOTOS } from '../utils/screensaverPresets';
@@ -39,10 +40,11 @@ export const ScreensaverView: React.FC<ScreensaverViewProps> = ({
       : defaultPreset.photos || DEFAULT_SCREENSAVER_PHOTOS;
   const photos = (rawPhotos || []).filter((p) => Boolean(p && typeof p === 'string' && p.trim() !== ''));
 
-  // Resolve texts
+  // Resolve texts & brand DNA
   const title = currentTheme.screensaverTitle || defaultPreset.title;
   const subtitle = currentTheme.screensaverSubtitle || defaultPreset.subtitle;
   const tagline = currentTheme.screensaverTagline || defaultPreset.tagline;
+  const badgeText = currentTheme.screensaverBadgeText || defaultPreset.badgeText;
   const ctaText = currentTheme.screensaverCtaText || defaultPreset.ctaText;
   const highlights =
     currentTheme.screensaverHighlights && currentTheme.screensaverHighlights.length > 0
@@ -50,6 +52,7 @@ export const ScreensaverView: React.FC<ScreensaverViewProps> = ({
       : defaultPreset.highlights;
   const speedSeconds = currentTheme.screensaverSpeedSeconds || defaultPreset.speedSeconds || 6;
   const darkness = currentTheme.screensaverOverlayDarkness ?? defaultPreset.overlayDarkness ?? 0.55;
+  const brandLogo = currentTheme.screensaverLogoUrl || currentTheme.logoUrl;
 
   // Active slide index
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -139,6 +142,25 @@ export const ScreensaverView: React.FC<ScreensaverViewProps> = ({
 
       {/* Center Promotional Body (Institusi, Judul, Tagline, & Highlight Poin) */}
       <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 sm:px-8 text-center max-w-5xl mx-auto my-auto pt-8 sm:pt-12 pb-6 pointer-events-auto">
+        {/* Brand Logo if available */}
+        {brandLogo && (
+          <div className="mb-4 sm:mb-6 flex items-center justify-center">
+            <img
+              src={brandLogo}
+              alt="Brand Logo"
+              className="h-16 sm:h-20 md:h-24 max-w-[260px] object-contain drop-shadow-[0_4px_16px_rgba(0,0,0,0.9)] bg-black/40 backdrop-blur-md p-2.5 rounded-2xl border border-white/15 shadow-xl"
+            />
+          </div>
+        )}
+
+        {/* Badge Text (e.g. '⭐ OFFICIAL SNAPBOOTH STUDIO' or custom preset badge) */}
+        {badgeText && (
+          <div className="mb-3 sm:mb-4 inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white/15 border border-white/25 text-white/95 text-[11px] sm:text-xs font-mono uppercase tracking-widest backdrop-blur-md shadow-sm">
+            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+            <span>{badgeText}</span>
+          </div>
+        )}
+
         {/* Main Institution Title */}
         <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] uppercase font-display leading-tight max-w-4xl">
           {title}

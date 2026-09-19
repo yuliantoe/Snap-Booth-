@@ -31,6 +31,12 @@ import {
   loadClientThemeFromCloud,
   calculateRemainingDays,
 } from './services/subscriptionService';
+import {
+  getUserLocalTheme,
+  getUserDefaultTheme,
+  loadUserFullTheme,
+  saveUserFullTheme,
+} from './services/userMediaStorage';
 
 export default function App() {
   const [currentStep, setCurrentStep] = useState<StepType>('welcome');
@@ -131,14 +137,24 @@ export default function App() {
     }
   }, []);
 
-  // 3. Sync Client Custom Theme from Firestore Cloud when currentUser changes
+  // 3. Sync Client Custom Theme & Screensaver Media when currentUser changes
   useEffect(() => {
     if (currentUser?.id) {
-      loadClientThemeFromCloud(currentUser.id).then((cloudTheme) => {
-        if (cloudTheme) {
-          setCurrentTheme(cloudTheme);
-        } else if (currentUser.customTheme) {
-          setCurrentTheme(currentUser.customTheme);
+      // Step A: Immediately apply user-specific local storage theme for instant UI responsiveness
+      const localTheme = getUserLocalTheme(currentUser.id);
+      if (localTheme) {
+        setCurrentTheme(localTheme);
+      } else if (currentUser.customTheme) {
+        setCurrentTheme(currentUser.customTheme);
+      } else {
+        const defaultUserTheme = getUserDefaultTheme(currentUser);
+        setCurrentTheme(defaultUserTheme);
+      }
+
+      // Step B: Asynchronously fetch and sync newest theme from cloud Firestore for this user
+      loadUserFullTheme(currentUser).then((theme) => {
+        if (theme) {
+          setCurrentTheme(theme);
         }
       });
     } else {
@@ -182,11 +198,11 @@ export default function App() {
     setIsControlPanelOpen(true);
   };
 
-  // Save Theme Updates and Sync to Cloud Firestore
+  // Save Theme Updates and Sync to User-specific Local Storage & Cloud Firestore
   const handleSaveTheme = async (updatedTheme: EventTheme) => {
     setCurrentTheme(updatedTheme);
     if (currentUser?.id) {
-      await saveClientThemeToCloud(currentUser.id, updatedTheme);
+      await saveUserFullTheme(currentUser.id, updatedTheme);
     }
   };
 
@@ -197,6 +213,15 @@ export default function App() {
       localStorage.setItem('snapbooth_active_user_id', user.id);
     } catch {
       // ignore
+    }
+    // Pre-apply user-specific brand and screensaver theme immediately
+    const local = getUserLocalTheme(user.id);
+    if (local) {
+      setCurrentTheme(local);
+    } else if (user.customTheme) {
+      setCurrentTheme(user.customTheme);
+    } else {
+      setCurrentTheme(getUserDefaultTheme(user));
     }
   };
 
@@ -532,7 +557,7 @@ export default function App() {
           <StartScreen
             currentTheme={currentTheme}
             currentUser={currentUser}
-            onUpdateTheme={setCurrentTheme}
+            onUpdateTheme={handleSaveTheme}
             onStartPhotobooth={handleStartPhotobooth}
             onOpenThemeCustomizer={handleOpenControlPanel}
             onOpenAuthModal={() => setIsAuthModalOpen(true)}

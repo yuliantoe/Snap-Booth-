@@ -43,6 +43,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { EventTheme, UserAccount } from '../types';
+import { compressImage } from '../services/userMediaStorage';
 import { DEFAULT_THEMES } from '../utils/themePresets';
 import { isDurationUnlimited, calculateRemainingDays, OFFICIAL_PAYMENT_INFO } from '../services/subscriptionService';
 import {
@@ -284,19 +285,19 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
     );
   }
 
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const result = event.target?.result as string;
+      try {
+        const compressed = await compressImage(file, 800, 800, 0.9);
         setThemeForm((prev) => ({
           ...prev,
-          logoUrl: result,
+          logoUrl: compressed,
           welcomeMediaType: 'photo',
         }));
-      };
-      reader.readAsDataURL(file);
+      } catch (err) {
+        console.error('Error compressing logo', err);
+      }
     }
   };
 
@@ -312,30 +313,25 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
     }
   };
 
-  const handleProductPhotosUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleProductPhotosUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
       const fileArray = Array.from(files) as File[];
-      const readPromises = fileArray.map((file) => {
-        return new Promise<string>((resolve) => {
-          const reader = new FileReader();
-          reader.onload = (event) => {
-            resolve(event.target?.result as string);
-          };
-          reader.readAsDataURL(file);
-        });
-      });
-
-      Promise.all(readPromises).then((newPhotos) => {
+      try {
+        const compressedPhotos = await Promise.all(
+          fileArray.map((file) => compressImage(file, 1280, 1280, 0.82))
+        );
         setThemeForm((prev) => {
           const currentPhotos = prev.slideshowPhotos || DEFAULT_SLIDESHOW_PRODUCT_PHOTOS;
           return {
             ...prev,
             welcomeMediaType: 'slideshow',
-            slideshowPhotos: [...currentPhotos, ...newPhotos],
+            slideshowPhotos: [...currentPhotos, ...compressedPhotos],
           };
         });
-      });
+      } catch (err) {
+        console.error('Error compressing product photos', err);
+      }
     }
   };
 
@@ -411,48 +407,48 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
     downloadAnchor.remove();
   };
 
-  const handleFrameOverlayUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFrameOverlayUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const result = event.target?.result as string;
+      try {
+        const compressed = await compressImage(file, 1600, 1600, 0.85);
         setThemeForm((prev) => ({
           ...prev,
-          customFrameOverlayUrl: result,
+          customFrameOverlayUrl: compressed,
         }));
-      };
-      reader.readAsDataURL(file);
+      } catch (err) {
+        console.error('Error compressing frame overlay', err);
+      }
     }
   };
 
-  const handleBgImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleBgImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const result = event.target?.result as string;
+      try {
+        const compressed = await compressImage(file, 1920, 1920, 0.82);
         setThemeForm((prev) => ({
           ...prev,
-          customBgImageUrl: result,
+          customBgImageUrl: compressed,
         }));
-      };
-      reader.readAsDataURL(file);
+      } catch (err) {
+        console.error('Error compressing background image', err);
+      }
     }
   };
 
-  const handleCustomStickerUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCustomStickerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const result = event.target?.result as string;
+      try {
+        const compressed = await compressImage(file, 600, 600, 0.85);
         setThemeForm((prev) => ({
           ...prev,
-          customStickerUrls: [...(prev.customStickerUrls || []), result],
+          customStickerUrls: [...(prev.customStickerUrls || []), compressed],
         }));
-      };
-      reader.readAsDataURL(file);
+      } catch (err) {
+        console.error('Error compressing custom sticker', err);
+      }
     }
   };
 
@@ -2026,18 +2022,19 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                   <input
                     type="file"
                     ref={welcomePhotoFileInputRef}
-                    onChange={(e) => {
+                    onChange={async (e) => {
                       const file = e.target.files?.[0];
                       if (file) {
-                        const reader = new FileReader();
-                        reader.onload = (event) => {
+                        try {
+                          const compressed = await compressImage(file, 1920, 1920, 0.82);
                           setThemeForm({
                             ...themeForm,
-                            welcomePhotoUrl: event.target?.result as string,
+                            welcomePhotoUrl: compressed,
                             welcomeMediaType: 'photo',
                           });
-                        };
-                        reader.readAsDataURL(file);
+                        } catch (err) {
+                          console.error('Error compressing welcome photo', err);
+                        }
                       }
                     }}
                     accept="image/*"
@@ -2653,6 +2650,16 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                     <p className="text-xs sm:text-sm text-stone-300 max-w-2xl leading-relaxed">
                       Tampilan visual layar penuh interaktif untuk media promosi sekolah, kampus, perusahaan & sponsor saat kios sedang standby. Dilengkapi foto latar sinematik beresolusi tinggi dan menu/tombol Start yang menarik perhatian.
                     </p>
+                    {/* Storage Account Status Badge */}
+                    <div className="pt-1 flex items-center gap-2">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold bg-stone-900 border border-emerald-500/40 text-emerald-300">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                        Penyimpanan: {currentUser ? (currentUser.businessName || currentUser.displayName) : 'Tamu (Guest)'}
+                      </span>
+                      <span className="text-[11px] text-stone-400 font-mono">
+                        (Media brand & screensaver tersimpan khusus untuk akun ini)
+                      </span>
+                    </div>
                   </div>
                 </div>
 
@@ -2979,22 +2986,24 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                       type="file"
                       ref={screensaverPhotoFileInputRef}
                       accept="image/*"
+                      multiple
                       className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          const reader = new FileReader();
-                          reader.onload = (uploadEvent) => {
-                            const result = uploadEvent.target?.result as string;
-                            if (result) {
-                              const currentPhotos = themeForm.screensaverPhotos || [];
-                              setThemeForm({
-                                ...themeForm,
-                                screensaverPhotos: [result, ...currentPhotos],
-                              });
-                            }
-                          };
-                          reader.readAsDataURL(file);
+                      onChange={async (e) => {
+                        const files = e.target.files;
+                        if (files && files.length > 0) {
+                          const fileArray = Array.from(files) as File[];
+                          try {
+                            const compressedPhotos = await Promise.all(
+                              fileArray.map((file) => compressImage(file, 1920, 1920, 0.82))
+                            );
+                            const currentPhotos = themeForm.screensaverPhotos || [];
+                            setThemeForm({
+                              ...themeForm,
+                              screensaverPhotos: [...compressedPhotos, ...currentPhotos],
+                            });
+                          } catch (err) {
+                            console.error('Error compressing screensaver photos', err);
+                          }
                         }
                       }}
                     />
@@ -3003,7 +3012,7 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                       onClick={() => screensaverPhotoFileInputRef.current?.click()}
                       className="px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
                     >
-                      <Upload className="w-3.5 h-3.5" /> Upload Foto Baru
+                      <Upload className="w-3.5 h-3.5" /> Upload Foto Baru (Multi)
                     </button>
                     <button
                       type="button"
