@@ -118,14 +118,30 @@ export const ScreensaverView: React.FC<ScreensaverViewProps> = ({
             <div
               key={`${url}-${idx}`}
               className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-                isActive ? 'opacity-100 scale-105' : 'opacity-0 scale-100'
-              } transition-transform duration-[8000ms]`}
-              style={{
-                backgroundImage: `url(${url})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-              }}
-            />
+                isActive ? 'opacity-100' : 'opacity-0'
+              }`}
+            >
+              {/* Ambient blurred backdrop for mobile and tablet orientations */}
+              <div
+                className="absolute inset-0 scale-110 filter blur-2xl opacity-60"
+                style={{
+                  backgroundImage: `url(${url})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                }}
+              />
+              {/* Main photo with smooth Ken Burns zoom */}
+              <div
+                className={`absolute inset-0 transition-transform duration-[8000ms] ${
+                  isActive ? 'scale-105' : 'scale-100'
+                }`}
+                style={{
+                  backgroundImage: `url(${url})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                }}
+              />
+            </div>
           );
         })}
 
@@ -141,50 +157,50 @@ export const ScreensaverView: React.FC<ScreensaverViewProps> = ({
       </div>
 
       {/* Center Promotional Body (Institusi, Judul, Tagline, & Highlight Poin) */}
-      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 sm:px-8 text-center max-w-5xl mx-auto my-auto pt-8 sm:pt-12 pb-6 pointer-events-auto">
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 sm:px-8 text-center max-w-5xl mx-auto my-auto pt-6 sm:pt-12 pb-4 sm:pb-6 pointer-events-auto overflow-y-auto max-h-full">
         {/* Brand Logo if available */}
         {brandLogo && (
-          <div className="mb-4 sm:mb-6 flex items-center justify-center">
+          <div className="mb-3 sm:mb-6 flex items-center justify-center">
             <img
               src={brandLogo}
               alt="Brand Logo"
-              className="h-16 sm:h-20 md:h-24 max-w-[260px] object-contain drop-shadow-[0_4px_16px_rgba(0,0,0,0.9)] bg-black/40 backdrop-blur-md p-2.5 rounded-2xl border border-white/15 shadow-xl"
+              className="h-14 sm:h-20 md:h-24 max-w-[200px] sm:max-w-[260px] object-contain drop-shadow-[0_4px_16px_rgba(0,0,0,0.9)] bg-black/40 backdrop-blur-md p-2 sm:p-2.5 rounded-2xl border border-white/15 shadow-xl"
             />
           </div>
         )}
 
         {/* Badge Text (e.g. '⭐ OFFICIAL SNAPBOOTH STUDIO' or custom preset badge) */}
         {badgeText && (
-          <div className="mb-3 sm:mb-4 inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white/15 border border-white/25 text-white/95 text-[11px] sm:text-xs font-mono uppercase tracking-widest backdrop-blur-md shadow-sm">
-            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+          <div className="mb-2.5 sm:mb-4 inline-flex items-center gap-1.5 px-3 py-0.5 sm:px-3.5 sm:py-1 rounded-full bg-white/15 border border-white/25 text-white/95 text-[10px] sm:text-xs font-mono uppercase tracking-widest backdrop-blur-md shadow-sm">
+            <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-300" />
             <span>{badgeText}</span>
           </div>
         )}
 
         {/* Main Institution Title */}
-        <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] uppercase font-display leading-tight max-w-4xl">
+        <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] uppercase font-display leading-tight max-w-4xl">
           {title}
         </h1>
 
         {/* Event / Subtitle Banner */}
-        <div className="mt-3 sm:mt-4 inline-block px-4 py-1.5 rounded-full bg-orange-600/90 text-white font-bold text-xs sm:text-sm md:text-base tracking-wide border border-orange-400/60 shadow-xl backdrop-blur-md uppercase">
+        <div className="mt-2.5 sm:mt-4 inline-block px-3.5 py-1 sm:px-4 sm:py-1.5 rounded-full bg-orange-600/90 text-white font-bold text-xs sm:text-sm md:text-base tracking-wide border border-orange-400/60 shadow-xl backdrop-blur-md uppercase">
           {subtitle}
         </div>
 
         {/* Tagline / Inspirational Motto */}
-        <p className="mt-4 sm:mt-5 text-sm sm:text-lg md:text-xl text-stone-200 font-medium max-w-3xl leading-relaxed drop-shadow-md">
+        <p className="mt-3 sm:mt-5 text-xs sm:text-base md:text-lg text-stone-200 font-medium max-w-3xl leading-relaxed drop-shadow-md">
           "{tagline}"
         </p>
 
         {/* Highlight Points Checklist Pills */}
         {highlights && highlights.length > 0 && (
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-2 sm:gap-3 max-w-3xl">
+          <div className="mt-4 sm:mt-6 flex flex-wrap items-center justify-center gap-1.5 sm:gap-3 max-w-3xl">
             {highlights.map((point, i) => (
               <div
                 key={i}
-                className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-black/40 border border-white/20 text-xs sm:text-sm text-stone-100 backdrop-blur-md shadow-sm"
+                className="flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-lg bg-black/40 border border-white/20 text-[11px] sm:text-sm text-stone-100 backdrop-blur-md shadow-sm"
               >
-                <CheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <CheckCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-400 shrink-0" />
                 <span>{point}</span>
               </div>
             ))}

@@ -104,8 +104,9 @@ export const StartScreen: React.FC<StartScreenProps> = ({
       const rWidth = receiptRef.current.offsetWidth || 390;
 
       // Safe bounds (leaving room around borders)
-      const availH = cHeight - 16;
-      const availW = cWidth - 16;
+      const isMobile = cWidth < 640;
+      const availH = cHeight - (isMobile ? 12 : 24);
+      const availW = cWidth - (isMobile ? 12 : 24);
 
       if (availH <= 0 || availW <= 0) return;
 
@@ -113,8 +114,8 @@ export const StartScreen: React.FC<StartScreenProps> = ({
       const scaleW = availW / rWidth;
       const fitScale = Math.min(scaleH, scaleW, 1.05);
 
-      // Clamp between 0.50 (very small phones) and 1.15 (large monitors)
-      setScale(Math.max(0.50, Math.min(fitScale, 1.15)));
+      // Clamp between 0.48 (very small phones) and 1.15 (large monitors)
+      setScale(Math.max(0.48, Math.min(fitScale, 1.15)));
     };
 
     computeScale();
@@ -160,7 +161,7 @@ export const StartScreen: React.FC<StartScreenProps> = ({
           transformOrigin: 'center center',
           transition: 'transform 0.15s ease-out',
         }}
-        className="relative w-[370px] sm:w-[400px] shrink-0 text-stone-900 select-none transition-transform"
+        className="relative w-[340px] xs:w-[370px] sm:w-[400px] max-w-[95vw] shrink-0 text-stone-900 select-none transition-transform"
       >
         {/* Paper Shadow Backing */}
         <div className="relative bg-white border border-stone-200/90 rounded-t-sm rounded-b-sm shadow-[0_20px_50px_-10px_rgba(0,0,0,0.12),0_4px_16px_rgba(0,0,0,0.06)] overflow-hidden text-stone-900">

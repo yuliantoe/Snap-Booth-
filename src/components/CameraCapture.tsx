@@ -40,6 +40,14 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
   const [selectedDeviceId, setSelectedDeviceId] = useState<string>('');
   const [showResetConfirm, setShowResetConfirm] = useState<boolean>(false);
   const [retakeFeedback, setRetakeFeedback] = useState<string | null>(null);
+  const [isStreamPortrait, setIsStreamPortrait] = useState<boolean>(false);
+
+  const handleVideoMetadata = () => {
+    const v = videoRef.current;
+    if (v && v.videoWidth > 0 && v.videoHeight > 0) {
+      setIsStreamPortrait(v.videoHeight > v.videoWidth);
+    }
+  };
 
   const getRequiredSlotCount = (l: LayoutType): number => {
     switch (l) {
@@ -357,15 +365,21 @@ const createDemoPosePhoto = (poseIndex: number): string => {
   const isRetakingActiveSlot = Boolean(currentSlotPhoto);
 
   return (
-    <div className={`mx-auto p-1.5 sm:p-3 animate-in fade-in duration-200 w-full h-full max-h-full overflow-hidden flex flex-col justify-between ${
+    <div className={`mx-auto p-1.5 sm:p-3 animate-in fade-in duration-200 w-full h-full max-h-full overflow-y-auto md:overflow-hidden flex flex-col justify-between ${
       isLandscape ? 'max-w-7xl' : 'max-w-3xl md:max-w-4xl'
     }`}>
-      <div className={`flex gap-2.5 sm:gap-4 flex-1 min-h-0 ${
+      <div className={`flex gap-2 sm:gap-4 flex-1 min-h-0 ${
         isLandscape ? 'flex-row items-stretch' : 'flex-col justify-between'
       }`}>
         {/* Left Column: Live Webcam Viewfinder */}
         <div className="flex-1 min-h-0 flex flex-col justify-between gap-1.5 sm:gap-2">
-          <div className={`relative ${isLandscape ? 'flex-1 min-h-0 aspect-[4/3]' : 'max-h-[38dvh] sm:max-h-[44dvh] aspect-[4/3] mx-auto w-full'} rounded-xl bg-[#0a0b0e] border border-zinc-800 overflow-hidden shadow-lg flex items-center justify-center`}>
+          <div className={`relative ${
+            isLandscape 
+              ? 'flex-1 min-h-0 aspect-[4/3] max-h-[75dvh]' 
+              : isStreamPortrait 
+              ? 'aspect-[3/4] max-h-[46dvh] sm:max-h-[52dvh] w-auto mx-auto' 
+              : 'aspect-[4/3] max-h-[38dvh] sm:max-h-[46dvh] w-full mx-auto'
+          } rounded-xl bg-[#0a0b0e] border border-zinc-800 overflow-hidden shadow-lg flex items-center justify-center`}>
             {/* Viewfinder Reticle Corners */}
             <div className="absolute top-4 left-4 w-6 h-6 border-t-2 border-l-2 border-zinc-500/60 pointer-events-none z-10" />
             <div className="absolute top-4 right-4 w-6 h-6 border-t-2 border-r-2 border-zinc-500/60 pointer-events-none z-10" />
@@ -394,6 +408,8 @@ const createDemoPosePhoto = (poseIndex: number): string => {
                 autoPlay
                 playsInline
                 muted
+                onLoadedMetadata={handleVideoMetadata}
+                onCanPlay={handleVideoMetadata}
                 className={`w-full h-full object-cover transition-transform ${isMirrored ? 'scale-x-[-1]' : ''}`}
               />
             ) : (
@@ -618,7 +634,7 @@ const createDemoPosePhoto = (poseIndex: number): string => {
             </div>
 
             {/* Photo Slots List */}
-            <div className={`grid ${isLandscape ? 'grid-cols-2 md:grid-cols-1' : 'grid-cols-4'} gap-2 sm:gap-2.5`}>
+            <div className={`grid ${isLandscape ? 'grid-cols-2' : 'grid-cols-4'} gap-1.5 sm:gap-2.5 overflow-y-auto max-h-[36dvh] sm:max-h-none`}>
               {Array.from({ length: requiredCount }).map((_, slotIdx) => {
                 const photo = photos[slotIdx];
                 const isActive = activeSlotIndex === slotIdx;
@@ -636,8 +652,8 @@ const createDemoPosePhoto = (poseIndex: number): string => {
                     }`}
                   >
                     {/* Slot Number Badge */}
-                    <div className="absolute top-1.5 left-1.5 z-10">
-                      <span className={`px-1.5 py-0.5 rounded font-mono text-[10px] font-bold shadow-sm ${
+                    <div className="absolute top-1 left-1 sm:top-1.5 sm:left-1.5 z-10">
+                      <span className={`px-1 sm:px-1.5 py-0.5 rounded font-mono text-[9px] sm:text-[10px] font-bold shadow-sm ${
                         isActive
                           ? 'bg-amber-600 text-white border border-amber-400'
                           : photo
@@ -650,9 +666,9 @@ const createDemoPosePhoto = (poseIndex: number): string => {
 
                     {/* Active Tag */}
                     {isActive && (
-                      <div className="absolute top-1.5 right-1.5 z-10">
-                        <span className="bg-amber-600/95 text-white font-mono text-[9px] font-black px-1.5 py-0.5 rounded shadow border border-amber-400/50">
-                          {photo ? 'FOTO ULANG' : 'TARGET'}
+                      <div className="absolute top-1 right-1 sm:top-1.5 sm:right-1.5 z-10">
+                        <span className="bg-amber-600/95 text-white font-mono text-[8px] sm:text-[9px] font-black px-1 sm:px-1.5 py-0.5 rounded shadow border border-amber-400/50">
+                          {photo ? 'ULANG' : 'TARGET'}
                         </span>
                       </div>
                     )}
@@ -666,7 +682,7 @@ const createDemoPosePhoto = (poseIndex: number): string => {
                         />
 
                         {/* Bottom Action Bar: Always visible on active slot or on hover */}
-                        <div className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/85 to-transparent p-1.5 pt-4 flex items-center justify-between gap-1 transition-opacity ${
+                        <div className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/80 to-transparent p-1 sm:p-1.5 pt-3 sm:pt-4 flex items-center justify-between gap-1 transition-opacity ${
                           isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
                         }`}>
                           <button
@@ -676,11 +692,11 @@ const createDemoPosePhoto = (poseIndex: number): string => {
                               setActiveSlotIndex(slotIdx);
                               handleStartCapture(slotIdx);
                             }}
-                            className="flex-1 py-1 px-1.5 rounded bg-amber-600 hover:bg-amber-500 text-white font-mono text-[10px] font-bold flex items-center justify-center gap-1 shadow cursor-pointer border border-amber-500 active:scale-95 transition-all"
+                            className="flex-1 py-0.5 sm:py-1 px-1 rounded bg-amber-600 hover:bg-amber-500 text-white font-mono text-[9px] sm:text-[10px] font-bold flex items-center justify-center gap-1 shadow cursor-pointer border border-amber-500 active:scale-95 transition-all truncate"
                             title={`Foto ulang slot #${slotIdx + 1}`}
                           >
-                            <RefreshCw className="w-3 h-3" />
-                            <span>Foto Ulang</span>
+                            <RefreshCw className="w-2.5 h-2.5 sm:w-3 sm:h-3 shrink-0" />
+                            <span className="hidden xs:inline">Ulang</span>
                           </button>
                           <button
                             type="button"
@@ -688,18 +704,18 @@ const createDemoPosePhoto = (poseIndex: number): string => {
                               e.stopPropagation();
                               handleRemovePhoto(slotIdx);
                             }}
-                            className="p-1 rounded bg-stone-900 hover:bg-rose-900 text-stone-300 hover:text-white transition-colors cursor-pointer border border-stone-700 hover:border-rose-700"
+                            className="p-0.5 sm:p-1 rounded bg-stone-900 hover:bg-rose-900 text-stone-300 hover:text-white transition-colors cursor-pointer border border-stone-700 hover:border-rose-700 shrink-0"
                             title={`Hapus foto di slot #${slotIdx + 1}`}
                           >
-                            <Trash2 className="w-3 h-3" />
+                            <Trash2 className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                           </button>
                         </div>
                       </>
                     ) : (
-                      <div className="text-center p-2 space-y-0.5">
-                        <Camera className={`w-4 h-4 mx-auto ${isActive ? 'text-amber-400 animate-pulse' : 'text-stone-600'}`} />
-                        <span className={`block text-[10px] font-mono truncate ${isActive ? 'text-amber-400 font-bold' : 'text-stone-500'}`}>
-                          #{slotIdx + 1} {isActive ? 'Siap Difoto' : 'Kosong'}
+                      <div className="text-center p-1 sm:p-2 space-y-0.5">
+                        <Camera className={`w-3.5 h-3.5 sm:w-4 sm:h-4 mx-auto ${isActive ? 'text-amber-400 animate-pulse' : 'text-stone-600'}`} />
+                        <span className={`block text-[9px] sm:text-[10px] font-mono truncate ${isActive ? 'text-amber-400 font-bold' : 'text-stone-500'}`}>
+                          #{slotIdx + 1} {isActive ? 'Siap' : 'Kosong'}
                         </span>
                       </div>
                     )}

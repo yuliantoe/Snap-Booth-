@@ -207,53 +207,53 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
 
                   {/* Visual Strip Thumbnail Simulation with Real Photos */}
                   <div
-                    className="p-3 rounded-lg border flex flex-col items-center justify-between gap-1.5 min-h-[140px] max-w-[160px] mx-auto shadow-sm overflow-hidden bg-white border-slate-200"
+                    className="p-3 rounded-lg border flex flex-col items-center justify-between gap-1.5 min-h-[160px] w-full max-w-[190px] sm:max-w-[210px] mx-auto shadow-sm overflow-hidden bg-white border-slate-200"
                   >
-                    <div className="w-full flex-1 flex flex-col justify-center gap-1 overflow-hidden">
+                    <div className="w-full flex-1 flex flex-col justify-center gap-1.5 overflow-hidden">
                       {layout.id === 'strip4' && (
                         <>
-                          {renderSlotImage(0, 'w-full h-5 rounded-xs')}
-                          {renderSlotImage(1, 'w-full h-5 rounded-xs')}
-                          {renderSlotImage(2, 'w-full h-5 rounded-xs')}
-                          {renderSlotImage(3, 'w-full h-5 rounded-xs')}
+                          {renderSlotImage(0, 'w-full h-9 sm:h-10 rounded-xs shadow-xs')}
+                          {renderSlotImage(1, 'w-full h-9 sm:h-10 rounded-xs shadow-xs')}
+                          {renderSlotImage(2, 'w-full h-9 sm:h-10 rounded-xs shadow-xs')}
+                          {renderSlotImage(3, 'w-full h-9 sm:h-10 rounded-xs shadow-xs')}
                         </>
                       )}
                       {layout.id === 'strip3' && (
                         <>
-                          {renderSlotImage(0, 'w-full h-7 rounded-xs')}
-                          {renderSlotImage(1, 'w-full h-7 rounded-xs')}
-                          {renderSlotImage(2, 'w-full h-7 rounded-xs')}
+                          {renderSlotImage(0, 'w-full h-12 sm:h-14 rounded-xs shadow-xs')}
+                          {renderSlotImage(1, 'w-full h-12 sm:h-14 rounded-xs shadow-xs')}
+                          {renderSlotImage(2, 'w-full h-12 sm:h-14 rounded-xs shadow-xs')}
                         </>
                       )}
                       {layout.id === 'grid2x2' && (
                         <div className="grid grid-cols-2 gap-1 h-full">
-                          {renderSlotImage(0, 'w-full h-10 rounded-xs')}
-                          {renderSlotImage(1, 'w-full h-10 rounded-xs')}
-                          {renderSlotImage(2, 'w-full h-10 rounded-xs')}
-                          {renderSlotImage(3, 'w-full h-10 rounded-xs')}
+                          {renderSlotImage(0, 'w-full h-14 sm:h-16 rounded-xs shadow-xs')}
+                          {renderSlotImage(1, 'w-full h-14 sm:h-16 rounded-xs shadow-xs')}
+                          {renderSlotImage(2, 'w-full h-14 sm:h-16 rounded-xs shadow-xs')}
+                          {renderSlotImage(3, 'w-full h-14 sm:h-16 rounded-xs shadow-xs')}
                         </div>
                       )}
-                      {layout.id === 'polaroid' && renderSlotImage(0, 'w-full h-20 rounded-xs')}
+                      {layout.id === 'polaroid' && renderSlotImage(0, 'w-full h-28 sm:h-32 rounded-xs shadow-xs')}
                       {layout.id === 'photocard' && (
                         <>
-                          {renderSlotImage(0, 'w-full h-10 rounded-xs')}
-                          {renderSlotImage(1, 'w-full h-10 rounded-xs')}
+                          {renderSlotImage(0, 'w-full h-16 sm:h-18 rounded-xs shadow-xs')}
+                          {renderSlotImage(1, 'w-full h-16 sm:h-18 rounded-xs shadow-xs')}
                         </>
                       )}
                       {layout.id === 'korean_receipt' && (
-                        <div className="flex flex-col gap-0.5 text-[7px] font-mono leading-tight py-1 bg-white p-1 rounded-xs border border-dashed border-slate-300">
+                        <div className="flex flex-col gap-1 text-[7px] font-mono leading-tight py-1 bg-white p-1 rounded-xs border border-dashed border-slate-300">
                           <div className="text-center font-bold text-slate-800 border-b border-dashed border-slate-300 pb-0.5">KR RECEIPT PHOTO</div>
-                          {renderSlotImage(0, 'w-full h-5 rounded-xs')}
-                          {renderSlotImage(1, 'w-full h-5 rounded-xs')}
-                          {renderSlotImage(2, 'w-full h-5 rounded-xs')}
-                          {renderSlotImage(3, 'w-full h-5 rounded-xs')}
+                          {renderSlotImage(0, 'w-full h-8 sm:h-9 rounded-xs shadow-xs')}
+                          {renderSlotImage(1, 'w-full h-8 sm:h-9 rounded-xs shadow-xs')}
+                          {renderSlotImage(2, 'w-full h-8 sm:h-9 rounded-xs shadow-xs')}
+                          {renderSlotImage(3, 'w-full h-8 sm:h-9 rounded-xs shadow-xs')}
                           <div className="text-[6px] text-center text-slate-700 pt-0.5 border-t border-dashed border-slate-300">TOTAL: ₩0 • THANK YOU</div>
                         </div>
                       )}
                       {layout.id === 'magazine' && (
                         <div className="flex flex-col gap-1 text-[7px] font-serif leading-tight p-1 bg-white text-slate-900 rounded-xs border border-slate-300 shadow-sm">
                           <div className="text-center font-black tracking-widest text-[9px] text-rose-700 border-b border-slate-200 pb-0.5">VOGUE</div>
-                          {renderSlotImage(0, 'w-full h-16 rounded-xs border border-slate-200')}
+                          {renderSlotImage(0, 'w-full h-24 sm:h-28 rounded-xs border border-slate-200 shadow-xs')}
                           <div className="text-[6px] text-center text-slate-500 pt-0.5 font-sans">SPECIAL ISSUE • 2026</div>
                         </div>
                       )}
@@ -269,10 +269,10 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
                             <span className="text-[5px] text-slate-500 font-medium">MEMORIES</span>
                           </div>
                           <div className="grid grid-cols-2 gap-0.5 my-0.5">
-                            {renderSlotImage(0, 'w-full h-5 rounded-xs')}
-                            {renderSlotImage(1, 'w-full h-5 rounded-xs')}
-                            {renderSlotImage(2, 'w-full h-5 rounded-xs')}
-                            {renderSlotImage(3, 'w-full h-5 rounded-xs')}
+                            {renderSlotImage(0, 'w-full h-8 sm:h-9 rounded-xs shadow-xs')}
+                            {renderSlotImage(1, 'w-full h-8 sm:h-9 rounded-xs shadow-xs')}
+                            {renderSlotImage(2, 'w-full h-8 sm:h-9 rounded-xs shadow-xs')}
+                            {renderSlotImage(3, 'w-full h-8 sm:h-9 rounded-xs shadow-xs')}
                           </div>
                           <div className="grid grid-cols-7 gap-0.5 text-[4.5px] text-center font-mono text-slate-600 bg-slate-50 p-0.5 rounded-xs">
                             <span className="text-red-500 font-bold">M</span><span>S</span><span>S</span><span>R</span><span>K</span><span>J</span><span>S</span>
@@ -293,7 +293,7 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
                             <span className="text-[5px] text-slate-500 font-medium">1 FOTO UTAMA</span>
                           </div>
                           <div className="my-0.5">
-                            {renderSlotImage(0, 'w-full h-11 rounded-xs border border-slate-200 shadow-xs')}
+                            {renderSlotImage(0, 'w-full h-18 sm:h-20 rounded-xs border border-slate-200 shadow-xs')}
                           </div>
                           <div className="text-[4.5px] text-center font-serif italic text-slate-500 pb-0.5">
                             “Save the date & our sweetest memories”
@@ -306,12 +306,12 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
                         </div>
                       )}
                       {layout.id === 'shopping_receipt' && (
-                        <div className="flex flex-col gap-0.5 text-[7px] font-mono leading-tight py-1 bg-white p-1 rounded-xs border border-dashed border-slate-400">
+                        <div className="flex flex-col gap-1 text-[7px] font-mono leading-tight py-1 bg-white p-1 rounded-xs border border-dashed border-slate-400">
                           <div className="text-center font-bold text-slate-900 border-b border-dashed border-slate-400 pb-0.5">SUPERMARKET MART</div>
-                          {renderSlotImage(0, 'w-full h-5 rounded-xs')}
-                          {renderSlotImage(1, 'w-full h-5 rounded-xs')}
-                          {renderSlotImage(2, 'w-full h-5 rounded-xs')}
-                          {renderSlotImage(3, 'w-full h-5 rounded-xs')}
+                          {renderSlotImage(0, 'w-full h-8 sm:h-9 rounded-xs shadow-xs')}
+                          {renderSlotImage(1, 'w-full h-8 sm:h-9 rounded-xs shadow-xs')}
+                          {renderSlotImage(2, 'w-full h-8 sm:h-9 rounded-xs shadow-xs')}
+                          {renderSlotImage(3, 'w-full h-8 sm:h-9 rounded-xs shadow-xs')}
                           <div className="text-[6px] text-center text-slate-800 pt-0.5 border-t border-dashed border-slate-400">TOTAL: RP 0 (LUNAS)</div>
                         </div>
                       )}
@@ -337,7 +337,7 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
                             <span className="text-[6px] text-slate-300 font-bold">✕</span>
                           </div>
                           <div className="my-0.5 relative rounded-xs overflow-hidden border border-white/10">
-                            {renderSlotImage(0, 'w-full h-20 rounded-xs')}
+                            {renderSlotImage(0, 'w-full h-28 sm:h-32 rounded-xs shadow-xs')}
                             <div className="absolute top-1 left-1 px-1 py-0.5 rounded-full bg-white/90 text-slate-900 font-bold text-[4.5px] shadow-xs">
                               📍 Jakarta
                             </div>
@@ -358,7 +358,7 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
                             <span className="text-white/80">🔍</span>
                           </div>
                           <div className="my-0.5 relative rounded-xs overflow-hidden border border-white/10">
-                            {renderSlotImage(0, 'w-full h-20 rounded-xs')}
+                            {renderSlotImage(0, 'w-full h-28 sm:h-32 rounded-xs shadow-xs')}
                             <div className="absolute bottom-1 left-1 right-6 text-[4.5px] text-white leading-tight bg-black/40 backdrop-blur-xs p-0.5 rounded-xs">
                               <div className="font-bold text-amber-300">@snapbooth ✨</div>
                               <div className="text-white/90 truncate">Trend Foto Viral Reels 2026</div>
@@ -393,7 +393,7 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
                             <span className="text-slate-400 font-bold">···</span>
                           </div>
                           <div className="my-0.5">
-                            {renderSlotImage(0, 'w-full h-16 rounded-xs border border-slate-200')}
+                            {renderSlotImage(0, 'w-full h-22 sm:h-26 rounded-xs border border-slate-200 shadow-xs')}
                           </div>
                           <div className="flex items-center justify-between text-[6px] pt-0.5 border-t border-slate-100">
                             <div className="flex gap-1.5 text-[6px]">
