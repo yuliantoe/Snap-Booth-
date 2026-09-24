@@ -495,24 +495,24 @@ export default function App() {
       ) : (
         /* Sleek Floating Minimized Dashboard Dock on Main Screen */
         <header className="sticky top-2 z-50 flex justify-center px-3 pointer-events-none shrink-0">
-          <div className="pointer-events-auto flex items-center gap-2 sm:gap-3 px-3.5 py-1.5 sm:py-2 rounded-full bg-stone-900/90 text-white border border-stone-700/90 shadow-xl backdrop-blur-md text-xs font-mono animate-in slide-in-from-top-2 duration-200">
+          <div className="pointer-events-auto flex items-center gap-2 sm:gap-3 px-3.5 py-1.5 sm:py-2 rounded-full bg-white/95 text-stone-900 border border-stone-300 shadow-lg backdrop-blur-md text-xs font-mono animate-in slide-in-from-top-2 duration-200">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </span>
             <div className="flex items-center gap-1.5">
-              <span className="font-bold tracking-wider text-[10px] sm:text-[11px] text-stone-100">DASHBOARD MINIMIZED</span>
-              <span className="text-stone-500 text-[10px] hidden sm:inline">•</span>
-              <span className="text-stone-300 text-[10px] truncate max-w-[140px] hidden sm:inline font-sans">
+              <span className="font-bold tracking-wider text-[10px] sm:text-[11px] text-stone-800">DASHBOARD MINIMIZED</span>
+              <span className="text-stone-400 text-[10px] hidden sm:inline">•</span>
+              <span className="text-stone-600 text-[10px] truncate max-w-[140px] hidden sm:inline font-sans">
                 {currentTheme.eventTitle || 'SnapBooth Event'}
               </span>
             </div>
 
-            <div className="flex items-center gap-1.5 border-l border-stone-700/80 pl-2 ml-1">
+            <div className="flex items-center gap-1.5 border-l border-stone-200 pl-2 ml-1">
               <button
                 type="button"
                 onClick={() => setIsDashboardMinimized(false)}
-                className="flex items-center gap-1 px-2.5 sm:px-3 py-1 rounded-full bg-orange-600 hover:bg-orange-500 text-white font-bold text-[10px] sm:text-[11px] transition-all cursor-pointer shadow-sm active:scale-95"
+                className="flex items-center gap-1 px-2.5 sm:px-3 py-1 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 hover:brightness-105 text-stone-950 font-bold text-[10px] sm:text-[11px] transition-all cursor-pointer shadow-xs active:scale-95"
                 title="Buka kembali tampilan dashboard utama"
               >
                 <Maximize2 className="w-3 h-3" />
@@ -523,7 +523,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setIsScreensaverOpen(true)}
-                className="p-1.5 rounded-full bg-stone-800 hover:bg-stone-700 text-orange-400 hover:text-white transition-all cursor-pointer"
+                className="p-1.5 rounded-full bg-stone-100 hover:bg-stone-200 text-amber-700 transition-all cursor-pointer border border-stone-200"
                 title="Buka Media Promosi (Screensaver Fullscreen)"
               >
                 <Tv className="w-3.5 h-3.5" />
@@ -532,19 +532,19 @@ export default function App() {
               <button
                 type="button"
                 onClick={handleOpenControlPanel}
-                className="p-1.5 rounded-full bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white transition-all cursor-pointer"
+                className="p-1.5 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-700 transition-all cursor-pointer border border-stone-200"
                 title="Buka Pengaturan Booth"
               >
-                <Sliders className="w-3.5 h-3.5 text-orange-400" />
+                <Sliders className="w-3.5 h-3.5 text-amber-700" />
               </button>
 
               <button
                 type="button"
                 onClick={handleResetSession}
-                className="p-1.5 rounded-full bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white transition-all cursor-pointer"
+                className="p-1.5 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 transition-all cursor-pointer border border-stone-200"
                 title="Mulai Sesi Foto Baru"
               >
-                <RefreshCw className="w-3.5 h-3.5 text-stone-300" />
+                <RefreshCw className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>

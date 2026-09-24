@@ -367,10 +367,10 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Main Control Panel Setting Button */}
           <button
             onClick={onOpenControlPanel}
-            className="flex items-center gap-1.5 sm:gap-2 px-3 py-2 rounded-lg bg-stone-900 hover:bg-stone-800 text-white text-xs sm:text-sm font-medium transition-all active:scale-95 cursor-pointer shadow-sm"
+            className="flex items-center gap-1.5 sm:gap-2 px-3 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs sm:text-sm font-bold transition-all active:scale-95 cursor-pointer shadow-xs border border-orange-500"
             title="Buka Dasboard Setting Booth"
           >
-            <Sliders className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-400" />
+            <Sliders className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
             <span>Dashboard</span>
           </button>
 

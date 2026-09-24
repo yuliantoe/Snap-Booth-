@@ -233,29 +233,29 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
   // Minimized floating dock at bottom of screen
   if (isMinimized) {
     return (
-      <aside aria-label="Dashboard Sistem Minimized" className="fixed bottom-4 right-4 sm:right-6 z-50 flex items-center gap-3 p-3 rounded-2xl bg-[#181615]/95 backdrop-blur-md border border-orange-500/40 shadow-2xl text-white font-sans animate-in slide-in-from-bottom-3 duration-200">
+      <aside aria-label="Dashboard Sistem Minimized" className="fixed bottom-4 right-4 sm:right-6 z-50 flex items-center gap-3 p-3 rounded-2xl bg-white/95 backdrop-blur-md border border-stone-300 shadow-2xl text-stone-900 font-sans animate-in slide-in-from-bottom-3 duration-200">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-orange-600/20 border border-orange-500/40 flex items-center justify-center text-orange-400">
+          <div className="w-8 h-8 rounded-lg bg-orange-50 border border-orange-200 flex items-center justify-center text-orange-600">
             <Sliders className="w-4 h-4" />
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
-              <span className="text-xs font-bold text-stone-100">Dashboard Sistem</span>
-              <span className="text-[9px] font-mono px-1.5 py-0.2 bg-stone-900 text-orange-400 border border-orange-500/30 rounded uppercase">
+              <span className="text-xs font-bold text-stone-900">Dashboard Sistem</span>
+              <span className="text-[9px] font-mono px-1.5 py-0.2 bg-orange-50 text-orange-700 border border-orange-200 rounded uppercase font-bold">
                 {activeTab}
               </span>
             </div>
-            <p className="text-[11px] text-stone-400 truncate max-w-[180px]">
+            <p className="text-[11px] text-stone-500 truncate max-w-[180px]">
               {themeForm.eventTitle || 'Tema Kustom'}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 border-l border-stone-800 pl-2">
+        <div className="flex items-center gap-1.5 border-l border-stone-200 pl-2">
           <button
             type="button"
             onClick={() => setIsMinimized(false)}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs shadow cursor-pointer transition-all active:scale-95"
+            className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs shadow-xs cursor-pointer transition-all active:scale-95 border border-orange-500"
             title="Buka kembali tampilan penuh Dashboard"
           >
             <Maximize2 className="w-3.5 h-3.5" />
@@ -264,7 +264,7 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
           <button
             type="button"
             onClick={handleSaveAndApply}
-            className="px-2.5 py-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-medium cursor-pointer transition-all"
+            className="px-2.5 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-medium cursor-pointer transition-all border border-stone-200"
             title="Simpan & Terapkan Perubahan"
           >
             Simpan
@@ -275,7 +275,7 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
               setIsMinimized(false);
               onClose();
             }}
-            className="p-1.5 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-400 hover:text-stone-200 cursor-pointer transition-all"
+            className="p-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-500 hover:text-stone-800 cursor-pointer transition-all border border-stone-200"
             title="Tutup Dashboard"
           >
             <X className="w-4 h-4" />
@@ -453,29 +453,29 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-[#131110] border border-stone-800 rounded-2xl w-full max-w-6xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden text-stone-100">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-white border border-stone-200 rounded-2xl w-full max-w-6xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden text-stone-900">
         {/* Header Bar */}
-        <div className="px-6 py-4 border-b border-stone-800 flex items-center justify-between bg-[#171514]">
+        <div className="px-6 py-4 border-b border-stone-200 flex items-center justify-between bg-stone-50">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-stone-900 border border-stone-800 text-orange-400">
+            <div className="p-2.5 rounded-xl bg-white border border-stone-200 text-orange-600 shadow-xs">
               <Sliders className="w-5 h-5" />
             </div>
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <h2 className="text-base sm:text-lg font-bold text-stone-100 tracking-tight">
+                <h2 className="text-base sm:text-lg font-bold text-stone-900 tracking-tight">
                   Dashboard Sistem
                 </h2>
                 {currentUser && (
-                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-stone-900 text-orange-400 border border-orange-500/30">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-orange-50 text-orange-700 border border-orange-200">
                     {currentUser.businessName || currentUser.displayName}
                   </span>
                 )}
-                <span className="hidden sm:inline-block px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase bg-stone-900 text-stone-400 border border-stone-800">
+                <span className="hidden sm:inline-block px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase bg-stone-100 text-stone-600 border border-stone-200">
                   Cloud Synced
                 </span>
               </div>
-              <p className="text-xs text-stone-400">Atur Tema Home Custom, Desain Frame, Media Brand & Sistem Kiosk</p>
+              <p className="text-xs text-stone-500">Atur Tema Home Custom, Desain Frame, Media Brand & Sistem Kiosk</p>
             </div>
           </div>
 
@@ -487,24 +487,24 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                   onClose();
                   onLogout();
                 }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-300 hover:text-white border border-stone-700 text-xs font-bold transition-all cursor-pointer"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-stone-100 text-stone-700 border border-stone-200 text-xs font-bold transition-all cursor-pointer shadow-xs"
                 title="Logout dari akun ini"
               >
-                <LogOut className="w-3.5 h-3.5 text-stone-400" />
+                <LogOut className="w-3.5 h-3.5 text-stone-500" />
                 <span>Logout</span>
               </button>
             )}
             <button
               type="button"
               onClick={() => setIsMinimized(true)}
-              className="p-1.5 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-400 hover:text-stone-200 transition-all cursor-pointer"
+              className="p-1.5 rounded-lg bg-white hover:bg-stone-100 text-stone-500 hover:text-stone-800 transition-all cursor-pointer border border-stone-200 shadow-xs"
               title="Minimize Dashboard Sistem ke Dock Bawah"
             >
               <Minus className="w-5 h-5" />
             </button>
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-400 hover:text-stone-200 transition-all cursor-pointer"
+              className="p-1.5 rounded-lg bg-white hover:bg-stone-100 text-stone-500 hover:text-stone-800 transition-all cursor-pointer border border-stone-200 shadow-xs"
               title="Tutup Dashboard Sistem"
             >
               <X className="w-5 h-5" />
@@ -515,14 +515,14 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
         {/* Main Body Layout: Left Vertical Sidebar Menu (Ke Bawah) + Right Content Area */}
         <div className="flex-1 flex flex-col md:flex-row overflow-hidden min-h-0">
           {/* Left Vertical Sidebar Navigation - Menu Pilihan Ke Bawah */}
-          <aside className="w-full md:w-72 lg:w-80 shrink-0 border-b md:border-b-0 md:border-r border-stone-800 bg-[#0e0d0c] flex flex-col justify-between overflow-y-auto p-3 sm:p-4">
+          <aside className="w-full md:w-72 lg:w-80 shrink-0 border-b md:border-b-0 md:border-r border-stone-200 bg-[#f8f8f7] flex flex-col justify-between overflow-y-auto p-3 sm:p-4">
             <div className="space-y-3">
-              <div className="px-2 py-1 flex items-center justify-between text-stone-400 font-mono text-[11px] uppercase tracking-wider font-bold border-b border-stone-800/80 pb-2">
-                <span className="flex items-center gap-1.5 text-stone-300">
-                  <Sliders className="w-3.5 h-3.5 text-orange-400" />
+              <div className="px-2 py-1 flex items-center justify-between text-stone-500 font-mono text-[11px] uppercase tracking-wider font-bold border-b border-stone-200 pb-2">
+                <span className="flex items-center gap-1.5 text-stone-700">
+                  <Sliders className="w-3.5 h-3.5 text-orange-600" />
                   Menu Dashboard
                 </span>
-                <span className="text-[10px] bg-stone-900 text-orange-400 px-1.5 py-0.5 rounded border border-orange-500/20 font-bold">
+                <span className="text-[10px] bg-orange-50 text-orange-700 px-1.5 py-0.5 rounded border border-orange-200 font-bold">
                   6 Modul
                 </span>
               </div>
@@ -536,12 +536,12 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                   className={`w-full p-3 rounded-xl border text-left transition-all flex items-center justify-between gap-3 cursor-pointer group ${
                     activeTab === 'home'
                       ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white border-orange-500 shadow-md ring-1 ring-orange-400/40'
-                      : 'bg-[#161514] text-stone-300 border-stone-800/90 hover:border-stone-700 hover:bg-[#1d1b19]'
+                      : 'bg-white text-stone-700 border-stone-200 hover:border-orange-300 hover:bg-orange-50/40 shadow-xs'
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div className={`p-2 rounded-lg shrink-0 transition-colors ${
-                      activeTab === 'home' ? 'bg-black/25 text-white' : 'bg-stone-900 text-orange-400 group-hover:bg-stone-800'
+                      activeTab === 'home' ? 'bg-black/25 text-white' : 'bg-stone-100 text-orange-600 group-hover:bg-stone-200'
                     }`}>
                       <Layout className="w-4 h-4" />
                     </div>
@@ -563,12 +563,12 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
                     <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${
-                      activeTab === 'home' ? 'bg-black/25 text-white' : 'bg-stone-900 text-stone-500'
+                      activeTab === 'home' ? 'bg-black/25 text-white' : 'bg-stone-100 text-stone-600 border border-stone-200'
                     }`}>
                       01
                     </span>
                     <ChevronRight className={`w-3.5 h-3.5 transition-transform ${
-                      activeTab === 'home' ? 'text-white translate-x-0.5' : 'text-stone-600'
+                      activeTab === 'home' ? 'text-white translate-x-0.5' : 'text-stone-400'
                     }`} />
                   </div>
                 </button>
@@ -580,12 +580,12 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                   className={`w-full p-3 rounded-xl border text-left transition-all flex items-center justify-between gap-3 cursor-pointer group ${
                     activeTab === 'theme'
                       ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white border-orange-500 shadow-md ring-1 ring-orange-400/40'
-                      : 'bg-[#161514] text-stone-300 border-stone-800/90 hover:border-stone-700 hover:bg-[#1d1b19]'
+                      : 'bg-white text-stone-700 border-stone-200 hover:border-orange-300 hover:bg-orange-50/40 shadow-xs'
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div className={`p-2 rounded-lg shrink-0 transition-colors ${
-                      activeTab === 'theme' ? 'bg-black/25 text-white' : 'bg-stone-900 text-orange-400 group-hover:bg-stone-800'
+                      activeTab === 'theme' ? 'bg-black/25 text-white' : 'bg-stone-100 text-orange-600 group-hover:bg-stone-200'
                     }`}>
                       <Palette className="w-4 h-4" />
                     </div>
@@ -600,12 +600,12 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
                     <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${
-                      activeTab === 'theme' ? 'bg-black/25 text-white' : 'bg-stone-900 text-stone-500'
+                      activeTab === 'theme' ? 'bg-black/25 text-white' : 'bg-stone-100 text-stone-600 border border-stone-200'
                     }`}>
                       02
                     </span>
                     <ChevronRight className={`w-3.5 h-3.5 transition-transform ${
-                      activeTab === 'theme' ? 'text-white translate-x-0.5' : 'text-stone-600'
+                      activeTab === 'theme' ? 'text-white translate-x-0.5' : 'text-stone-400'
                     }`} />
                   </div>
                 </button>
@@ -617,12 +617,12 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                   className={`w-full p-3 rounded-xl border text-left transition-all flex items-center justify-between gap-3 cursor-pointer group ${
                     activeTab === 'upload_custom'
                       ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white border-orange-500 shadow-md ring-1 ring-orange-400/40'
-                      : 'bg-[#161514] text-stone-300 border-stone-800/90 hover:border-stone-700 hover:bg-[#1d1b19]'
+                      : 'bg-white text-stone-700 border-stone-200 hover:border-orange-300 hover:bg-orange-50/40 shadow-xs'
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div className={`p-2 rounded-lg shrink-0 transition-colors ${
-                      activeTab === 'upload_custom' ? 'bg-black/25 text-white' : 'bg-stone-900 text-orange-400 group-hover:bg-stone-800'
+                      activeTab === 'upload_custom' ? 'bg-black/25 text-white' : 'bg-stone-100 text-orange-600 group-hover:bg-stone-200'
                     }`}>
                       <Upload className="w-4 h-4" />
                     </div>
@@ -644,12 +644,12 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
                     <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${
-                      activeTab === 'upload_custom' ? 'bg-black/25 text-white' : 'bg-stone-900 text-stone-500'
+                      activeTab === 'upload_custom' ? 'bg-black/25 text-white' : 'bg-stone-100 text-stone-600 border border-stone-200'
                     }`}>
                       03
                     </span>
                     <ChevronRight className={`w-3.5 h-3.5 transition-transform ${
-                      activeTab === 'upload_custom' ? 'text-white translate-x-0.5' : 'text-stone-600'
+                      activeTab === 'upload_custom' ? 'text-white translate-x-0.5' : 'text-stone-400'
                     }`} />
                   </div>
                 </button>
@@ -661,12 +661,12 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                   className={`w-full p-3 rounded-xl border text-left transition-all flex items-center justify-between gap-3 cursor-pointer group ${
                     activeTab === 'media'
                       ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white border-orange-500 shadow-md ring-1 ring-orange-400/40'
-                      : 'bg-[#161514] text-stone-300 border-stone-800/90 hover:border-stone-700 hover:bg-[#1d1b19]'
+                      : 'bg-white text-stone-700 border-stone-200 hover:border-orange-300 hover:bg-orange-50/40 shadow-xs'
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div className={`p-2 rounded-lg shrink-0 transition-colors ${
-                      activeTab === 'media' ? 'bg-black/25 text-white' : 'bg-stone-900 text-orange-400 group-hover:bg-stone-800'
+                      activeTab === 'media' ? 'bg-black/25 text-white' : 'bg-stone-100 text-orange-600 group-hover:bg-stone-200'
                     }`}>
                       <Video className="w-4 h-4" />
                     </div>
@@ -688,12 +688,12 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
                     <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${
-                      activeTab === 'media' ? 'bg-black/25 text-white' : 'bg-stone-900 text-stone-500'
+                      activeTab === 'media' ? 'bg-black/25 text-white' : 'bg-stone-100 text-stone-600 border border-stone-200'
                     }`}>
                       04
                     </span>
                     <ChevronRight className={`w-3.5 h-3.5 transition-transform ${
-                      activeTab === 'media' ? 'text-white translate-x-0.5' : 'text-stone-600'
+                      activeTab === 'media' ? 'text-white translate-x-0.5' : 'text-stone-400'
                     }`} />
                   </div>
                 </button>
@@ -705,12 +705,12 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                   className={`w-full p-3 rounded-xl border text-left transition-all flex items-center justify-between gap-3 cursor-pointer group ${
                     activeTab === 'system'
                       ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white border-orange-500 shadow-md ring-1 ring-orange-400/40'
-                      : 'bg-[#161514] text-stone-300 border-stone-800/90 hover:border-stone-700 hover:bg-[#1d1b19]'
+                      : 'bg-white text-stone-700 border-stone-200 hover:border-orange-300 hover:bg-orange-50/40 shadow-xs'
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div className={`p-2 rounded-lg shrink-0 transition-colors ${
-                      activeTab === 'system' ? 'bg-black/25 text-white' : 'bg-stone-900 text-orange-400 group-hover:bg-stone-800'
+                      activeTab === 'system' ? 'bg-black/25 text-white' : 'bg-stone-100 text-orange-600 group-hover:bg-stone-200'
                     }`}>
                       <Settings className="w-4 h-4" />
                     </div>
@@ -725,12 +725,12 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
                     <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${
-                      activeTab === 'system' ? 'bg-black/25 text-white' : 'bg-stone-900 text-stone-500'
+                      activeTab === 'system' ? 'bg-black/25 text-white' : 'bg-stone-100 text-stone-600 border border-stone-200'
                     }`}>
                       05
                     </span>
                     <ChevronRight className={`w-3.5 h-3.5 transition-transform ${
-                      activeTab === 'system' ? 'text-white translate-x-0.5' : 'text-stone-600'
+                      activeTab === 'system' ? 'text-white translate-x-0.5' : 'text-stone-400'
                     }`} />
                   </div>
                 </button>
@@ -742,12 +742,12 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                   className={`w-full p-3 rounded-xl border text-left transition-all flex items-center justify-between gap-3 cursor-pointer group ${
                     activeTab === 'screensaver'
                       ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white border-orange-500 shadow-md ring-1 ring-orange-400/40'
-                      : 'bg-[#161514] text-stone-300 border-stone-800/90 hover:border-stone-700 hover:bg-[#1d1b19]'
+                      : 'bg-white text-stone-700 border-stone-200 hover:border-orange-300 hover:bg-orange-50/40 shadow-xs'
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div className={`p-2 rounded-lg shrink-0 transition-colors ${
-                      activeTab === 'screensaver' ? 'bg-black/25 text-white' : 'bg-stone-900 text-orange-400 group-hover:bg-stone-800'
+                      activeTab === 'screensaver' ? 'bg-black/25 text-white' : 'bg-stone-100 text-orange-600 group-hover:bg-stone-200'
                     }`}>
                       <Tv className="w-4 h-4" />
                     </div>
@@ -762,12 +762,12 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
                     <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded ${
-                      activeTab === 'screensaver' ? 'bg-black/25 text-white' : 'bg-stone-900 text-stone-500'
+                      activeTab === 'screensaver' ? 'bg-black/25 text-white' : 'bg-stone-100 text-stone-600 border border-stone-200'
                     }`}>
                       06
                     </span>
                     <ChevronRight className={`w-3.5 h-3.5 transition-transform ${
-                      activeTab === 'screensaver' ? 'text-white translate-x-0.5' : 'text-stone-600'
+                      activeTab === 'screensaver' ? 'text-white translate-x-0.5' : 'text-stone-400'
                     }`} />
                   </div>
                 </button>
@@ -775,18 +775,18 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
             </div>
 
             {/* Sidebar Footer Info Card */}
-            <div className="mt-4 pt-3 border-t border-stone-800/80 hidden md:block">
-              <div className="p-3 rounded-xl bg-[#151312] border border-stone-800/70 text-stone-400 space-y-2 text-xs">
+            <div className="mt-4 pt-3 border-t border-stone-200 hidden md:block">
+              <div className="p-3 rounded-xl bg-white border border-stone-200 text-stone-600 space-y-2 text-xs shadow-xs">
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-[10px] uppercase font-bold text-stone-400">Preset Aktif</span>
-                  <span className="text-[10px] font-mono font-bold text-orange-400 truncate max-w-[120px]">
+                  <span className="text-[10px] font-mono font-bold text-orange-600 truncate max-w-[120px]">
                     {themeForm.eventTitle || 'SnapBooth'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-[11px]">
                   <span>Status Kiosk:</span>
-                  <span className="text-emerald-400 font-bold flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> Ready
+                  <span className="text-emerald-600 font-bold flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Ready
                   </span>
                 </div>
               </div>
@@ -794,11 +794,11 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
           </aside>
 
           {/* Right Main Content Area */}
-          <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-7 bg-[#141211] space-y-6">
+          <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-7 bg-[#f0f2f5] bg-[radial-gradient(#d4d7dc_1px,transparent_1px)] [background-size:20px_20px] space-y-6">
             {/* Active Section Header Bar */}
-            <div className="flex items-center justify-between pb-4 border-b border-stone-800/70">
+            <div className="flex items-center justify-between pb-4 border-b border-stone-200">
               <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-xl bg-stone-900 border border-stone-800 text-orange-400">
+                <div className="p-2 rounded-xl bg-white border border-stone-200 text-orange-600 shadow-xs">
                   {activeTab === 'home' && <Layout className="w-5 h-5" />}
                   {activeTab === 'theme' && <Palette className="w-5 h-5" />}
                   {activeTab === 'upload_custom' && <Upload className="w-5 h-5" />}
@@ -807,10 +807,10 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                   {activeTab === 'screensaver' && <Tv className="w-5 h-5" />}
                 </div>
                 <div>
-                  <div className="flex items-center gap-2 text-[11px] font-mono text-stone-400 uppercase tracking-wider">
+                  <div className="flex items-center gap-2 text-[11px] font-mono text-stone-500 uppercase tracking-wider">
                     <span>Dashboard Sistem</span>
                     <span>/</span>
-                    <span className="text-orange-400 font-bold">
+                    <span className="text-orange-600 font-bold">
                       {activeTab === 'home' && 'Tema Home'}
                       {activeTab === 'theme' && 'Preset Frame'}
                       {activeTab === 'upload_custom' && 'Upload Desain'}
@@ -819,7 +819,7 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                       {activeTab === 'screensaver' && 'Screen Saver'}
                     </span>
                   </div>
-                  <h3 className="text-base sm:text-lg font-bold text-stone-100">
+                  <h3 className="text-base sm:text-lg font-bold text-stone-900">
                     {activeTab === 'home' && 'Kustomisasi Tema Home & Tombol Kiosk'}
                     {activeTab === 'theme' && 'Preset Frame & Teks Acara'}
                     {activeTab === 'upload_custom' && 'Upload Desain Frame & Stiker'}
@@ -3166,18 +3166,18 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
         </div>
 
         {/* Footer Actions */}
-        <div className="px-6 py-4 border-t border-stone-800 bg-[#171514] flex items-center justify-between">
+        <div className="px-6 py-4 border-t border-stone-200 bg-stone-50 flex items-center justify-between">
           <p className="text-xs text-stone-500 font-mono hidden sm:block">SnapBooth Studio System</p>
           <div className="flex items-center gap-3">
             <button
               onClick={onClose}
-              className="px-4 py-2.5 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-300 text-xs font-bold border border-stone-800 cursor-pointer"
+              className="px-4 py-2.5 rounded-lg bg-white hover:bg-stone-100 text-stone-700 text-xs font-bold border border-stone-300 cursor-pointer shadow-xs"
             >
               Batal
             </button>
             <button
               onClick={handleSaveAndApply}
-              className="px-5 py-2.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold shadow-sm flex items-center gap-1.5 cursor-pointer border border-orange-500"
+              className="px-5 py-2.5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold shadow-sm flex items-center gap-1.5 cursor-pointer border border-orange-500 active:scale-95 transition-all"
             >
               <Check className="w-4 h-4" /> Simpan & Terapkan Perubahan
             </button>

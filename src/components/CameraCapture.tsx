@@ -438,15 +438,15 @@ const createDemoPosePhoto = (poseIndex: number): string => {
 
             {/* Top Toolbar Controls over video */}
             <div className="absolute top-2.5 sm:top-3 left-2.5 sm:left-3 right-2.5 sm:right-3 flex items-center justify-between z-10 pointer-events-auto gap-2">
-              <div className="flex items-center gap-2 bg-stone-900/90 backdrop-blur-md px-3 py-1.5 rounded-md border border-stone-700/80 text-[11px] sm:text-xs font-mono font-medium text-stone-200 shadow-sm">
-                <span className={`w-2 h-2 rounded-full ${isRetakingActiveSlot ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400'}`} />
+              <div className="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-md border border-stone-300 text-[11px] sm:text-xs font-mono font-medium text-stone-800 shadow-sm">
+                <span className={`w-2 h-2 rounded-full ${isRetakingActiveSlot ? 'bg-orange-500 animate-pulse' : 'bg-emerald-500'}`} />
                 <span>SLOT #{activeSlotIndex + 1} / {requiredCount}</span>
                 {isRetakingActiveSlot ? (
-                  <span className="text-[10px] bg-amber-950/90 text-amber-300 px-1.5 py-0.5 rounded border border-amber-600/70 font-bold ml-1 flex items-center gap-1">
+                  <span className="text-[10px] bg-orange-100 text-orange-800 px-1.5 py-0.5 rounded border border-orange-300 font-bold ml-1 flex items-center gap-1">
                     <RefreshCw className="w-2.5 h-2.5" /> FOTO ULANG
                   </span>
                 ) : (
-                  <span className="text-[10px] bg-emerald-950/90 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-700/70 font-bold ml-1">
+                  <span className="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded border border-emerald-300 font-bold ml-1">
                     KOSONG
                   </span>
                 )}
@@ -458,7 +458,7 @@ const createDemoPosePhoto = (poseIndex: number): string => {
                   <select
                     value={selectedDeviceId}
                     onChange={(e) => setSelectedDeviceId(e.target.value)}
-                    className="bg-stone-900/90 backdrop-blur-md text-[11px] sm:text-xs text-stone-200 border border-stone-700/80 rounded-md px-2 py-1 focus:outline-none max-w-[110px] sm:max-w-none truncate font-mono"
+                    className="bg-white/95 backdrop-blur-md text-[11px] sm:text-xs text-stone-800 border border-stone-300 rounded-md px-2 py-1 focus:outline-none max-w-[110px] sm:max-w-none truncate font-mono shadow-xs"
                   >
                     {devices.map((d, idx) => (
                       <option key={d.deviceId} value={d.deviceId}>
@@ -475,18 +475,18 @@ const createDemoPosePhoto = (poseIndex: number): string => {
                     setFacingMode((prev) => (prev === 'user' ? 'environment' : 'user'));
                     setIsMirrored((prev) => !prev);
                   }}
-                  className="p-1.5 sm:p-2 rounded-md backdrop-blur-md bg-stone-900/90 text-stone-300 hover:text-white border border-stone-700/80 transition-all cursor-pointer shadow-sm"
+                  className="p-1.5 sm:p-2 rounded-md backdrop-blur-md bg-white/95 text-stone-700 hover:text-stone-900 border border-stone-300 transition-all cursor-pointer shadow-xs"
                   title={facingMode === 'user' ? 'Ganti ke Kamera Belakang' : 'Ganti ke Kamera Depan (Selfie)'}
                 >
-                  <SwitchCamera className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-400" />
+                  <SwitchCamera className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-600" />
                 </button>
 
                 {/* Flip Camera Mirror */}
                 <button
                   type="button"
                   onClick={() => setIsMirrored(!isMirrored)}
-                  className={`p-1.5 sm:p-2 rounded-md backdrop-blur-md transition-all border shadow-sm cursor-pointer ${
-                    isMirrored ? 'bg-orange-600 text-white border-orange-500 font-bold' : 'bg-stone-900/90 text-stone-300 border-stone-700/80'
+                  className={`p-1.5 sm:p-2 rounded-md backdrop-blur-md transition-all border shadow-xs cursor-pointer ${
+                    isMirrored ? 'bg-orange-600 text-white border-orange-500 font-bold' : 'bg-white/95 text-stone-700 border-stone-300'
                   }`}
                   title="Cermin Horizontal"
                 >
@@ -497,19 +497,19 @@ const createDemoPosePhoto = (poseIndex: number): string => {
           </div>
 
           {/* Shutter & Timer Controls Toolbar */}
-          <div className="bg-[#131110] border border-stone-800 rounded-xl p-3 sm:p-4 space-y-3 shadow-sm">
+          <div className="bg-white border border-stone-200 rounded-xl p-3 sm:p-4 space-y-3 shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-3">
               {/* Timer Options */}
               <div className="flex items-center gap-1.5 sm:gap-2">
-                <span className="text-xs font-mono font-medium text-stone-400">TIMER:</span>
+                <span className="text-xs font-mono font-medium text-stone-500">TIMER:</span>
                 {[0, 3, 5, 10].map((sec) => (
                   <button
                     key={sec}
                     onClick={() => setCountdownTimer(sec)}
                     className={`px-2.5 py-1 rounded-md text-xs font-mono font-bold transition-all cursor-pointer select-none border ${
                       countdownTimer === sec
-                        ? 'bg-orange-600 text-white border-orange-500'
-                        : 'bg-stone-900 text-stone-400 hover:text-stone-200 border-stone-800'
+                        ? 'bg-orange-600 text-white border-orange-500 shadow-xs'
+                        : 'bg-stone-100 text-stone-600 hover:text-stone-900 border-stone-200'
                     }`}
                   >
                     {sec === 0 ? '0s' : `${sec}s`}
@@ -523,10 +523,10 @@ const createDemoPosePhoto = (poseIndex: number): string => {
                 <button
                   onClick={handleStartBurstMode}
                   disabled={isBurstMode || activeCountdown !== null}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-200 border border-stone-800 text-xs font-medium transition-all active:scale-95 disabled:opacity-50 cursor-pointer shadow-sm"
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-300 text-xs font-medium transition-all active:scale-95 disabled:opacity-50 cursor-pointer shadow-xs"
                   title="Ambil foto otomatis berurutan untuk semua slot"
                 >
-                  <Play className="w-3.5 h-3.5 text-orange-400" />
+                  <Play className="w-3.5 h-3.5 text-orange-600" />
                   <span className="hidden xs:inline">Auto 4x Bergantian</span>
                   <span className="xs:hidden">Auto 4x</span>
                 </button>
@@ -535,15 +535,15 @@ const createDemoPosePhoto = (poseIndex: number): string => {
                 <button
                   onClick={() => handleStartCapture(activeSlotIndex)}
                   disabled={isBurstMode || activeCountdown !== null}
-                  className={`flex items-center gap-2 px-5 sm:px-6 py-2.5 rounded-lg text-white font-bold text-xs sm:text-sm shadow-sm active:scale-[0.98] transition-all disabled:opacity-50 cursor-pointer border ${
+                  className={`flex items-center gap-2 px-5 sm:px-6 py-2.5 rounded-lg text-white font-bold text-xs sm:text-sm shadow-md active:scale-[0.98] transition-all disabled:opacity-50 cursor-pointer border ${
                     isRetakingActiveSlot
-                      ? 'bg-amber-600 hover:bg-amber-500 border-amber-500 shadow-amber-900/20'
-                      : 'bg-orange-600 hover:bg-orange-500 border-orange-500 shadow-orange-900/20'
+                      ? 'bg-orange-600 hover:bg-orange-500 border-orange-500'
+                      : 'bg-orange-600 hover:bg-orange-500 border-orange-500'
                   }`}
                 >
                   {isRetakingActiveSlot ? (
                     <>
-                      <RefreshCw className="w-4 h-4 text-amber-200" />
+                      <RefreshCw className="w-4 h-4 text-orange-200" />
                       <span>Foto Ulang Foto #{activeSlotIndex + 1}</span>
                     </>
                   ) : (
@@ -558,15 +558,15 @@ const createDemoPosePhoto = (poseIndex: number): string => {
 
             {/* Retake Mode Helper Notice */}
             {isRetakingActiveSlot && (
-              <div className="pt-2 text-[11px] font-mono text-amber-400/95 flex flex-wrap items-center justify-between border-t border-stone-800/80 gap-2">
+              <div className="pt-2 text-[11px] font-mono text-orange-700 flex flex-wrap items-center justify-between border-t border-stone-200 gap-2">
                 <span className="flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                  <Sparkles className="w-3.5 h-3.5 text-orange-600 shrink-0" />
                   Foto #{activeSlotIndex + 1} akan diganti pose baru. Foto lainnya di urutan tetap tersimpan aman.
                 </span>
                 <button
                   type="button"
                   onClick={() => handleRemovePhoto(activeSlotIndex)}
-                  className="text-stone-400 hover:text-rose-400 underline cursor-pointer text-[11px] font-mono"
+                  className="text-stone-500 hover:text-rose-600 underline cursor-pointer text-[11px] font-mono"
                 >
                   Kosongkan Slot #{activeSlotIndex + 1} Saja
                 </button>
@@ -575,8 +575,8 @@ const createDemoPosePhoto = (poseIndex: number): string => {
 
             {/* Retake Success Toast */}
             {retakeFeedback && (
-              <div className="text-[11px] font-mono text-emerald-400 flex items-center gap-1.5 border-t border-stone-800/80 pt-2 animate-in fade-in duration-200">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+              <div className="text-[11px] font-mono text-emerald-700 flex items-center gap-1.5 border-t border-stone-200 pt-2 animate-in fade-in duration-200">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                 <span>{retakeFeedback}</span>
               </div>
             )}
@@ -585,13 +585,13 @@ const createDemoPosePhoto = (poseIndex: number): string => {
 
         {/* Right Column (or Bottom Column in Portrait): Photo Slots */}
         <div className={`w-full ${isLandscape ? 'md:w-72 lg:w-80' : 'w-full'} flex flex-col justify-between gap-2 shrink-0`}>
-          <div className="bg-[#131110] border border-stone-800 rounded-xl p-2.5 sm:p-3 space-y-2 flex-1 min-h-0 flex flex-col justify-between">
-            <div className="flex items-center justify-between border-b border-stone-800 pb-1.5">
+          <div className="bg-white border border-stone-200 rounded-xl p-2.5 sm:p-3 space-y-2 flex-1 min-h-0 flex flex-col justify-between shadow-sm">
+            <div className="flex items-center justify-between border-b border-stone-100 pb-1.5">
               <div>
-                <h3 className="text-[11px] sm:text-xs font-bold text-stone-200 flex items-center gap-1.5 font-mono">
+                <h3 className="text-[11px] sm:text-xs font-bold text-stone-900 flex items-center gap-1.5 font-mono">
                   SLOT FOTO ({filledCount}/{requiredCount})
                 </h3>
-                <p className="text-[10px] text-stone-400 font-mono mt-0.5">
+                <p className="text-[10px] text-stone-500 font-mono mt-0.5">
                   Klik slot foto mana pun untuk foto ulang
                 </p>
               </div>
@@ -600,33 +600,33 @@ const createDemoPosePhoto = (poseIndex: number): string => {
                   <button
                     type="button"
                     onClick={() => setShowResetConfirm(true)}
-                    className="text-[10px] font-mono text-stone-400 hover:text-rose-400 px-2 py-1 rounded bg-stone-900 border border-stone-800 transition-colors cursor-pointer"
+                    className="text-[10px] font-mono text-stone-500 hover:text-rose-600 px-2 py-1 rounded bg-stone-100 border border-stone-200 transition-colors cursor-pointer"
                     title="Reset semua foto jika ingin mengulang dari awal"
                   >
                     Reset Semua
                   </button>
                 )}
                 {showResetConfirm && (
-                  <div className="flex items-center gap-1 bg-rose-950/80 px-1.5 py-0.5 rounded border border-rose-800">
-                    <span className="text-[10px] text-rose-300 font-mono">Yakin?</span>
+                  <div className="flex items-center gap-1 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-300">
+                    <span className="text-[10px] text-rose-700 font-mono">Yakin?</span>
                     <button
                       type="button"
                       onClick={handleResetAllPhotos}
-                      className="text-[10px] font-bold text-white bg-rose-700 px-1.5 py-0.5 rounded hover:bg-rose-600 cursor-pointer"
+                      className="text-[10px] font-bold text-white bg-rose-600 px-1.5 py-0.5 rounded hover:bg-rose-500 cursor-pointer"
                     >
                       Ya
                     </button>
                     <button
                       type="button"
                       onClick={() => setShowResetConfirm(false)}
-                      className="text-[10px] text-stone-300 px-1 py-0.5 hover:text-white cursor-pointer"
+                      className="text-[10px] text-stone-600 px-1 py-0.5 hover:text-stone-900 cursor-pointer"
                     >
                       Batal
                     </button>
                   </div>
                 )}
                 {isAllFilled && (
-                  <span className="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800">
+                  <span className="text-[10px] font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-300">
                     LENGKAP
                   </span>
                 )}
@@ -643,22 +643,22 @@ const createDemoPosePhoto = (poseIndex: number): string => {
                   <div
                     key={slotIdx}
                     onClick={() => setActiveSlotIndex(slotIdx)}
-                    className={`relative group rounded-lg border overflow-hidden transition-all cursor-pointer aspect-[4/3] flex items-center justify-center bg-stone-950 ${
+                    className={`relative group rounded-lg border overflow-hidden transition-all cursor-pointer aspect-[4/3] flex items-center justify-center bg-stone-100 ${
                       isActive
-                        ? 'border-amber-500 ring-2 ring-amber-500/40 shadow-md'
+                        ? 'border-orange-500 ring-2 ring-orange-500/30 shadow-md'
                         : photo
-                        ? 'border-stone-700 hover:border-stone-500'
-                        : 'border-dashed border-stone-800 hover:border-stone-600'
+                        ? 'border-stone-300 hover:border-stone-400'
+                        : 'border-dashed border-stone-300 hover:border-stone-400'
                     }`}
                   >
                     {/* Slot Number Badge */}
                     <div className="absolute top-1 left-1 sm:top-1.5 sm:left-1.5 z-10">
-                      <span className={`px-1 sm:px-1.5 py-0.5 rounded font-mono text-[9px] sm:text-[10px] font-bold shadow-sm ${
+                      <span className={`px-1 sm:px-1.5 py-0.5 rounded font-mono text-[9px] sm:text-[10px] font-bold shadow-xs ${
                         isActive
-                          ? 'bg-amber-600 text-white border border-amber-400'
+                          ? 'bg-orange-600 text-white border border-orange-500'
                           : photo
-                          ? 'bg-stone-900/90 text-stone-200 border border-stone-700'
-                          : 'bg-stone-900/80 text-stone-400 border border-stone-800'
+                          ? 'bg-white/90 text-stone-800 border border-stone-200'
+                          : 'bg-stone-200/90 text-stone-600 border border-stone-300'
                       }`}>
                         #{slotIdx + 1}
                       </span>
@@ -667,7 +667,7 @@ const createDemoPosePhoto = (poseIndex: number): string => {
                     {/* Active Tag */}
                     {isActive && (
                       <div className="absolute top-1 right-1 sm:top-1.5 sm:right-1.5 z-10">
-                        <span className="bg-amber-600/95 text-white font-mono text-[8px] sm:text-[9px] font-black px-1 sm:px-1.5 py-0.5 rounded shadow border border-amber-400/50">
+                        <span className="bg-orange-600 text-white font-mono text-[8px] sm:text-[9px] font-black px-1 sm:px-1.5 py-0.5 rounded shadow-xs border border-orange-400">
                           {photo ? 'ULANG' : 'TARGET'}
                         </span>
                       </div>
@@ -682,7 +682,7 @@ const createDemoPosePhoto = (poseIndex: number): string => {
                         />
 
                         {/* Bottom Action Bar: Always visible on active slot or on hover */}
-                        <div className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/80 to-transparent p-1 sm:p-1.5 pt-3 sm:pt-4 flex items-center justify-between gap-1 transition-opacity ${
+                        <div className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/60 to-transparent p-1 sm:p-1.5 pt-3 sm:pt-4 flex items-center justify-between gap-1 transition-opacity ${
                           isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
                         }`}>
                           <button
@@ -692,7 +692,7 @@ const createDemoPosePhoto = (poseIndex: number): string => {
                               setActiveSlotIndex(slotIdx);
                               handleStartCapture(slotIdx);
                             }}
-                            className="flex-1 py-0.5 sm:py-1 px-1 rounded bg-amber-600 hover:bg-amber-500 text-white font-mono text-[9px] sm:text-[10px] font-bold flex items-center justify-center gap-1 shadow cursor-pointer border border-amber-500 active:scale-95 transition-all truncate"
+                            className="flex-1 py-0.5 sm:py-1 px-1 rounded bg-orange-600 hover:bg-orange-500 text-white font-mono text-[9px] sm:text-[10px] font-bold flex items-center justify-center gap-1 shadow cursor-pointer border border-orange-500 active:scale-95 transition-all truncate"
                             title={`Foto ulang slot #${slotIdx + 1}`}
                           >
                             <RefreshCw className="w-2.5 h-2.5 sm:w-3 sm:h-3 shrink-0" />
@@ -713,8 +713,8 @@ const createDemoPosePhoto = (poseIndex: number): string => {
                       </>
                     ) : (
                       <div className="text-center p-1 sm:p-2 space-y-0.5">
-                        <Camera className={`w-3.5 h-3.5 sm:w-4 sm:h-4 mx-auto ${isActive ? 'text-amber-400 animate-pulse' : 'text-stone-600'}`} />
-                        <span className={`block text-[9px] sm:text-[10px] font-mono truncate ${isActive ? 'text-amber-400 font-bold' : 'text-stone-500'}`}>
+                        <Camera className={`w-3.5 h-3.5 sm:w-4 sm:h-4 mx-auto ${isActive ? 'text-orange-500 animate-pulse' : 'text-stone-400'}`} />
+                        <span className={`block text-[9px] sm:text-[10px] font-mono truncate ${isActive ? 'text-orange-600 font-bold' : 'text-stone-400'}`}>
                           #{slotIdx + 1} {isActive ? 'Siap' : 'Kosong'}
                         </span>
                       </div>

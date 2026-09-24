@@ -138,35 +138,35 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     customTitle?: string,
     amountDetails?: { basePrice?: number; uniqueCode?: number; total?: number; planName?: string }
   ) => (
-    <div className="p-3.5 rounded-xl bg-[#131110] border border-stone-800 text-left space-y-2.5">
+    <div className="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200 text-left space-y-2.5">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1.5 text-stone-200 font-bold text-xs">
-          <CreditCard className="w-4 h-4 text-orange-400" />
+        <div className="flex items-center gap-1.5 text-stone-900 font-bold text-xs">
+          <CreditCard className="w-4 h-4 text-amber-600" />
           <span>{customTitle || 'Rekening Tujuan Resmi Pembayaran:'}</span>
         </div>
-        <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-stone-900 text-stone-300 border border-stone-700">
+        <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-white text-stone-800 border border-amber-200 shadow-xs">
           BCA Resmi
         </span>
       </div>
 
-      <div className="p-2.5 rounded-lg bg-[#181615] border border-stone-800 space-y-2 text-xs">
-        <div className="flex justify-between items-center text-stone-300">
-          <span className="text-stone-400">Bank Tujuan:</span>
-          <span className="font-semibold text-stone-100">{OFFICIAL_PAYMENT_INFO.bankName}</span>
+      <div className="p-3 rounded-xl bg-white border border-amber-200/80 space-y-2 text-xs shadow-xs">
+        <div className="flex justify-between items-center text-stone-600">
+          <span>Bank Tujuan:</span>
+          <span className="font-bold text-stone-900">{OFFICIAL_PAYMENT_INFO.bankName}</span>
         </div>
-        <div className="flex justify-between items-center text-stone-300">
-          <span className="text-stone-400">Nomor Rekening:</span>
+        <div className="flex justify-between items-center text-stone-600">
+          <span>Nomor Rekening:</span>
           <div className="flex items-center gap-1.5">
-            <span className="font-mono font-bold text-orange-400 text-sm tracking-wider">
+            <span className="font-mono font-bold text-amber-700 text-sm tracking-wider">
               {OFFICIAL_PAYMENT_INFO.accountNumber}
             </span>
             <button
               type="button"
               onClick={handleCopyBca}
-              className={`px-2 py-0.5 rounded text-[10px] font-bold flex items-center gap-1 cursor-pointer transition-all ${
+              className={`px-2 py-0.5 rounded-lg text-[10px] font-bold flex items-center gap-1 cursor-pointer transition-all ${
                 copiedBca
                   ? 'bg-emerald-600 text-white font-bold'
-                  : 'bg-stone-900 hover:bg-stone-800 text-stone-200 border border-stone-700'
+                  : 'bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-300'
               }`}
               title="Salin Nomor Rekening BCA"
             >
@@ -175,49 +175,49 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </button>
           </div>
         </div>
-        <div className="flex justify-between items-center text-stone-300">
-          <span className="text-stone-400">Atas Nama (A/N):</span>
-          <span className="font-bold text-stone-200 uppercase tracking-wide">
+        <div className="flex justify-between items-center text-stone-600">
+          <span>Atas Nama (A/N):</span>
+          <span className="font-bold text-stone-900 uppercase tracking-wide">
             {OFFICIAL_PAYMENT_INFO.accountHolder}
           </span>
         </div>
 
         {/* Unique Transaction Code & Total Payable Amount */}
         {amountDetails && amountDetails.total && amountDetails.total > 0 && (
-          <div className="pt-2 border-t border-stone-800 space-y-1.5">
+          <div className="pt-2 border-t border-stone-100 space-y-1.5">
             {amountDetails.basePrice && (
-              <div className="flex justify-between items-center text-stone-300 text-[11px]">
-                <span className="text-stone-400">Harga Paket ({amountDetails.planName || 'Langganan'}):</span>
-                <span className="font-medium text-stone-200">{formatRupiah(amountDetails.basePrice)}</span>
+              <div className="flex justify-between items-center text-stone-600 text-[11px]">
+                <span>Harga Paket ({amountDetails.planName || 'Langganan'}):</span>
+                <span className="font-medium text-stone-900">{formatRupiah(amountDetails.basePrice)}</span>
               </div>
             )}
             {amountDetails.uniqueCode && (
               <div className="flex justify-between items-center text-[11px]">
-                <span className="text-stone-400 flex items-center gap-1">
+                <span className="text-stone-600 flex items-center gap-1">
                   <span>Nomor Unik Transaksi:</span>
-                  <span className="text-[9px] text-stone-500 font-mono">(Sistem)</span>
+                  <span className="text-[9px] text-stone-400 font-mono">(Sistem)</span>
                 </span>
-                <span className="font-mono font-bold text-orange-400 bg-stone-900 px-2 py-0.5 rounded border border-stone-700">
+                <span className="font-mono font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
                   +{amountDetails.uniqueCode}
                 </span>
               </div>
             )}
-            <div className="pt-1.5 border-t border-stone-800 flex justify-between items-center bg-stone-900 -mx-1 px-2.5 py-1.5 rounded-lg border border-stone-800">
+            <div className="pt-1.5 border-t border-stone-200 flex justify-between items-center bg-amber-50 -mx-1 px-2.5 py-1.5 rounded-xl border border-amber-200">
               <div>
-                <div className="text-stone-200 font-bold text-xs">Total Pembayaran:</div>
+                <div className="text-stone-900 font-bold text-xs">Total Pembayaran:</div>
                 <div className="text-[9px] text-stone-500">Transfer tepat hingga 3 digit terakhir</div>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-mono font-bold text-orange-400 text-sm sm:text-base tracking-wide">
+                <span className="font-mono font-bold text-amber-800 text-sm sm:text-base tracking-wide">
                   {formatRupiah(amountDetails.total)}
                 </span>
                 <button
                   type="button"
                   onClick={() => handleCopyAmount(amountDetails.total!)}
-                  className={`px-2 py-1 rounded text-[10px] font-bold flex items-center gap-1 cursor-pointer transition-all ${
+                  className={`px-2 py-1 rounded-lg text-[10px] font-bold flex items-center gap-1 cursor-pointer transition-all ${
                     copiedAmount
                       ? 'bg-emerald-600 text-white'
-                      : 'bg-orange-600 hover:bg-orange-500 text-white'
+                      : 'bg-amber-600 hover:bg-amber-500 text-white shadow-xs'
                   }`}
                   title="Salin Total Pembayaran"
                 >
@@ -230,7 +230,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         )}
       </div>
 
-      <p className="text-[10px] text-stone-400 leading-relaxed italic bg-[#181615] p-2 rounded-lg border border-stone-800">
+      <p className="text-[10px] text-stone-500 leading-relaxed italic bg-white p-2 rounded-xl border border-stone-200">
         Mohon transfer tepat hingga 3 digit nomor unik di belakang ke <strong>{OFFICIAL_PAYMENT_INFO.fullLabel}</strong> agar proses verifikasi transaksi berlangsung otomatis & instan.
       </p>
     </div>
@@ -381,26 +381,26 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-[#131110] border border-stone-800 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-stone-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+      <div className="bg-white border border-stone-200 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
         {/* Modal Header */}
-        <div className="p-4 sm:p-5 bg-[#171514] border-b border-stone-800 flex items-center justify-between">
+        <div className="p-4 sm:p-5 bg-stone-50 border-b border-stone-200 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-stone-900 border border-stone-800 text-orange-400">
+            <div className="p-2.5 rounded-xl bg-white border border-stone-200 text-amber-600 shadow-xs">
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-stone-100 flex items-center gap-2">
+              <h2 className="text-base font-bold text-stone-900 flex items-center gap-2">
                 Akses Autentikasi & Akun
               </h2>
-              <p className="text-xs text-stone-400">
+              <p className="text-xs text-stone-500">
                 Masuk ke akun studio photobooth Anda
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-400 hover:text-stone-200 transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-500 hover:text-stone-900 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -408,14 +408,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
         {/* Tab Navigation (Hidden when showing pending registration success) */}
         {!pendingRegisteredUser && (
-          <div className="flex border-b border-stone-800 bg-[#100f0e] p-1.5 gap-1.5">
+          <div className="flex border-b border-stone-200 bg-stone-50 p-1.5 gap-1.5">
             <button
               type="button"
               onClick={() => { setTab('login'); setErrorMsg(''); setLoginPendingUser(null); }}
-              className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+              className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
                 tab === 'login'
-                  ? 'bg-orange-600 text-white shadow-sm border border-orange-500'
-                  : 'text-stone-400 hover:text-stone-200 hover:bg-stone-900'
+                  ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-stone-950 shadow-xs'
+                  : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
               }`}
             >
               <LogIn className="w-4 h-4" />
@@ -425,10 +425,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <button
               type="button"
               onClick={() => { setTab('register'); setErrorMsg(''); setLoginPendingUser(null); }}
-              className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+              className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
                 tab === 'register'
-                  ? 'bg-orange-600 text-white shadow-sm border border-orange-500'
-                  : 'text-stone-400 hover:text-stone-200 hover:bg-stone-900'
+                  ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-stone-950 shadow-xs'
+                  : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
               }`}
             >
               <UserPlus className="w-4 h-4" />
@@ -439,17 +439,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
         {/* Active User Status & Quick Logout */}
         {currentUser && !pendingRegisteredUser && (
-          <div className="mx-4 sm:mx-6 mt-3 p-3 rounded-xl bg-[#181615] border border-stone-800 flex items-center justify-between gap-3">
+          <div className="mx-4 sm:mx-6 mt-3 p-3 rounded-2xl bg-stone-50 border border-stone-200 flex items-center justify-between gap-3 shadow-xs">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-lg bg-stone-900 border border-stone-700 text-orange-400 flex items-center justify-center text-xs font-bold shrink-0">
+              <div className="w-8 h-8 rounded-xl bg-white border border-stone-200 text-amber-600 flex items-center justify-center text-xs font-bold shrink-0 shadow-xs">
                 <User className="w-4 h-4" />
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] font-mono font-bold uppercase text-stone-500">Sedang Login:</span>
-                  <span className="text-xs font-bold text-stone-100 truncate">{currentUser.displayName}</span>
+                  <span className="text-[10px] font-mono font-bold uppercase text-stone-400">Sedang Login:</span>
+                  <span className="text-xs font-bold text-stone-900 truncate">{currentUser.displayName}</span>
                 </div>
-                <span className="text-[11px] text-stone-400 font-mono truncate">@{currentUser.username || currentUser.email}</span>
+                <span className="text-[11px] text-stone-500 font-mono truncate">@{currentUser.username || currentUser.email}</span>
               </div>
             </div>
             {onLogout && (
@@ -459,7 +459,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   onLogout();
                   onClose();
                 }}
-                className="px-3 py-1.5 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-300 hover:text-white border border-stone-700 text-xs font-bold flex items-center gap-1.5 transition-all shrink-0 cursor-pointer"
+                className="px-3 py-1.5 rounded-xl bg-white hover:bg-rose-50 text-stone-600 hover:text-rose-600 border border-stone-200 text-xs font-bold flex items-center gap-1.5 transition-all shrink-0 cursor-pointer shadow-xs"
                 title="Logout dari akun ini"
               >
                 <LogOut className="w-3.5 h-3.5 text-stone-400" />
@@ -471,8 +471,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
         {/* Error Notification */}
         {errorMsg && (
-          <div className="mx-4 sm:mx-6 mt-3 p-3 rounded-lg bg-stone-900 border border-rose-500/40 text-rose-300 text-xs flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
+          <div className="mx-4 sm:mx-6 mt-3 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0 text-rose-500" />
             <span>{errorMsg}</span>
           </div>
         )}
@@ -482,50 +482,50 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           {/* SPECIAL VIEW: REGISTRATION SUCCESS - WAITING SUPER ADMIN APPROVAL */}
           {pendingRegisteredUser ? (
             <div className="space-y-4 animate-in zoom-in-95 duration-200 text-center">
-              <div className="w-14 h-14 rounded-2xl bg-stone-900 border border-orange-500/50 text-orange-400 flex items-center justify-center mx-auto shadow-sm">
-                <Clock className="w-7 h-7 text-orange-400" />
+              <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-300 text-amber-600 flex items-center justify-center mx-auto shadow-xs">
+                <Clock className="w-7 h-7 text-amber-600" />
               </div>
 
               <div className="space-y-1">
-                <span className="px-3 py-1 rounded bg-stone-900 text-orange-300 border border-orange-500/40 text-[11px] font-mono font-bold uppercase tracking-wider inline-flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5" />
+                <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-300 text-[11px] font-mono font-bold uppercase tracking-wider inline-flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5 text-amber-600" />
                   Menunggu Persetujuan Super Admin
                 </span>
-                <h3 className="text-base font-bold text-stone-100 pt-2">
+                <h3 className="text-base font-bold text-stone-900 pt-2">
                   Pendaftaran Berhasil Dicatat!
                 </h3>
-                <p className="text-xs text-stone-400 leading-relaxed max-w-md mx-auto">
+                <p className="text-xs text-stone-500 leading-relaxed max-w-md mx-auto">
                   Karena Anda memilih paket berbayar, akun Anda saat ini sedang menunggu proses approval dan verifikasi dari Super Admin.
                 </p>
               </div>
 
               {/* Detail Ringkasan Akun */}
-              <div className="p-4 rounded-xl bg-[#181615] border border-stone-800 text-left space-y-2.5 text-xs">
-                <div className="flex justify-between items-center text-stone-400">
+              <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200 text-left space-y-2.5 text-xs">
+                <div className="flex justify-between items-center text-stone-600">
                   <span>Nama Studio / Bisnis:</span>
-                  <span className="font-bold text-stone-100">{pendingRegisteredUser.businessName}</span>
+                  <span className="font-bold text-stone-900">{pendingRegisteredUser.businessName}</span>
                 </div>
-                <div className="flex justify-between items-center text-stone-400">
+                <div className="flex justify-between items-center text-stone-600">
                   <span>Pemilik:</span>
-                  <span className="font-semibold text-stone-200">{pendingRegisteredUser.displayName}</span>
+                  <span className="font-semibold text-stone-800">{pendingRegisteredUser.displayName}</span>
                 </div>
-                <div className="flex justify-between items-center text-stone-400">
+                <div className="flex justify-between items-center text-stone-600">
                   <span>Username:</span>
-                  <span className="font-mono text-orange-400">@{pendingRegisteredUser.username}</span>
+                  <span className="font-mono text-amber-700 font-bold">@{pendingRegisteredUser.username}</span>
                 </div>
-                <div className="flex justify-between items-center text-stone-400">
+                <div className="flex justify-between items-center text-stone-600">
                   <span>Email:</span>
-                  <span className="font-mono text-stone-300">{pendingRegisteredUser.email}</span>
+                  <span className="font-mono text-stone-800">{pendingRegisteredUser.email}</span>
                 </div>
-                <div className="flex justify-between items-center text-stone-400">
+                <div className="flex justify-between items-center text-stone-600">
                   <span>Paket yang Diajukan:</span>
-                  <span className="font-bold text-orange-300 bg-stone-900 px-2 py-0.5 rounded border border-orange-500/30 font-mono">
+                  <span className="font-bold text-amber-900 bg-amber-100 px-2 py-0.5 rounded border border-amber-300 font-mono">
                     {pendingRegisteredUser.requestedPlanName}
                   </span>
                 </div>
-                <div className="flex justify-between items-center text-stone-400">
+                <div className="flex justify-between items-center text-stone-600">
                   <span>PIN Booth Kiosk:</span>
-                  <span className="font-mono font-bold text-stone-200">{pendingRegisteredUser.boothAccessPin}</span>
+                  <span className="font-mono font-bold text-stone-900">{pendingRegisteredUser.boothAccessPin}</span>
                 </div>
               </div>
 
@@ -548,7 +548,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <button
                   type="button"
                   onClick={handleWhatsAppNotifyAdmin}
-                  className="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+                  className="w-full py-3 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer"
                 >
                   <MessageCircle className="w-4 h-4" />
                   <span>Konfirmasi & Chat via WhatsApp</span>
@@ -560,7 +560,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     setPendingRegisteredUser(null);
                     setTab('login');
                   }}
-                  className="w-full py-2.5 px-4 rounded-xl bg-stone-900 hover:bg-stone-800 text-stone-300 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer border border-stone-800"
+                  className="w-full py-2.5 px-4 rounded-2xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer border border-stone-200"
                 >
                   <span>Selesai & Ke Halaman Login</span>
                 </button>
@@ -569,33 +569,33 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           ) : loginPendingUser ? (
             /* SPECIAL VIEW: LOGIN ATTEMPT FOR PENDING APPROVAL USER */
             <div className="space-y-4 animate-in zoom-in-95 duration-200 text-center">
-              <div className="w-14 h-14 rounded-2xl bg-stone-900 border border-orange-500/50 text-orange-400 flex items-center justify-center mx-auto shadow-sm">
-                <Clock className="w-7 h-7 text-orange-400" />
+              <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-300 text-amber-600 flex items-center justify-center mx-auto shadow-xs">
+                <Clock className="w-7 h-7 text-amber-600" />
               </div>
 
               <div className="space-y-1">
-                <h3 className="text-base font-bold text-stone-100">
+                <h3 className="text-base font-bold text-stone-900">
                   Akun Menunggu Persetujuan Super Admin
                 </h3>
-                <p className="text-xs text-stone-400 leading-relaxed max-w-md mx-auto">
-                  Akun <strong className="text-orange-400 font-bold">{loginPendingUser.businessName || loginPendingUser.displayName}</strong> belum di-approve oleh Super Admin. Setelah di-approve, Anda dapat langsung login.
+                <p className="text-xs text-stone-500 leading-relaxed max-w-md mx-auto">
+                  Akun <strong className="text-amber-700 font-bold">{loginPendingUser.businessName || loginPendingUser.displayName}</strong> belum di-approve oleh Super Admin. Setelah di-approve, Anda dapat langsung login.
                 </p>
               </div>
 
-              <div className="p-4 rounded-xl bg-[#181615] border border-stone-800 text-left space-y-2 text-xs">
-                <div className="flex justify-between items-center text-stone-400">
+              <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200 text-left space-y-2 text-xs">
+                <div className="flex justify-between items-center text-stone-600">
                   <span>Status:</span>
-                  <span className="font-bold text-orange-300 bg-stone-900 px-2 py-0.5 rounded border border-orange-500/30 font-mono">
+                  <span className="font-bold text-amber-900 bg-amber-100 px-2 py-0.5 rounded border border-amber-300 font-mono">
                     Menunggu Approval
                   </span>
                 </div>
-                <div className="flex justify-between items-center text-stone-400">
+                <div className="flex justify-between items-center text-stone-600">
                   <span>Username:</span>
-                  <span className="font-mono text-stone-200">@{loginPendingUser.username}</span>
+                  <span className="font-mono text-stone-900 font-bold">@{loginPendingUser.username}</span>
                 </div>
-                <div className="flex justify-between items-center text-stone-400">
+                <div className="flex justify-between items-center text-stone-600">
                   <span>Paket Diajukan:</span>
-                  <span className="font-bold text-stone-300">{loginPendingUser.requestedPlanName || 'Langganan Photobooth'}</span>
+                  <span className="font-bold text-stone-800">{loginPendingUser.requestedPlanName || 'Langganan Photobooth'}</span>
                 </div>
               </div>
 
@@ -617,7 +617,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <button
                   type="button"
                   onClick={handleWhatsAppNotifyAdmin}
-                  className="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+                  className="w-full py-3 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer"
                 >
                   <MessageCircle className="w-4 h-4" />
                   <span>Konfirmasi & Chat via WhatsApp</span>
@@ -626,7 +626,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setLoginPendingUser(null)}
-                  className="w-full py-2.5 px-4 rounded-xl bg-stone-900 hover:bg-stone-800 text-stone-300 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer border border-stone-800"
+                  className="w-full py-2.5 px-4 rounded-2xl bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer border border-stone-200"
                 >
                   <span>Kembali ke Login</span>
                 </button>
@@ -636,8 +636,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             /* TAB 1: USERNAME / EMAIL / PIN LOGIN */
             <form onSubmit={handleManualLogin} className="space-y-4 animate-in fade-in duration-150">
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-stone-300 flex items-center gap-1.5">
-                  <User className="w-3.5 h-3.5 text-orange-400" />
+                <label className="text-xs font-bold text-stone-700 flex items-center gap-1.5">
+                  <User className="w-3.5 h-3.5 text-amber-600" />
                   <span>Username, Email, atau PIN Booth:</span>
                 </label>
                 <input
@@ -646,13 +646,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   value={loginIdentifier}
                   onChange={(e) => setLoginIdentifier(e.target.value)}
                   placeholder="Masukkan Username, Email, atau PIN Booth"
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-stone-900 border border-stone-700 text-stone-100 text-sm focus:outline-none focus:border-orange-500 transition-colors font-medium placeholder:text-stone-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 border border-stone-300 text-stone-900 text-sm focus:outline-none focus:border-amber-500 focus:bg-white transition-colors font-medium placeholder:text-stone-400"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-stone-300 flex items-center gap-1.5">
-                  <Lock className="w-3.5 h-3.5 text-orange-400" />
+                <label className="text-xs font-bold text-stone-700 flex items-center gap-1.5">
+                  <Lock className="w-3.5 h-3.5 text-amber-600" />
                   <span>Password Akun:</span>
                 </label>
                 <div className="relative">
@@ -661,12 +661,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     value={loginPassword}
                     onChange={(e) => setLoginPassword(e.target.value)}
                     placeholder="Masukkan password akun Anda"
-                    className="w-full px-3.5 py-2.5 rounded-lg bg-stone-900 border border-stone-700 text-stone-100 text-sm pr-10 focus:outline-none focus:border-orange-500 transition-colors font-mono placeholder:text-stone-500"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 border border-stone-300 text-stone-900 text-sm pr-10 focus:outline-none focus:border-amber-500 focus:bg-white transition-colors font-mono placeholder:text-stone-400"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-stone-400 hover:text-stone-200 cursor-pointer"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-stone-400 hover:text-stone-700 cursor-pointer"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -675,7 +675,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
               <button
                 type="submit"
-                className="w-full py-3 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer border border-orange-500"
+                className="w-full py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:brightness-105 text-stone-950 font-bold text-sm flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer"
               >
                 <LogIn className="w-4 h-4" />
                 <span>Masuk Sekarang</span>
@@ -684,11 +684,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           ) : (
             /* TAB 2: REGISTER NEW CLIENT */
             <form onSubmit={handleRegisterSubmit} className="space-y-4 animate-in fade-in duration-150">
-              <div className="p-3 rounded-xl bg-stone-900 border border-stone-800 text-stone-300 text-xs flex items-start gap-2.5">
-                <Clock className="w-4 h-4 text-orange-400 shrink-0 mt-0.5" />
+              <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-stone-800 text-xs flex items-start gap-2.5 shadow-xs">
+                <Clock className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                 <div>
-                  <strong className="text-stone-200 font-bold">Sistem Pendaftaran & Approval:</strong>
-                  <p className="text-[11px] text-stone-400 mt-0.5 leading-relaxed">
+                  <strong className="text-stone-900 font-bold">Sistem Pendaftaran & Approval:</strong>
+                  <p className="text-[11px] text-stone-600 mt-0.5 leading-relaxed">
                     Paket <strong>Trial 3 Hari</strong> akan aktif secara otomatis. Untuk paket berbayar (Mingguan, Bulanan, Tahunan, OFF), pendaftaran akan diproses dan di-approve terlebih dahulu oleh Super Admin.
                   </p>
                 </div>
@@ -696,8 +696,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-stone-300 flex items-center gap-1.5">
-                    <Building2 className="w-3.5 h-3.5 text-orange-400" />
+                  <label className="text-xs font-bold text-stone-700 flex items-center gap-1.5">
+                    <Building2 className="w-3.5 h-3.5 text-amber-600" />
                     <span>Nama Bisnis / Studio:</span>
                   </label>
                   <input
@@ -711,13 +711,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                       }
                     }}
                     placeholder="Contoh: Aurora Photobooth"
-                    className="w-full px-3 py-2 rounded-lg bg-stone-900 border border-stone-700 text-white text-xs focus:outline-none focus:border-orange-500 placeholder:text-stone-500"
+                    className="w-full px-3 py-2.5 rounded-xl bg-stone-50 border border-stone-300 text-stone-900 text-xs focus:outline-none focus:border-amber-500 focus:bg-white placeholder:text-stone-400"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-stone-300 flex items-center gap-1.5">
-                    <User className="w-3.5 h-3.5 text-orange-400" />
+                  <label className="text-xs font-bold text-stone-700 flex items-center gap-1.5">
+                    <User className="w-3.5 h-3.5 text-amber-600" />
                     <span>Username Login:</span>
                   </label>
                   <input
@@ -725,15 +725,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     value={regUsername}
                     onChange={(e) => setRegUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_.-]/g, ''))}
                     placeholder="contoh: aurorastudio"
-                    className="w-full px-3 py-2 rounded-lg bg-stone-900 border border-stone-700 text-white text-xs focus:outline-none focus:border-orange-500 placeholder:text-stone-500"
+                    className="w-full px-3 py-2.5 rounded-xl bg-stone-50 border border-stone-300 text-stone-900 text-xs focus:outline-none focus:border-amber-500 focus:bg-white placeholder:text-stone-400"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-stone-300 flex items-center gap-1.5">
-                    <Lock className="w-3.5 h-3.5 text-orange-400" />
+                  <label className="text-xs font-bold text-stone-700 flex items-center gap-1.5">
+                    <Lock className="w-3.5 h-3.5 text-amber-600" />
                     <span>Password:</span>
                   </label>
                   <div className="relative">
@@ -743,12 +743,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                       value={regPassword}
                       onChange={(e) => setRegPassword(e.target.value)}
                       placeholder="Password login akun"
-                      className="w-full px-3 py-2 rounded-lg bg-stone-900 border border-stone-700 text-white text-xs pr-9 font-mono focus:outline-none focus:border-orange-500 placeholder:text-stone-500"
+                      className="w-full px-3 py-2.5 rounded-xl bg-stone-50 border border-stone-300 text-stone-900 text-xs pr-9 font-mono focus:outline-none focus:border-amber-500 focus:bg-white placeholder:text-stone-400"
                     />
                     <button
                       type="button"
                       onClick={() => setShowRegPassword(!showRegPassword)}
-                      className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-stone-400 hover:text-white cursor-pointer"
+                      className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-stone-400 hover:text-stone-700 cursor-pointer"
                     >
                       {showRegPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                     </button>
@@ -756,8 +756,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-stone-300 flex items-center gap-1.5">
-                    <KeyRound className="w-3.5 h-3.5 text-orange-400" />
+                  <label className="text-xs font-bold text-stone-700 flex items-center gap-1.5">
+                    <KeyRound className="w-3.5 h-3.5 text-amber-600" />
                     <span>PIN Akses Kiosk (4-6 Digit):</span>
                   </label>
                   <input
@@ -766,15 +766,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     value={regPin}
                     onChange={(e) => setRegPin(e.target.value.replace(/[^0-9]/g, ''))}
                     placeholder="1234"
-                    className="w-full px-3 py-2 rounded-lg bg-stone-900 border border-stone-700 text-white text-xs font-mono focus:outline-none focus:border-orange-500 placeholder:text-stone-500"
+                    className="w-full px-3 py-2.5 rounded-xl bg-stone-50 border border-stone-300 text-stone-900 text-xs font-mono focus:outline-none focus:border-amber-500 focus:bg-white placeholder:text-stone-400"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-stone-300 flex items-center gap-1.5">
-                    <Mail className="w-3.5 h-3.5 text-orange-400" />
+                  <label className="text-xs font-bold text-stone-700 flex items-center gap-1.5">
+                    <Mail className="w-3.5 h-3.5 text-amber-600" />
                     <span>Email Klien:</span>
                   </label>
                   <input
@@ -783,13 +783,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     value={regEmail}
                     onChange={(e) => setRegEmail(e.target.value)}
                     placeholder="vendor@photobooth.id"
-                    className="w-full px-3 py-2 rounded-lg bg-stone-900 border border-stone-700 text-white text-xs focus:outline-none focus:border-orange-500 placeholder:text-stone-500"
+                    className="w-full px-3 py-2.5 rounded-xl bg-stone-50 border border-stone-300 text-stone-900 text-xs focus:outline-none focus:border-amber-500 focus:bg-white placeholder:text-stone-400"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-stone-300 flex items-center gap-1.5">
-                    <Phone className="w-3.5 h-3.5 text-orange-400" />
+                  <label className="text-xs font-bold text-stone-700 flex items-center gap-1.5">
+                    <Phone className="w-3.5 h-3.5 text-amber-600" />
                     <span>No. WhatsApp:</span>
                   </label>
                   <input
@@ -797,22 +797,22 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     value={regPhone}
                     onChange={(e) => setRegPhone(e.target.value)}
                     placeholder="08123456789"
-                    className="w-full px-3 py-2 rounded-lg bg-stone-900 border border-stone-700 text-white text-xs focus:outline-none focus:border-orange-500 placeholder:text-stone-500"
+                    className="w-full px-3 py-2.5 rounded-xl bg-stone-50 border border-stone-300 text-stone-900 text-xs focus:outline-none focus:border-amber-500 focus:bg-white placeholder:text-stone-400"
                   />
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-stone-300 flex items-center justify-between">
+                <label className="text-xs font-bold text-stone-700 flex items-center justify-between">
                   <span>Pilihan Paket / Masa Aktif:</span>
-                  <span className="text-[11px] text-orange-400 font-mono font-medium">
+                  <span className="text-[11px] text-amber-700 font-mono font-bold">
                     {regDuration === 'trial_3' ? 'Langsung Aktif' : 'Butuh Approval Admin'}
                   </span>
                 </label>
                 <select
                   value={regDuration}
                   onChange={(e) => setRegDuration(e.target.value as any)}
-                  className="w-full px-3 py-2 rounded-lg bg-stone-900 border border-stone-700 text-white text-xs focus:outline-none focus:border-orange-500 font-medium"
+                  className="w-full px-3 py-2.5 rounded-xl bg-stone-50 border border-stone-300 text-stone-900 text-xs focus:outline-none focus:border-amber-500 focus:bg-white font-medium cursor-pointer"
                 >
                   <option value="monthly_49k">Langganan Bulanan — Rp 49.000 / 30 Hari (Rekomendasi)</option>
                   <option value="weekly_25k">Langganan Mingguan — Rp 25.000 / 7 Hari</option>
@@ -839,7 +839,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer border border-orange-500 disabled:opacity-50"
+                className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:brightness-105 text-stone-950 font-bold text-sm flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer disabled:opacity-50"
               >
                 <CheckCircle2 className="w-4 h-4" />
                 <span>{isLoading ? 'Menyimpan...' : regDuration === 'trial_3' ? 'Daftar & Langsung Aktifkan Trial' : 'Daftarkan Akun & Ajukan Approval'}</span>

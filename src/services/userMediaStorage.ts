@@ -147,7 +147,7 @@ export function getUserDefaultTheme(user: UserAccount): EventTheme {
     screensaverTitle: brandName.toUpperCase(),
     screensaverSubtitle: user.businessName ? `UNIT KIOS: ${user.displayName.toUpperCase()}` : preset.subtitle,
     screensaverTagline: user.notes ? user.notes : preset.tagline,
-    screensaverBadgeText: user.role === 'super_admin' ? '⭐ OFFICIAL SNAPBOOTH STUDIO' : `📸 ${brandName.toUpperCase()}`,
+    screensaverBadgeText: user.role === 'super_admin' ? 'OFFICIAL SNAPBOOTH STUDIO' : `📸 ${brandName.toUpperCase()}`,
     screensaverCtaText: '✨ SENTUH LAYAR UNTUK MULAI FOTOBOOTH',
     screensaverHighlights: [...preset.highlights],
     screensaverPhotos: [...preset.photos],

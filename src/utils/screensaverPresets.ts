@@ -91,13 +91,13 @@ export const SCREENSAVER_PRESETS: ScreensaverPreset[] = [
   },
   {
     id: 'expo',
-    name: 'Pameran, Expo & Sponsor (Brand Activation)',
+    name: 'Pameran & Expo (Brand Activation)',
     categoryLabel: 'Brand & Exhibition',
-    icon: '⭐',
+    icon: '🎪',
     title: 'TECH & CAREER EXPO 2026',
-    subtitle: 'OFFICIAL SPONSOR & INTERACTIVE EXPERIENCE',
+    subtitle: 'OFFICIAL & INTERACTIVE EXPERIENCE',
     tagline: 'Kunjungi Booth Kami, Dapatkan Merchandise Eksklusif & Abadikan Pengalaman Seru!',
-    badgeText: '⭐ SPONSOR SHOWCASE',
+    badgeText: '',
     ctaText: '📸 SENTUH LAYAR & CETAK STRUK FOTO',
     highlights: [
       'Booth Interaktif Seru',

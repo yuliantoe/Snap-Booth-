@@ -397,24 +397,24 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/85 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-slate-900 border border-slate-800 w-full max-w-6xl xl:max-w-7xl h-[92vh] max-h-[94vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
+      <div className="bg-white border border-stone-200 w-full max-w-6xl xl:max-w-7xl h-[92vh] max-h-[94vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col text-stone-900">
         {/* Header Super Admin */}
-        <div className="p-4 sm:p-5 bg-gradient-to-r from-slate-950 via-slate-900 to-amber-950/40 border-b border-slate-800 flex items-center justify-between shrink-0">
+        <div className="p-4 sm:p-5 bg-stone-50 border-b border-stone-200 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-300 shadow-inner">
+            <div className="p-2.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-600 shadow-xs">
               <Crown className="w-6 h-6" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base sm:text-lg font-black text-white">
+                <h2 className="text-base sm:text-lg font-bold text-stone-900">
                   Super Admin Management Portal
                 </h2>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
                   👑 Cloud Firestore
                 </span>
               </div>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-stone-500">
                 Kelola kredensial customer (username/password), status langganan, dan akun Super Admin
               </p>
             </div>
@@ -427,16 +427,16 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                   onClose();
                   onLogout();
                 }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs font-bold transition-all cursor-pointer"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-stone-100 text-rose-600 border border-rose-200 text-xs font-bold transition-all cursor-pointer shadow-xs"
                 title="Logout dari Super Admin"
               >
-                <LogOut className="w-3.5 h-3.5 text-rose-400" />
+                <LogOut className="w-3.5 h-3.5 text-rose-500" />
                 <span>Logout</span>
               </button>
             )}
             <button
               onClick={onClose}
-              className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-800 text-slate-400 hover:text-white transition-colors cursor-pointer"
+              className="p-2 rounded-xl bg-white hover:bg-stone-100 text-stone-500 hover:text-stone-800 transition-colors cursor-pointer border border-stone-200 shadow-xs"
             >
               <X className="w-5 h-5" />
             </button>
@@ -446,14 +446,14 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
         {/* Main Flex Layout: Vertical Sidebar (Ke Bawah) + Main Content */}
         <div className="flex-1 flex flex-col md:flex-row overflow-hidden min-h-0">
           {/* Left Vertical Sidebar Navigation - Tata Letak Menu Ke Bawah */}
-          <aside className="w-full md:w-72 lg:w-80 shrink-0 border-b md:border-b-0 md:border-r border-slate-800 bg-slate-950/90 flex flex-col justify-between overflow-y-auto p-3 sm:p-4">
+          <aside className="w-full md:w-72 lg:w-80 shrink-0 border-b md:border-b-0 md:border-r border-stone-200 bg-[#f8f8f7] flex flex-col justify-between overflow-y-auto p-3 sm:p-4">
             <div className="space-y-3">
-              <div className="px-2 py-1 flex items-center justify-between text-slate-400 font-mono text-[11px] uppercase tracking-wider font-bold border-b border-slate-800/80 pb-2">
-                <span className="flex items-center gap-1.5 text-slate-300">
-                  <Sliders className="w-3.5 h-3.5 text-amber-400" />
+              <div className="px-2 py-1 flex items-center justify-between text-stone-500 font-mono text-[11px] uppercase tracking-wider font-bold border-b border-stone-200 pb-2">
+                <span className="flex items-center gap-1.5 text-stone-700">
+                  <Sliders className="w-3.5 h-3.5 text-amber-600" />
                   Menu Super Admin
                 </span>
-                <span className="text-[10px] bg-amber-500/10 text-amber-300 px-2 py-0.5 rounded-full border border-amber-500/30 font-bold">
+                <span className="text-[10px] bg-amber-50 text-amber-800 px-2 py-0.5 rounded-full border border-amber-200 font-bold">
                   4 Modul
                 </span>
               </div>
@@ -466,13 +466,13 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                   type="button"
                   className={`w-full p-3 rounded-2xl border text-left transition-all flex items-center justify-between gap-3 cursor-pointer group ${
                     activeTab === 'customers'
-                      ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 border-amber-400 shadow-lg shadow-amber-500/20 font-extrabold ring-1 ring-amber-400/40'
-                      : 'bg-slate-900/90 text-slate-300 border-slate-800/90 hover:border-slate-700 hover:bg-slate-850'
+                      ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-stone-950 border-amber-400 shadow-md font-extrabold ring-1 ring-amber-400/40'
+                      : 'bg-white text-stone-700 border-stone-200 hover:border-amber-300 hover:bg-amber-50/40 shadow-xs'
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div className={`p-2.5 rounded-xl shrink-0 transition-colors ${
-                      activeTab === 'customers' ? 'bg-slate-950 text-amber-400' : 'bg-slate-800 text-slate-300 group-hover:bg-slate-700'
+                      activeTab === 'customers' ? 'bg-stone-900 text-amber-300' : 'bg-stone-100 text-stone-600 group-hover:bg-stone-200'
                     }`}>
                       <Users className="w-4 h-4" />
                     </div>
@@ -481,7 +481,7 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                         Daftar Customer
                       </span>
                       <p className={`text-[10px] sm:text-[11px] leading-tight truncate mt-0.5 ${
-                        activeTab === 'customers' ? 'text-slate-900 font-medium' : 'text-slate-400'
+                        activeTab === 'customers' ? 'text-stone-900 font-medium' : 'text-stone-500'
                       }`}>
                         Monitoring {totalClients} klien aktif
                       </p>
@@ -489,12 +489,12 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
                     <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
-                      activeTab === 'customers' ? 'bg-slate-950 text-amber-300' : 'bg-slate-800 text-slate-400 border border-slate-700'
+                      activeTab === 'customers' ? 'bg-stone-900 text-amber-300' : 'bg-stone-100 text-stone-600 border border-stone-200'
                     }`}>
                       {totalClients}
                     </span>
                     <ChevronRight className={`w-3.5 h-3.5 transition-transform ${
-                      activeTab === 'customers' ? 'text-slate-950 translate-x-0.5' : 'text-slate-600'
+                      activeTab === 'customers' ? 'text-stone-900 translate-x-0.5' : 'text-stone-400'
                     }`} />
                   </div>
                 </button>
@@ -505,15 +505,15 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                   type="button"
                   className={`w-full p-3 rounded-2xl border text-left transition-all flex items-center justify-between gap-3 cursor-pointer group ${
                     activeTab === 'approvals'
-                      ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 border-amber-400 shadow-lg shadow-amber-500/20 font-extrabold ring-1 ring-amber-400/40'
+                      ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-stone-950 border-amber-400 shadow-md font-extrabold ring-1 ring-amber-400/40'
                       : pendingApprovalClients.length > 0
-                      ? 'bg-amber-500/10 text-amber-200 border-amber-500/40 hover:bg-amber-500/20'
-                      : 'bg-slate-900/90 text-slate-300 border-slate-800/90 hover:border-slate-700 hover:bg-slate-850'
+                      ? 'bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100/60 shadow-xs'
+                      : 'bg-white text-stone-700 border-stone-200 hover:border-amber-300 hover:bg-amber-50/40 shadow-xs'
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div className={`p-2.5 rounded-xl shrink-0 transition-colors relative ${
-                      activeTab === 'approvals' ? 'bg-slate-950 text-amber-400' : 'bg-slate-800 text-amber-400 group-hover:bg-slate-700'
+                      activeTab === 'approvals' ? 'bg-stone-900 text-amber-300' : 'bg-stone-100 text-amber-600 group-hover:bg-stone-200'
                     }`}>
                       <Clock className="w-4 h-4" />
                       {pendingApprovalClients.length > 0 && (
@@ -525,7 +525,7 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                         Persetujuan Baru
                       </span>
                       <p className={`text-[10px] sm:text-[11px] leading-tight truncate mt-0.5 ${
-                        activeTab === 'approvals' ? 'text-slate-900 font-medium' : 'text-slate-400'
+                        activeTab === 'approvals' ? 'text-stone-900 font-medium' : 'text-stone-500'
                       }`}>
                         Verifikasi pendaftaran mandiri
                       </p>
@@ -542,13 +542,13 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                       </span>
                     ) : (
                       <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
-                        activeTab === 'approvals' ? 'bg-slate-950 text-amber-300' : 'bg-slate-800 text-slate-500 border border-slate-700'
+                        activeTab === 'approvals' ? 'bg-stone-900 text-amber-300' : 'bg-stone-100 text-stone-500 border border-stone-200'
                       }`}>
                         0
                       </span>
                     )}
                     <ChevronRight className={`w-3.5 h-3.5 transition-transform ${
-                      activeTab === 'approvals' ? 'text-slate-950 translate-x-0.5' : 'text-slate-600'
+                      activeTab === 'approvals' ? 'text-stone-900 translate-x-0.5' : 'text-stone-400'
                     }`} />
                   </div>
                 </button>
@@ -559,13 +559,13 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                   type="button"
                   className={`w-full p-3 rounded-2xl border text-left transition-all flex items-center justify-between gap-3 cursor-pointer group ${
                     activeTab === 'add_new'
-                      ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 border-amber-400 shadow-lg shadow-amber-500/20 font-extrabold ring-1 ring-amber-400/40'
-                      : 'bg-slate-900/90 text-slate-300 border-slate-800/90 hover:border-slate-700 hover:bg-slate-850'
+                      ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-stone-950 border-amber-400 shadow-md font-extrabold ring-1 ring-amber-400/40'
+                      : 'bg-white text-stone-700 border-stone-200 hover:border-amber-300 hover:bg-amber-50/40 shadow-xs'
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div className={`p-2.5 rounded-xl shrink-0 transition-colors ${
-                      activeTab === 'add_new' ? 'bg-slate-950 text-amber-400' : 'bg-slate-800 text-slate-300 group-hover:bg-slate-700'
+                      activeTab === 'add_new' ? 'bg-stone-900 text-amber-300' : 'bg-stone-100 text-stone-600 group-hover:bg-stone-200'
                     }`}>
                       <UserPlus className="w-4 h-4" />
                     </div>
@@ -574,7 +574,7 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                         Tambah Klien Baru
                       </span>
                       <p className={`text-[10px] sm:text-[11px] leading-tight truncate mt-0.5 ${
-                        activeTab === 'add_new' ? 'text-slate-900 font-medium' : 'text-slate-400'
+                        activeTab === 'add_new' ? 'text-stone-900 font-medium' : 'text-stone-500'
                       }`}>
                         Registrasi manual studio klien
                       </p>
@@ -582,12 +582,12 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
                     <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
-                      activeTab === 'add_new' ? 'bg-slate-950 text-amber-300' : 'bg-slate-800 text-slate-500 border border-slate-700'
+                      activeTab === 'add_new' ? 'bg-stone-900 text-amber-300' : 'bg-stone-100 text-stone-500 border border-stone-200'
                     }`}>
                       + Baru
                     </span>
                     <ChevronRight className={`w-3.5 h-3.5 transition-transform ${
-                      activeTab === 'add_new' ? 'text-slate-950 translate-x-0.5' : 'text-slate-600'
+                      activeTab === 'add_new' ? 'text-stone-900 translate-x-0.5' : 'text-stone-400'
                     }`} />
                   </div>
                 </button>
@@ -598,13 +598,13 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                   type="button"
                   className={`w-full p-3 rounded-2xl border text-left transition-all flex items-center justify-between gap-3 cursor-pointer group ${
                     activeTab === 'admin_profile'
-                      ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 border-amber-400 shadow-lg shadow-amber-500/20 font-extrabold ring-1 ring-amber-400/40'
-                      : 'bg-slate-900/90 text-slate-300 border-slate-800/90 hover:border-slate-700 hover:bg-slate-850'
+                      ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-stone-950 border-amber-400 shadow-md font-extrabold ring-1 ring-amber-400/40'
+                      : 'bg-white text-stone-700 border-stone-200 hover:border-amber-300 hover:bg-amber-50/40 shadow-xs'
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div className={`p-2.5 rounded-xl shrink-0 transition-colors ${
-                      activeTab === 'admin_profile' ? 'bg-slate-950 text-amber-400' : 'bg-slate-800 text-amber-400 group-hover:bg-slate-700'
+                      activeTab === 'admin_profile' ? 'bg-stone-900 text-amber-300' : 'bg-stone-100 text-amber-600 group-hover:bg-stone-200'
                     }`}>
                       <Crown className="w-4 h-4" />
                     </div>
@@ -613,7 +613,7 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                         Akun Super Admin
                       </span>
                       <p className={`text-[10px] sm:text-[11px] leading-tight truncate mt-0.5 ${
-                        activeTab === 'admin_profile' ? 'text-slate-900 font-medium' : 'text-slate-400'
+                        activeTab === 'admin_profile' ? 'text-stone-900 font-medium' : 'text-stone-500'
                       }`}>
                         Ganti username & password master
                       </p>
@@ -621,12 +621,12 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
                     <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
-                      activeTab === 'admin_profile' ? 'bg-slate-950 text-amber-300' : 'bg-slate-800 text-amber-400/80 border border-amber-500/30'
+                      activeTab === 'admin_profile' ? 'bg-stone-900 text-amber-300' : 'bg-amber-50 text-amber-700 border border-amber-200'
                     }`}>
                       Master
                     </span>
                     <ChevronRight className={`w-3.5 h-3.5 transition-transform ${
-                      activeTab === 'admin_profile' ? 'text-slate-950 translate-x-0.5' : 'text-slate-600'
+                      activeTab === 'admin_profile' ? 'text-stone-900 translate-x-0.5' : 'text-stone-400'
                     }`} />
                   </div>
                 </button>
@@ -634,25 +634,25 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
             </div>
 
             {/* Bottom Sidebar Info Card */}
-            <div className="mt-4 pt-4 border-t border-slate-800/80 space-y-3">
-              <div className="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 text-slate-300 space-y-2">
+            <div className="mt-4 pt-4 border-t border-stone-200 space-y-3">
+              <div className="p-3 rounded-2xl bg-white border border-stone-200 text-stone-700 space-y-2 shadow-xs">
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold">
+                  <div className="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center font-bold border border-amber-200">
                     <Crown className="w-4 h-4" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-bold text-white truncate">
+                    <p className="text-xs font-bold text-stone-900 truncate">
                       {adminDisplayName || 'Super Admin Master'}
                     </p>
-                    <p className="text-[10px] text-slate-400 font-mono truncate">
+                    <p className="text-[10px] text-stone-500 font-mono truncate">
                       @{adminUsername}
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center justify-between text-[10px] pt-1 border-t border-slate-800/60 font-mono text-slate-400">
+                <div className="flex items-center justify-between text-[10px] pt-1 border-t border-stone-100 font-mono text-stone-500">
                   <span>Database:</span>
-                  <span className="text-emerald-400 font-bold flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="text-emerald-600 font-bold flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                     Firestore Live
                   </span>
                 </div>
@@ -661,21 +661,21 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
           </aside>
 
           {/* Right Main Content Area */}
-          <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-7 flex flex-col bg-slate-900/40 min-h-0 space-y-6">
+          <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-7 flex flex-col bg-[#f0f2f5] bg-[radial-gradient(#d4d7dc_1px,transparent_1px)] [background-size:20px_20px] min-h-0 space-y-6">
             {/* Breadcrumb & Section Header */}
-            <div className="pb-4 border-b border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="pb-4 border-b border-stone-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <div className="flex items-center gap-2 text-xs font-mono text-amber-400 font-bold uppercase tracking-wider">
+                <div className="flex items-center gap-2 text-xs font-mono text-amber-600 font-bold uppercase tracking-wider">
                   <span>Super Admin Portal</span>
                   <span>/</span>
-                  <span className="text-slate-300">
+                  <span className="text-stone-500">
                     {activeTab === 'customers' && 'Daftar Customer'}
                     {activeTab === 'approvals' && 'Persetujuan User Baru'}
                     {activeTab === 'add_new' && 'Tambah Klien Baru'}
                     {activeTab === 'admin_profile' && 'Akun Super Admin'}
                   </span>
                 </div>
-                <h3 className="text-base sm:text-lg font-black text-white mt-1">
+                <h3 className="text-base sm:text-lg font-bold text-stone-900 mt-1">
                   {activeTab === 'customers' && `Database Customer & Langganan (${totalClients} Klien)`}
                   {activeTab === 'approvals' && `Verifikasi & Persetujuan Klien Baru (${pendingApprovalClients.length} Menunggu)`}
                   {activeTab === 'add_new' && 'Formulir Registrasi Klien Baru'}
@@ -688,7 +688,7 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                   <button
                     onClick={() => setActiveTab('add_new')}
                     type="button"
-                    className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black flex items-center gap-1.5 shadow-md shadow-amber-500/20 transition-all cursor-pointer"
+                    className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
                   >
                     <UserPlus className="w-3.5 h-3.5" />
                     <span>+ Klien Baru</span>
@@ -697,9 +697,9 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                     <button
                       onClick={() => setActiveTab('approvals')}
                       type="button"
-                      className="px-3 py-1.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
+                      className="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
                     >
-                      <Clock className="w-3.5 h-3.5 text-rose-400" />
+                      <Clock className="w-3.5 h-3.5 text-rose-600" />
                       <span>{pendingApprovalClients.length} Approval</span>
                     </button>
                   )}
@@ -709,8 +709,8 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
 
             {/* Success Alert */}
             {successMessage && (
-              <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2 font-bold animate-in fade-in">
-                <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+              <div className="p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2 font-bold animate-in fade-in shadow-xs">
+                <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
                 <span>{successMessage}</span>
               </div>
             )}
@@ -720,21 +720,21 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
             <div className="space-y-5 animate-in fade-in duration-150">
               {/* Peringatan Sisa Masa Aktif Klien (< 3 Hari) */}
               {expiringSoonClients.length > 0 && (
-                <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-amber-500/15 via-rose-500/10 to-amber-500/15 border-2 border-amber-500/60 shadow-xl shadow-amber-500/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-amber-200 animate-in fade-in">
+                <div className="p-4 sm:p-5 rounded-2xl bg-amber-50 border border-amber-300 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-amber-900 animate-in fade-in">
                   <div className="flex items-start gap-3.5">
-                    <div className="p-2.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 shrink-0 shadow-inner">
-                      <AlertCircle className="w-5 h-5 animate-pulse text-amber-400" />
+                    <div className="p-2.5 rounded-xl bg-white text-amber-600 border border-amber-200 shrink-0 shadow-xs">
+                      <AlertCircle className="w-5 h-5 text-amber-600" />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <h4 className="text-sm sm:text-base font-black text-amber-300">
+                        <h4 className="text-sm sm:text-base font-bold text-amber-900">
                           Peringatan Sisa Masa Aktif Klien (&lt; 3 Hari)
                         </h4>
-                        <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-amber-500 text-slate-950 uppercase font-mono animate-pulse">
+                        <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-200 text-amber-900 uppercase font-mono">
                           {expiringSoonClients.length} Akun Mendekati Expired
                         </span>
                       </div>
-                      <p className="text-xs text-slate-300 mt-1 leading-relaxed max-w-2xl">
+                      <p className="text-xs text-stone-600 mt-1 leading-relaxed max-w-2xl">
                         Terdapat <strong>{expiringSoonClients.length} akun customer</strong> yang sisa masa aktifnya kurang dari 3 hari. Segera lakukan follow up perpanjangan langganan atau tambah durasi.
                       </p>
                     </div>
@@ -742,10 +742,10 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                   <button
                     type="button"
                     onClick={() => setFilterStatus(filterStatus === 'expiring_soon' ? 'all' : 'expiring_soon')}
-                    className={`shrink-0 w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                    className={`shrink-0 w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs ${
                       filterStatus === 'expiring_soon'
-                        ? 'bg-amber-400 text-slate-950 shadow-lg shadow-amber-500/20 ring-2 ring-amber-300'
-                        : 'bg-amber-500/20 hover:bg-amber-500 hover:text-slate-950 text-amber-300 border border-amber-500/40'
+                        ? 'bg-amber-500 text-stone-950 ring-2 ring-amber-400'
+                        : 'bg-white hover:bg-amber-100 text-amber-900 border border-amber-300'
                     }`}
                   >
                     <Filter className="w-4 h-4" />
@@ -756,58 +756,58 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
 
               {/* Metric Summary Cards */}
               <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-                <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col justify-between">
-                  <div className="flex items-center justify-between text-slate-400 text-xs">
+                <div className="p-3.5 rounded-2xl bg-white border border-stone-200 flex flex-col justify-between shadow-xs">
+                  <div className="flex items-center justify-between text-stone-500 text-xs font-medium">
                     <span>Total Klien</span>
-                    <Users className="w-4 h-4 text-rose-400" />
+                    <Users className="w-4 h-4 text-orange-500" />
                   </div>
-                  <p className="text-2xl font-black text-white mt-1.5">{totalClients}</p>
-                  <span className="text-[10px] text-slate-500">Customer Terdaftar</span>
+                  <p className="text-2xl font-bold text-stone-900 mt-1.5">{totalClients}</p>
+                  <span className="text-[10px] text-stone-400">Customer Terdaftar</span>
                 </div>
 
                 <button
                   type="button"
                   onClick={() => setActiveTab('approvals')}
-                  className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                  className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between shadow-xs ${
                     pendingApprovalClients.length > 0
-                      ? 'bg-amber-500/10 border-amber-500/50 hover:bg-amber-500/20 shadow-lg shadow-amber-500/5'
-                      : 'bg-slate-950 border-slate-800'
+                      ? 'bg-amber-50 border-amber-300 hover:bg-amber-100/60'
+                      : 'bg-white border-stone-200'
                   }`}
                 >
-                  <div className="flex items-center justify-between text-amber-300 text-xs font-bold">
+                  <div className="flex items-center justify-between text-amber-800 text-xs font-bold">
                     <span>Approval</span>
-                    <Clock className={`w-4 h-4 ${pendingApprovalClients.length > 0 ? 'text-amber-400 animate-pulse' : 'text-slate-500'}`} />
+                    <Clock className={`w-4 h-4 ${pendingApprovalClients.length > 0 ? 'text-amber-600 animate-pulse' : 'text-stone-400'}`} />
                   </div>
-                  <p className="text-2xl font-black text-amber-400 mt-1.5">{pendingApprovalClients.length}</p>
-                  <span className="text-[10px] text-amber-300/90 font-medium">
+                  <p className="text-2xl font-bold text-amber-600 mt-1.5">{pendingApprovalClients.length}</p>
+                  <span className="text-[10px] text-amber-700 font-medium">
                     {pendingApprovalClients.length > 0 ? '⚡ Klik untuk Review' : 'Semua Beres'}
                   </span>
                 </button>
 
-                <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col justify-between">
-                  <div className="flex items-center justify-between text-slate-400 text-xs">
+                <div className="p-3.5 rounded-2xl bg-white border border-stone-200 flex flex-col justify-between shadow-xs">
+                  <div className="flex items-center justify-between text-stone-500 text-xs font-medium">
                     <span>Aktif & Unlimited</span>
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                   </div>
-                  <p className="text-2xl font-black text-emerald-400 mt-1.5">{activeClients}</p>
-                  <span className="text-[10px] text-emerald-500/80">Akses Penuh Booth</span>
+                  <p className="text-2xl font-bold text-emerald-600 mt-1.5">{activeClients}</p>
+                  <span className="text-[10px] text-emerald-600/80">Akses Penuh Booth</span>
                 </div>
 
-                <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col justify-between">
-                  <div className="flex items-center justify-between text-slate-400 text-xs">
+                <div className="p-3.5 rounded-2xl bg-white border border-stone-200 flex flex-col justify-between shadow-xs">
+                  <div className="flex items-center justify-between text-stone-500 text-xs font-medium">
                     <span>Masa Trial</span>
-                    <Zap className="w-4 h-4 text-amber-400" />
+                    <Zap className="w-4 h-4 text-amber-500" />
                   </div>
-                  <p className="text-2xl font-black text-amber-300 mt-1.5">{trialClients}</p>
-                  <span className="text-[10px] text-amber-500/80">Uji Coba Berjalan</span>
+                  <p className="text-2xl font-bold text-amber-600 mt-1.5">{trialClients}</p>
+                  <span className="text-[10px] text-amber-600/80">Uji Coba Berjalan</span>
                 </div>
 
-                <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col justify-between">
-                  <div className="flex items-center justify-between text-slate-400 text-xs">
+                <div className="p-3.5 rounded-2xl bg-white border border-stone-200 flex flex-col justify-between shadow-xs">
+                  <div className="flex items-center justify-between text-stone-500 text-xs font-medium">
                     <span>Expired</span>
-                    <AlertCircle className="w-4 h-4 text-rose-400" />
+                    <AlertCircle className="w-4 h-4 text-rose-500" />
                   </div>
-                  <p className="text-2xl font-black text-rose-400 mt-1.5">{expiredClients}</p>
+                  <p className="text-2xl font-bold text-rose-600 mt-1.5">{expiredClients}</p>
                   <span className="text-[10px] text-rose-500/80">Perlu Follow-up</span>
                 </div>
               </div>
@@ -815,13 +815,13 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
               {/* Search & Filters */}
               <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
                 <div className="relative w-full sm:w-80">
-                  <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Cari username, bisnis, email, PIN..."
-                    className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-amber-500"
+                    className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white border border-stone-200 text-stone-900 text-xs focus:outline-none focus:border-amber-500 shadow-xs placeholder:text-stone-400"
                   />
                 </div>
 
@@ -829,7 +829,7 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                   <select
                     value={filterStatus}
                     onChange={(e) => setFilterStatus(e.target.value)}
-                    className="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-300 text-xs focus:outline-none font-bold"
+                    className="px-3 py-2 rounded-xl bg-white border border-stone-200 text-stone-700 text-xs focus:outline-none font-bold shadow-xs cursor-pointer"
                   >
                     <option value="all">Semua Status ({totalClients})</option>
                     <option value="pending">⏳ Menunggu Approval ({pendingApprovalClients.length})</option>
@@ -865,14 +865,14 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                         key={client.id}
                         className={`p-4 rounded-2xl border transition-all ${
                           isPending
-                            ? 'border-amber-500/60 bg-amber-950/20 ring-1 ring-amber-500/30'
+                            ? 'border-amber-400 bg-amber-50/60 ring-1 ring-amber-300 shadow-xs'
                             : isExpired
-                            ? 'border-rose-900/50 bg-rose-950/10'
+                            ? 'border-rose-200 bg-rose-50/40 shadow-xs'
                             : isExpiringSoon
-                            ? 'border-amber-500/70 bg-amber-950/20 ring-1 ring-amber-500/40 shadow-lg shadow-amber-500/5'
+                            ? 'border-amber-300 bg-amber-50/40 ring-1 ring-amber-300 shadow-xs'
                             : isTrial
-                            ? 'border-amber-900/50 bg-amber-950/10'
-                            : 'border-slate-800 bg-slate-950/80 hover:border-slate-700'
+                            ? 'border-amber-200 bg-amber-50/30 shadow-xs'
+                            : 'border-stone-200 bg-white hover:border-amber-300 shadow-xs'
                         }`}
                       >
                         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -881,41 +881,41 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                             <div
                               className={`p-3 rounded-2xl border shrink-0 ${
                                 isPending
-                                  ? 'bg-amber-500/20 border-amber-500/40 text-amber-300'
+                                  ? 'bg-amber-100 border-amber-300 text-amber-800'
                                   : isExpired
-                                  ? 'bg-rose-500/20 border-rose-500/30 text-rose-400'
+                                  ? 'bg-rose-100 border-rose-200 text-rose-700'
                                   : isExpiringSoon
-                                  ? 'bg-amber-500/20 border-amber-500/40 text-amber-300'
+                                  ? 'bg-amber-100 border-amber-300 text-amber-800'
                                   : isTrial
-                                  ? 'bg-amber-500/20 border-amber-500/30 text-amber-400'
+                                  ? 'bg-amber-100 border-amber-200 text-amber-700'
                                   : isUnl
-                                  ? 'bg-cyan-500/20 border-cyan-500/30 text-cyan-300'
-                                  : 'bg-gradient-to-br from-rose-500/20 to-amber-500/20 border-rose-500/30 text-amber-300'
+                                  ? 'bg-sky-100 border-sky-200 text-sky-700'
+                                  : 'bg-orange-50 border-orange-200 text-orange-700'
                               }`}
                             >
                               {isUnl ? <InfinityIcon className="w-5 h-5" /> : <Building2 className="w-5 h-5" />}
                             </div>
                             <div>
                               <div className="flex flex-wrap items-center gap-2">
-                                <h3 className="text-sm font-bold text-white">
+                                <h3 className="text-sm font-bold text-stone-900">
                                   {client.businessName || client.displayName}
                                 </h3>
-                                <span className="px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 text-[11px] font-mono font-semibold">
+                                <span className="px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 text-[11px] font-mono font-semibold border border-stone-200">
                                   @{client.username || client.email.split('@')[0]}
                                 </span>
                                 <span
-                                  className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border flex items-center gap-1 ${
+                                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full border flex items-center gap-1 ${
                                     isPending
-                                      ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 animate-pulse'
+                                      ? 'bg-amber-100 text-amber-800 border-amber-300 animate-pulse'
                                       : isExpired
-                                      ? 'bg-rose-500/20 text-rose-400 border-rose-500/30'
+                                      ? 'bg-rose-100 text-rose-800 border-rose-200'
                                       : isExpiringSoon
-                                      ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 animate-pulse font-mono'
+                                      ? 'bg-amber-100 text-amber-800 border-amber-300 animate-pulse font-mono'
                                       : isTrial
-                                      ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+                                      ? 'bg-amber-100 text-amber-800 border-amber-200'
                                       : isUnl
-                                      ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30'
-                                      : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                                      ? 'bg-sky-100 text-sky-800 border-sky-200'
+                                      : 'bg-emerald-100 text-emerald-800 border-emerald-200'
                                   }`}
                                 >
                                   {isPending
@@ -932,15 +932,15 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                                 </span>
                               </div>
 
-                              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-400 mt-1.5">
+                              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-stone-500 mt-1.5">
                                 <span className="flex items-center gap-1">
-                                  <Mail className="w-3.5 h-3.5 text-slate-500" />
+                                  <Mail className="w-3.5 h-3.5 text-stone-400" />
                                   {client.email}
                                 </span>
 
                                 {/* Password view badge */}
-                                <span className="flex items-center gap-1 bg-slate-900 px-2 py-0.5 rounded-lg border border-slate-800 text-[11px] font-mono text-rose-300">
-                                  <Lock className="w-3 h-3 text-rose-400" />
+                                <span className="flex items-center gap-1 bg-stone-50 px-2 py-0.5 rounded-lg border border-stone-200 text-[11px] font-mono text-stone-700">
+                                  <Lock className="w-3 h-3 text-stone-500" />
                                   <span>
                                     Pass: {showPassword ? (client.password || '123456') : '••••••••'}
                                   </span>
@@ -952,38 +952,38 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                                         [client.id]: !prev[client.id],
                                       }))
                                     }
-                                    className="ml-1 text-slate-400 hover:text-white"
+                                    className="ml-1 text-stone-400 hover:text-stone-800 cursor-pointer"
                                   >
                                     {showPassword ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
                                   </button>
                                 </span>
 
                                 {client.phone && (
-                                  <span className="flex items-center gap-1 text-emerald-400 font-mono">
-                                    <Phone className="w-3.5 h-3.5" />
+                                  <span className="flex items-center gap-1 text-emerald-700 font-mono">
+                                    <Phone className="w-3.5 h-3.5 text-emerald-600" />
                                     {client.phone}
                                   </span>
                                 )}
-                                <span className="flex items-center gap-1 font-mono text-amber-300">
-                                  <KeyRound className="w-3.5 h-3.5" />
+                                <span className="flex items-center gap-1 font-mono text-amber-700 font-bold">
+                                  <KeyRound className="w-3.5 h-3.5 text-amber-600" />
                                   PIN: {client.boothAccessPin || '1234'}
                                 </span>
-                                <span className="flex items-center gap-1 text-slate-500">
-                                  <Calendar className="w-3.5 h-3.5" />
-                                  s/d: <strong className="text-slate-300 ml-1">{isUnl ? 'Selamanya (OFF)' : client.subscriptionEndDate}</strong>
+                                <span className="flex items-center gap-1 text-stone-500">
+                                  <Calendar className="w-3.5 h-3.5 text-stone-400" />
+                                  s/d: <strong className="text-stone-700 ml-1">{isUnl ? 'Selamanya (OFF)' : client.subscriptionEndDate}</strong>
                                 </span>
                               </div>
                             </div>
                           </div>
 
                           {/* Action Toolbar */}
-                          <div className="flex flex-wrap items-center gap-2 pt-2 lg:pt-0 border-t lg:border-t-0 border-slate-800/80">
+                          <div className="flex flex-wrap items-center gap-2 pt-2 lg:pt-0 border-t lg:border-t-0 border-stone-200">
                             {/* If pending, show quick approve */}
                             {isPending && (
                               <button
                                 type="button"
                                 onClick={() => handleApproveUser(client)}
-                                className="px-3.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs flex items-center gap-1.5 shadow-md shadow-emerald-500/20 transition-all cursor-pointer animate-pulse"
+                                className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
                                 title="Setujui pendaftaran klien ini"
                               >
                                 <CheckCircle2 className="w-3.5 h-3.5" />
@@ -992,12 +992,12 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                             )}
 
                             {/* Quick Extend / Trial / OFF */}
-                            <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800">
-                              <span className="text-[10px] font-bold text-slate-400 px-1.5">Aksi:</span>
+                            <div className="flex items-center gap-1 bg-stone-100 p-1 rounded-xl border border-stone-200">
+                              <span className="text-[10px] font-bold text-stone-500 px-1.5">Aksi:</span>
                               <button
                                 type="button"
                                 onClick={() => handleExtendDays(client.id, client.subscriptionEndDate, 3, true)}
-                                className="px-2 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500 hover:text-slate-950 text-amber-300 text-[10px] font-bold transition-colors"
+                                className="px-2 py-1 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-800 text-[10px] font-bold transition-colors cursor-pointer"
                                 title="Set/Perpanjang Trial 3 Hari"
                               >
                                 +3 H Trial
@@ -1005,7 +1005,7 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                               <button
                                 type="button"
                                 onClick={() => handleExtendDays(client.id, client.subscriptionEndDate, 7, false)}
-                                className="px-2 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500 hover:text-slate-950 text-emerald-300 text-[10px] font-bold transition-colors"
+                                className="px-2 py-1 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-800 text-[10px] font-bold transition-colors cursor-pointer"
                                 title="Perpanjang 7 Hari (Mingguan)"
                               >
                                 +7 H
@@ -1013,7 +1013,7 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                               <button
                                 type="button"
                                 onClick={() => handleExtendDays(client.id, client.subscriptionEndDate, 30, false)}
-                                className="px-2 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500 hover:text-slate-950 text-emerald-300 text-[10px] font-bold transition-colors"
+                                className="px-2 py-1 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-800 text-[10px] font-bold transition-colors cursor-pointer"
                                 title="Perpanjang 30 Hari (Bulanan)"
                               >
                                 +30 H
@@ -1021,7 +1021,7 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                               <button
                                 type="button"
                                 onClick={() => handleSetUnlimited(client.id)}
-                                className="px-2 py-1 rounded-lg bg-cyan-500/20 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 text-[10px] font-bold transition-colors"
+                                className="px-2 py-1 rounded-lg bg-sky-100 hover:bg-sky-200 text-sky-800 text-[10px] font-bold transition-colors cursor-pointer"
                                 title="Set Durasi ke OFF (Tanpa Batas)"
                               >
                                 Set OFF
@@ -1035,10 +1035,10 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                                 onImpersonateUser(client);
                                 onClose();
                               }}
-                              className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-rose-500 hover:text-white text-slate-300 text-xs font-bold transition-all flex items-center gap-1.5"
+                              className="px-3 py-1.5 rounded-xl bg-white hover:bg-stone-100 text-stone-700 text-xs font-bold transition-all flex items-center gap-1.5 border border-stone-200 shadow-xs cursor-pointer"
                               title="Masuk sebagai klien ini untuk mengatur booth mereka"
                             >
-                              <LogIn className="w-3.5 h-3.5" />
+                              <LogIn className="w-3.5 h-3.5 text-stone-500" />
                               <span>Masuk</span>
                             </button>
 
@@ -1052,10 +1052,10 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                                   handleStartEditClient(client);
                                 }
                               }}
-                              className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 text-xs font-bold flex items-center gap-1 transition-colors"
+                              className="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold flex items-center gap-1 transition-colors border border-amber-200 shadow-xs cursor-pointer"
                               title="Ganti Username, Password, & Durasi Klien"
                             >
-                              <Edit className="w-3.5 h-3.5" />
+                              <Edit className="w-3.5 h-3.5 text-amber-600" />
                               <span>Edit & Durasi</span>
                             </button>
 
@@ -1067,7 +1067,7 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                                   onDeleteUser(client.id);
                                 }
                               }}
-                              className="p-2 rounded-xl bg-slate-800 hover:bg-rose-500/20 text-rose-400 transition-colors"
+                              className="p-2 rounded-xl bg-white hover:bg-rose-50 text-rose-600 border border-stone-200 transition-colors shadow-xs cursor-pointer"
                               title="Hapus Klien"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -1077,16 +1077,16 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
 
                         {/* Inline Edit Form for Customer Details & Credentials */}
                         {isEditing && (
-                          <div className="mt-4 pt-4 border-t border-slate-800 bg-slate-900/90 p-4 sm:p-5 rounded-2xl space-y-4 animate-in fade-in">
-                            <h4 className="text-xs font-black uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
-                              <ShieldCheck className="w-4 h-4" />
+                          <div className="mt-4 pt-4 border-t border-stone-200 bg-stone-50 p-4 sm:p-5 rounded-2xl space-y-4 animate-in fade-in">
+                            <h4 className="text-xs font-bold uppercase tracking-wider text-amber-800 flex items-center gap-1.5">
+                              <ShieldCheck className="w-4 h-4 text-amber-600" />
                               Edit Kredensial & Pengaturan Durasi: {client.businessName || client.displayName}
                             </h4>
 
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                               <div>
-                                <label className="block text-[11px] font-bold text-slate-300 mb-1 flex items-center gap-1">
-                                  <User className="w-3 h-3 text-amber-400" />
+                                <label className="block text-[11px] font-bold text-stone-700 mb-1 flex items-center gap-1">
+                                  <User className="w-3 h-3 text-amber-600" />
                                   Username Klien
                                 </label>
                                 <input
@@ -1094,20 +1094,20 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                                   value={editUsername}
                                   onChange={(e) => setEditUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_.-]/g, ''))}
                                   placeholder="username"
-                                  className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white focus:border-amber-500 outline-none"
+                                  className="w-full px-3 py-2 rounded-xl bg-white border border-stone-300 text-xs text-stone-900 focus:border-amber-500 outline-none"
                                 />
                               </div>
 
                               <div>
                                 <div className="flex items-center justify-between mb-1">
-                                  <label className="text-[11px] font-bold text-slate-300 flex items-center gap-1">
-                                    <Lock className="w-3 h-3 text-rose-400" />
+                                  <label className="text-[11px] font-bold text-stone-700 flex items-center gap-1">
+                                    <Lock className="w-3 h-3 text-rose-600" />
                                     Password Klien
                                   </label>
                                   <button
                                     type="button"
                                     onClick={() => setEditPassword(generateRandomPass())}
-                                    className="text-[10px] text-amber-400 hover:underline"
+                                    className="text-[10px] text-amber-600 font-bold hover:underline cursor-pointer"
                                   >
                                     Generate
                                   </button>
@@ -1117,13 +1117,13 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                                   value={editPassword}
                                   onChange={(e) => setEditPassword(e.target.value)}
                                   placeholder="Password baru"
-                                  className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white font-mono focus:border-rose-500 outline-none"
+                                  className="w-full px-3 py-2 rounded-xl bg-white border border-stone-300 text-xs text-stone-900 font-mono focus:border-rose-500 outline-none"
                                 />
                               </div>
 
                               <div>
-                                <label className="block text-[11px] font-bold text-slate-300 mb-1 flex items-center gap-1">
-                                  <KeyRound className="w-3 h-3 text-cyan-400" />
+                                <label className="block text-[11px] font-bold text-stone-700 mb-1 flex items-center gap-1">
+                                  <KeyRound className="w-3 h-3 text-sky-600" />
                                   PIN Kiosk (4-6 Digit)
                                 </label>
                                 <input
@@ -1132,18 +1132,18 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                                   maxLength={6}
                                   onChange={(e) => setEditPin(e.target.value.replace(/[^0-9]/g, ''))}
                                   placeholder="1234"
-                                  className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white font-mono focus:border-cyan-500 outline-none"
+                                  className="w-full px-3 py-2 rounded-xl bg-white border border-stone-300 text-xs text-stone-900 font-mono focus:border-sky-500 outline-none"
                                 />
                               </div>
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                               <div>
-                                <label className="block text-[11px] font-bold text-slate-400 mb-1">Status Lisensi:</label>
+                                <label className="block text-[11px] font-bold text-stone-700 mb-1">Status Lisensi:</label>
                                 <select
                                   value={editStatus}
                                   onChange={(e) => setEditStatus(e.target.value as SubscriptionStatus)}
-                                  className="w-full px-2.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white"
+                                  className="w-full px-2.5 py-2 rounded-xl bg-white border border-stone-300 text-xs text-stone-900 focus:outline-none"
                                 >
                                   <option value="active">🟢 Aktif (Reguler/OFF)</option>
                                   <option value="trial">🟡 Trial (Masa Uji Coba)</option>
@@ -1154,7 +1154,7 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
 
                               <div className="sm:col-span-2">
                                 <div className="flex items-center justify-between mb-1">
-                                  <label className="text-[11px] font-bold text-slate-400">Tanggal Berakhir / Masa Aktif:</label>
+                                  <label className="text-[11px] font-bold text-stone-700">Tanggal Berakhir / Masa Aktif:</label>
                                   <div className="flex items-center gap-1.5 text-[10px]">
                                     <button
                                       type="button"
@@ -1163,11 +1163,11 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                                         setEditEndDate(d);
                                         setEditStatus('trial');
                                       }}
-                                      className="text-amber-400 hover:underline"
+                                      className="text-amber-700 font-bold hover:underline cursor-pointer"
                                     >
                                       +7 H Trial
                                     </button>
-                                    <span className="text-slate-600">•</span>
+                                    <span className="text-stone-300">•</span>
                                     <button
                                       type="button"
                                       onClick={() => {
@@ -1175,18 +1175,18 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                                         setEditEndDate(d);
                                         setEditStatus('active');
                                       }}
-                                      className="text-emerald-400 hover:underline"
+                                      className="text-emerald-700 font-bold hover:underline cursor-pointer"
                                     >
                                       +30 Hari
                                     </button>
-                                    <span className="text-slate-600">•</span>
+                                    <span className="text-stone-300">•</span>
                                     <button
                                       type="button"
                                       onClick={() => {
                                         setEditEndDate('2099-12-31');
                                         setEditStatus('active');
                                       }}
-                                      className="text-cyan-400 hover:underline font-bold"
+                                      className="text-sky-700 hover:underline font-bold cursor-pointer"
                                     >
                                       Set OFF (Tanpa Batas)
                                     </button>
@@ -1196,10 +1196,10 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                                   type="date"
                                   value={editEndDate}
                                   onChange={(e) => setEditEndDate(e.target.value)}
-                                  className="w-full px-2.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white"
+                                  className="w-full px-2.5 py-2 rounded-xl bg-white border border-stone-300 text-xs text-stone-900"
                                 />
                                 {isDurationUnlimited(editEndDate) && (
-                                  <p className="text-[10px] text-cyan-400 mt-1 flex items-center gap-1">
+                                  <p className="text-[10px] text-sky-700 mt-1 flex items-center gap-1 font-bold">
                                     <InfinityIcon className="w-3 h-3" />
                                     Mode Durasi: OFF (Tanpa Batas Masa Berlaku / Selamanya Aktif)
                                   </p>
@@ -1207,18 +1207,18 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                               </div>
                             </div>
 
-                            <div className="flex justify-end gap-2 pt-2 border-t border-slate-800">
+                            <div className="flex justify-end gap-2 pt-2 border-t border-stone-200">
                               <button
                                 type="button"
                                 onClick={() => setEditingUserId(null)}
-                                className="px-4 py-2 rounded-xl bg-slate-800 text-slate-400 text-xs hover:text-white font-semibold"
+                                className="px-4 py-2 rounded-xl bg-stone-200 text-stone-700 text-xs hover:bg-stone-300 font-semibold cursor-pointer"
                               >
                                 Batal
                               </button>
                               <button
                                 type="button"
                                 onClick={() => handleSaveEdit(client.id)}
-                                className="px-5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black text-xs hover:brightness-110 flex items-center gap-1.5 shadow"
+                                className="px-5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-stone-950 font-bold text-xs hover:brightness-105 flex items-center gap-1.5 shadow-xs cursor-pointer"
                               >
                                 <Save className="w-3.5 h-3.5" />
                                 <span>Simpan Kredensial & Durasi</span>
@@ -1248,15 +1248,15 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
           {/* TAB 3: ADD NEW CLIENT */}
           {activeTab === 'add_new' && (
             <form onSubmit={handleCreateClient} className="space-y-5 max-w-2xl mx-auto animate-in fade-in duration-150">
-              <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 space-y-4 shadow-xl">
-                <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                  <UserPlus className="w-4 h-4 text-amber-400" />
+              <div className="bg-white p-6 rounded-3xl border border-stone-200 space-y-4 shadow-xs">
+                <h3 className="text-sm font-bold text-stone-900 flex items-center gap-2">
+                  <UserPlus className="w-4 h-4 text-amber-600" />
                   Formulir Tambah Customer Baru
                 </h3>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-300">Nama Bisnis / Brand Vendor *</label>
+                    <label className="text-xs font-bold text-stone-700">Nama Bisnis / Brand Vendor *</label>
                     <input
                       type="text"
                       required
@@ -1268,27 +1268,27 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                         }
                       }}
                       placeholder="Contoh: Platinum Photobooth Bali"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-amber-500"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 border border-stone-300 text-stone-900 text-xs focus:outline-none focus:border-amber-500 focus:bg-white"
                     />
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-300">Nama Pemilik / PIC</label>
+                    <label className="text-xs font-bold text-stone-700">Nama Pemilik / PIC</label>
                     <input
                       type="text"
                       value={newOwnerName}
                       onChange={(e) => setNewOwnerName(e.target.value)}
                       placeholder="Nama Kontak"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-amber-500"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 border border-stone-300 text-stone-900 text-xs focus:outline-none focus:border-amber-500 focus:bg-white"
                     />
                   </div>
                 </div>
 
                 {/* Username & Password for New Customer */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-2xl bg-stone-50 border border-stone-200">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-300 flex items-center gap-1">
-                      <User className="w-3.5 h-3.5 text-amber-400" />
+                    <label className="text-xs font-bold text-stone-700 flex items-center gap-1">
+                      <User className="w-3.5 h-3.5 text-amber-600" />
                       Username Login Klien
                     </label>
                     <input
@@ -1296,20 +1296,20 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                       value={newUsername}
                       onChange={(e) => setNewUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_.-]/g, ''))}
                       placeholder="contoh: platinumbali"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs focus:outline-none focus:border-amber-500"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-stone-300 text-stone-900 text-xs focus:outline-none focus:border-amber-500"
                     />
                   </div>
 
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <label className="text-xs font-bold text-slate-300 flex items-center gap-1">
-                        <Lock className="w-3.5 h-3.5 text-rose-400" />
+                      <label className="text-xs font-bold text-stone-700 flex items-center gap-1">
+                        <Lock className="w-3.5 h-3.5 text-rose-600" />
                         Password Akun
                       </label>
                       <button
                         type="button"
                         onClick={() => setNewPassword(generateRandomPass())}
-                        className="text-[10px] text-amber-400 hover:underline"
+                        className="text-[10px] text-amber-700 font-bold hover:underline cursor-pointer"
                       >
                         Generate Acak
                       </button>
@@ -1319,46 +1319,46 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="Default: 123456"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs font-mono focus:outline-none focus:border-rose-500"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-stone-300 text-stone-900 text-xs font-mono focus:outline-none focus:border-rose-500"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-300">Email Akun *</label>
+                    <label className="text-xs font-bold text-stone-700">Email Akun *</label>
                     <input
                       type="email"
                       required
                       value={newEmail}
                       onChange={(e) => setNewEmail(e.target.value)}
                       placeholder="vendor@photobooth.com"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-amber-500"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 border border-stone-300 text-stone-900 text-xs focus:outline-none focus:border-amber-500 focus:bg-white"
                     />
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-300">Nomor WhatsApp</label>
+                    <label className="text-xs font-bold text-stone-700">Nomor WhatsApp</label>
                     <input
                       type="tel"
                       value={newPhone}
                       onChange={(e) => setNewPhone(e.target.value)}
                       placeholder="081234567890"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-amber-500"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 border border-stone-300 text-stone-900 text-xs focus:outline-none focus:border-amber-500 focus:bg-white"
                     />
                   </div>
                 </div>
 
                 {/* Pilihan Durasi / Trial / OFF */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-300 flex items-center justify-between">
+                  <label className="text-xs font-bold text-stone-700 flex items-center justify-between">
                     <span>Pilihan Masa Aktif / Trial / OFF</span>
-                    <span className="text-[11px] text-amber-400 font-normal">Fleksibel & Otomatis</span>
+                    <span className="text-[11px] text-amber-700 font-bold">Fleksibel & Otomatis</span>
                   </label>
                   <select
                     value={newDurationType}
                     onChange={(e) => setNewDurationType(e.target.value as any)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs focus:border-amber-500 outline-none"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 border border-stone-300 text-stone-900 text-xs focus:border-amber-500 focus:bg-white outline-none cursor-pointer"
                   >
                     <optgroup label="🟡 Pilihan Masa Trial (Uji Coba)">
                       <option value="trial_3">Trial 3 Hari (Gratis Uji Coba)</option>
@@ -1381,25 +1381,25 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-300">PIN Akses Booth (4-6 Digit)</label>
+                    <label className="text-xs font-bold text-stone-700">PIN Akses Booth (4-6 Digit)</label>
                     <input
                       type="text"
                       value={newPin}
                       maxLength={6}
                       onChange={(e) => setNewPin(e.target.value.replace(/[^0-9]/g, ''))}
                       placeholder="1234"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs font-mono"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 border border-stone-300 text-stone-900 text-xs font-mono focus:bg-white focus:border-amber-500 outline-none"
                     />
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-300">Catatan Internal</label>
+                    <label className="text-xs font-bold text-stone-700">Catatan Internal</label>
                     <input
                       type="text"
                       value={newNotes}
                       onChange={(e) => setNewNotes(e.target.value)}
                       placeholder="Contoh: Klien paket wedding Bali"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-stone-50 border border-stone-300 text-stone-900 text-xs focus:bg-white focus:border-amber-500 outline-none"
                     />
                   </div>
                 </div>
@@ -1407,7 +1407,7 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-rose-500 hover:brightness-110 text-slate-950 font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 cursor-pointer disabled:opacity-50 transition-all"
+                  className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:brightness-105 text-stone-950 font-bold text-sm flex items-center justify-center gap-2 shadow-sm cursor-pointer disabled:opacity-50 transition-all"
                 >
                   <UserPlus className="w-4 h-4" />
                   <span>{isSubmitting ? 'Menyimpan ke Cloud...' : 'Simpan & Aktifkan Klien'}</span>
@@ -1416,27 +1416,27 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
             </form>
           )}
 
-          {/* TAB 3: SUPER ADMIN PROFILE & SECURITY SETTINGS */}
+          {/* TAB 4: SUPER ADMIN PROFILE & SECURITY SETTINGS */}
           {activeTab === 'admin_profile' && (
             <form onSubmit={handleSaveAdminProfile} className="space-y-5 max-w-xl mx-auto animate-in fade-in duration-150">
-              <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 space-y-4 shadow-xl">
-                <div className="flex items-center gap-3 pb-3 border-b border-slate-800">
-                  <div className="p-3 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-300">
+              <div className="bg-white p-6 rounded-3xl border border-stone-200 space-y-4 shadow-xs">
+                <div className="flex items-center gap-3 pb-3 border-b border-stone-200">
+                  <div className="p-3 rounded-2xl bg-amber-50 border border-amber-200 text-amber-600">
                     <Crown className="w-6 h-6" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-white">
+                    <h3 className="text-sm font-bold text-stone-900">
                       Pengaturan Akun Super Administrator
                     </h3>
-                    <p className="text-xs text-slate-400">
+                    <p className="text-xs text-stone-500">
                       Ganti username, password login, dan master PIN Super Admin
                     </p>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1.5 flex items-center gap-1.5">
-                    <User className="w-3.5 h-3.5 text-amber-400" />
+                  <label className="block text-xs font-bold text-stone-700 mb-1.5 flex items-center gap-1.5">
+                    <User className="w-3.5 h-3.5 text-amber-600" />
                     Username Super Admin
                   </label>
                   <input
@@ -1445,20 +1445,20 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                     value={adminUsername}
                     onChange={(e) => setAdminUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_.-]/g, ''))}
                     placeholder="admin"
-                    className="w-full bg-slate-900 border border-slate-700 px-3.5 py-2.5 rounded-xl text-white text-xs font-medium focus:border-amber-500 outline-none"
+                    className="w-full bg-stone-50 border border-stone-300 px-3.5 py-2.5 rounded-xl text-stone-900 text-xs font-medium focus:border-amber-500 focus:bg-white outline-none"
                   />
                 </div>
 
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
-                      <Lock className="w-3.5 h-3.5 text-rose-400" />
+                    <label className="text-xs font-bold text-stone-700 flex items-center gap-1.5">
+                      <Lock className="w-3.5 h-3.5 text-rose-600" />
                       Password Super Admin
                     </label>
                     <button
                       type="button"
                       onClick={() => setAdminPassword(generateRandomPass(10))}
-                      className="text-[11px] text-amber-400 hover:underline"
+                      className="text-[11px] text-amber-700 font-bold hover:underline cursor-pointer"
                     >
                       Generate Password Acak
                     </button>
@@ -1470,12 +1470,12 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                       value={adminPassword}
                       onChange={(e) => setAdminPassword(e.target.value)}
                       placeholder="Password login admin"
-                      className="w-full bg-slate-900 border border-slate-700 px-3.5 py-2.5 rounded-xl text-white text-xs pr-10 font-mono focus:border-rose-500 outline-none"
+                      className="w-full bg-stone-50 border border-stone-300 px-3.5 py-2.5 rounded-xl text-stone-900 text-xs pr-10 font-mono focus:border-rose-500 focus:bg-white outline-none"
                     />
                     <button
                       type="button"
                       onClick={() => setShowAdminPassword(!showAdminPassword)}
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-stone-400 hover:text-stone-700 cursor-pointer"
                     >
                       {showAdminPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
@@ -1484,7 +1484,7 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-bold text-slate-300 mb-1.5">
+                    <label className="block text-xs font-bold text-stone-700 mb-1.5">
                       Nama Tampilan Admin
                     </label>
                     <input
@@ -1492,12 +1492,12 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                       required
                       value={adminDisplayName}
                       onChange={(e) => setAdminDisplayName(e.target.value)}
-                      className="w-full bg-slate-900 border border-slate-700 px-3.5 py-2.5 rounded-xl text-white text-xs focus:border-amber-500 outline-none"
+                      className="w-full bg-stone-50 border border-stone-300 px-3.5 py-2.5 rounded-xl text-stone-900 text-xs focus:border-amber-500 focus:bg-white outline-none"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-300 mb-1.5">
+                    <label className="block text-xs font-bold text-stone-700 mb-1.5">
                       Master PIN Kiosk
                     </label>
                     <input
@@ -1506,13 +1506,13 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                       maxLength={6}
                       value={adminPin}
                       onChange={(e) => setAdminPin(e.target.value.replace(/[^0-9]/g, ''))}
-                      className="w-full bg-slate-900 border border-slate-700 px-3.5 py-2.5 rounded-xl text-white text-xs font-mono focus:border-amber-500 outline-none"
+                      className="w-full bg-stone-50 border border-stone-300 px-3.5 py-2.5 rounded-xl text-stone-900 text-xs font-mono focus:border-amber-500 focus:bg-white outline-none"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1.5">
+                  <label className="block text-xs font-bold text-stone-700 mb-1.5">
                     Email Super Admin
                   </label>
                   <input
@@ -1520,14 +1520,14 @@ export const SuperAdminModal: React.FC<SuperAdminModalProps> = ({
                     required
                     value={adminEmail}
                     onChange={(e) => setAdminEmail(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 px-3.5 py-2.5 rounded-xl text-white text-xs focus:border-amber-500 outline-none"
+                    className="w-full bg-stone-50 border border-stone-300 px-3.5 py-2.5 rounded-xl text-stone-900 text-xs focus:border-amber-500 focus:bg-white outline-none"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={isAdminSaving}
-                  className="w-full py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:brightness-110 text-slate-950 font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 cursor-pointer disabled:opacity-50 transition-all"
+                  className="w-full py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:brightness-105 text-stone-950 font-bold text-sm flex items-center justify-center gap-2 shadow-xs cursor-pointer disabled:opacity-50 transition-all"
                 >
                   {isAdminSaving ? (
                     <RefreshCw className="w-4 h-4 animate-spin" />

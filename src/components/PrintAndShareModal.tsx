@@ -639,20 +639,20 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
       {/* Header Banner */}
       <div className="text-center space-y-2">
         <div className="flex flex-wrap items-center justify-center gap-2">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-stone-900 border border-stone-800 text-stone-300 text-[11px] font-mono uppercase tracking-wider">
-            <Camera className="w-3.5 h-3.5 text-orange-400" /> Pratinjau Foto Strip
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-white border border-stone-200 text-stone-700 text-[11px] font-mono uppercase tracking-wider shadow-xs">
+            <Camera className="w-3.5 h-3.5 text-orange-500" /> Pratinjau Foto Strip
           </div>
 
           {theme.autoPrintEnabled && (
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-stone-900 border border-orange-500/40 text-orange-300 text-[11px] font-mono font-medium">
-              <Printer className="w-3 h-3 text-orange-400" /> Auto-Print Aktif
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-orange-50 border border-orange-300 text-orange-700 text-[11px] font-mono font-medium shadow-xs">
+              <Printer className="w-3 h-3 text-orange-600" /> Auto-Print Aktif
             </div>
           )}
         </div>
 
         {autoPrintNotice && (
-          <div className="p-2.5 bg-stone-900 border border-orange-500/40 rounded-lg max-w-md mx-auto text-orange-300 text-xs font-mono flex items-center justify-center gap-2">
-            <Printer className="w-3.5 h-3.5 text-orange-400" />
+          <div className="p-2.5 bg-orange-50 border border-orange-200 rounded-lg max-w-md mx-auto text-orange-800 text-xs font-mono flex items-center justify-center gap-2 shadow-xs">
+            <Printer className="w-3.5 h-3.5 text-orange-600" />
             <span>Memicu dialog cetak printer...</span>
           </div>
         )}
@@ -661,21 +661,21 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
       {/* Quick Print Notification Status Toast/Bar */}
       {quickPrintStatus !== 'idle' && (
         <div
-          className={`max-w-xl mx-auto p-3 rounded-xl border flex items-center justify-between gap-3 text-xs font-medium ${
+          className={`max-w-xl mx-auto p-3 rounded-xl border flex items-center justify-between gap-3 text-xs font-medium shadow-xs ${
             quickPrintStatus === 'printing'
-              ? 'bg-stone-900 text-orange-300 border-orange-500/40'
-              : 'bg-stone-900 text-emerald-300 border-emerald-500/40'
+              ? 'bg-orange-50 text-orange-800 border-orange-200'
+              : 'bg-emerald-50 text-emerald-800 border-emerald-200'
           }`}
         >
           <div className="flex items-center gap-2">
             {quickPrintStatus === 'printing' ? (
-              <RefreshCw className="w-3.5 h-3.5 animate-spin text-orange-400 shrink-0" />
+              <RefreshCw className="w-3.5 h-3.5 animate-spin text-orange-600 shrink-0" />
             ) : (
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
             )}
             <span>{quickPrintMessage}</span>
           </div>
-          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-stone-800 border border-stone-700 uppercase tracking-wider">
+          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-white border border-stone-200 uppercase tracking-wider text-stone-700">
             {quickPrintStatus === 'printing' ? 'Memproses' : 'Siap'}
           </span>
         </div>
@@ -684,9 +684,9 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6 items-start">
         {/* Left: Strip Render Preview */}
         <div className="md:col-span-5 flex flex-col items-center space-y-3 sm:space-y-4">
-          <div className="bg-[#100f0e] p-2.5 sm:p-4 rounded-2xl border border-stone-800 shadow-xl relative w-full flex items-center justify-center">
+          <div className="bg-white p-2.5 sm:p-4 rounded-2xl border border-stone-200 shadow-md relative w-full flex items-center justify-center">
             {isGenerating ? (
-              <div className="w-56 sm:w-64 h-80 sm:h-96 flex flex-col items-center justify-center space-y-3 text-stone-400">
+              <div className="w-56 sm:w-64 h-80 sm:h-96 flex flex-col items-center justify-center space-y-3 text-stone-500">
                 <RefreshCw className="w-8 h-8 animate-spin text-orange-500" />
                 <span className="text-xs font-semibold">Mengolah Hasil Cetak High-Res...</span>
               </div>
@@ -694,7 +694,7 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
               <img
                 src={currentPrintData}
                 alt="High Res Photo Strip"
-                className="max-h-[42dvh] sm:max-h-[50dvh] md:max-h-[65dvh] w-auto rounded shadow-md object-contain transition-all"
+                className="max-h-[42dvh] sm:max-h-[50dvh] md:max-h-[65dvh] w-auto rounded shadow-sm object-contain transition-all border border-stone-100"
                 style={{
                   imageRendering:
                     (activePrinter.type === 'thermal_80mm' || activePrinter.type === 'thermal_58mm') && thermalDither
@@ -703,7 +703,7 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
                 }}
               />
             ) : (
-              <div className="w-56 sm:w-64 h-80 sm:h-96 flex flex-col items-center justify-center space-y-3 text-stone-500">
+              <div className="w-56 sm:w-64 h-80 sm:h-96 flex flex-col items-center justify-center space-y-3 text-stone-400">
                 <span className="text-xs">Menyiapkan pratinjau cetak...</span>
               </div>
             )}
@@ -711,11 +711,11 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
 
           {/* Trial Notice Badge on Result */}
           {isTrial && (
-            <div className="w-full p-3 rounded-lg bg-stone-900 border border-orange-500/30 flex items-center gap-2.5 text-orange-300 text-xs">
-              <Info className="w-4 h-4 text-orange-400 shrink-0" />
+            <div className="w-full p-3 rounded-lg bg-orange-50 border border-orange-200 flex items-center gap-2.5 text-orange-800 text-xs shadow-xs">
+              <Info className="w-4 h-4 text-orange-600 shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="font-bold text-[11px]">Mode Akun Trial 3 Hari Aktif</p>
-                <p className="text-[10px] text-stone-400 leading-relaxed">Hasil foto memuat watermark uji coba. Hubungi admin untuk lisensi tanpa watermark.</p>
+                <p className="text-[10px] text-stone-600 leading-relaxed">Hasil foto memuat watermark uji coba. Hubungi admin untuk lisensi tanpa watermark.</p>
               </div>
             </div>
           )}
@@ -724,17 +724,17 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
         {/* Right: Actions, Print, and Navigation */}
         <div className="md:col-span-7 space-y-4 sm:space-y-6">
           {/* Print Photo Card */}
-          <div className="bg-[#131110] border border-stone-800 rounded-xl p-5 sm:p-6 shadow-sm space-y-4 relative overflow-hidden">
+          <div className="bg-white border border-stone-200 rounded-xl p-5 sm:p-6 shadow-sm space-y-4 relative overflow-hidden">
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2.5">
                 <div className="p-2.5 rounded-lg bg-orange-600 text-white shadow-sm">
                   <Printer className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-stone-100 flex items-center gap-2">
+                  <h3 className="text-base font-bold text-stone-900 flex items-center gap-2">
                     Cetak Foto
                   </h3>
-                  <p className="text-xs text-stone-400">
+                  <p className="text-xs text-stone-500">
                     Kirim perintah cetak langsung ke printer
                   </p>
                 </div>
@@ -746,7 +746,7 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
               type="button"
               onClick={handlePrintPhoto}
               disabled={isGenerating || quickPrintStatus === 'printing'}
-              className="w-full relative group py-3.5 sm:py-4 px-6 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-bold text-base shadow-lg hover:shadow-orange-600/25 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3.5 cursor-pointer border border-orange-500"
+              className="w-full relative group py-3.5 sm:py-4 px-6 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-bold text-base shadow-md hover:shadow-orange-600/25 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3.5 cursor-pointer border border-orange-500"
             >
               <Printer className="w-5 h-5 sm:w-6 sm:h-6 text-white shrink-0" />
               <div className="text-left leading-tight flex-1">
@@ -758,15 +758,15 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
             </button>
 
             {/* Download Option */}
-            <div className="pt-2 border-t border-stone-800">
+            <div className="pt-2 border-t border-stone-100">
               <button
                 type="button"
                 onClick={handleDownload}
                 disabled={isGenerating}
-                className="w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 rounded-xl bg-stone-900 hover:bg-stone-800 text-stone-200 hover:text-white font-mono font-bold text-xs sm:text-sm border border-stone-800 transition-all cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 rounded-xl bg-stone-50 hover:bg-stone-100 text-stone-800 font-mono font-bold text-xs sm:text-sm border border-stone-200 transition-all cursor-pointer shadow-xs"
                 title="Simpan file foto ke perangkat"
               >
-                <Download className="w-4 h-4 text-orange-400" />
+                <Download className="w-4 h-4 text-orange-600" />
                 <span className="text-xs sm:text-sm">Unduh File Foto (PNG)</span>
               </button>
             </div>
@@ -776,9 +776,9 @@ export const PrintAndShareModal: React.FC<PrintAndShareModalProps> = ({
           <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
             <button
               onClick={onResetSession}
-              className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-stone-900 hover:bg-stone-800 text-stone-200 font-bold text-xs sm:text-sm border border-stone-800 active:scale-[0.98] transition-all cursor-pointer"
+              className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-white hover:bg-stone-50 text-stone-800 font-bold text-xs sm:text-sm border border-stone-200 active:scale-[0.98] transition-all cursor-pointer shadow-xs"
             >
-              <Home className="w-4 h-4 text-stone-400" />
+              <Home className="w-4 h-4 text-stone-500" />
               <span>Selesai & Ke Halaman Utama</span>
             </button>
 

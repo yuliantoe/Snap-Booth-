@@ -63,69 +63,69 @@ export const SubscriptionExpiredModal: React.FC<SubscriptionExpiredModalProps> =
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150">
-      <div className="bg-[#131110] border border-stone-800 w-full max-w-md rounded-2xl shadow-xl overflow-hidden text-center p-6 space-y-4 max-h-[90vh] overflow-y-auto">
-        <div className="w-12 h-12 rounded-xl bg-stone-900 border border-orange-500/40 text-orange-400 flex items-center justify-center mx-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-xs animate-in fade-in duration-150">
+      <div className="bg-white border border-stone-200 w-full max-w-md rounded-3xl shadow-2xl overflow-hidden text-center p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+        <div className="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center mx-auto shadow-xs">
           <ShieldAlert className="w-6 h-6" />
         </div>
 
         <div className="space-y-1">
-          <h2 className="text-lg font-bold text-stone-100">
+          <h2 className="text-lg font-bold text-stone-900">
             Masa Lisensi Telah Berakhir
           </h2>
-          <p className="text-xs text-stone-400">
+          <p className="text-xs text-stone-500">
             Akses dashboard konfigurasi dikunci untuk akun{' '}
-            <strong className="text-orange-400 font-semibold">{currentUser.businessName || currentUser.displayName}</strong>.
+            <strong className="text-amber-700 font-semibold">{currentUser.businessName || currentUser.displayName}</strong>.
           </p>
         </div>
 
-        <div className="p-3 rounded-xl bg-[#181615] border border-stone-800 text-left space-y-2 text-xs">
-          <div className="flex justify-between items-center text-stone-400">
+        <div className="p-3.5 rounded-2xl bg-stone-50 border border-stone-200 text-left space-y-2 text-xs">
+          <div className="flex justify-between items-center text-stone-600">
             <span>Paket Anda:</span>
-            <span className="font-bold text-stone-100">{planInfo.name}</span>
+            <span className="font-bold text-stone-900">{planInfo.name}</span>
           </div>
-          <div className="flex justify-between items-center text-stone-400">
+          <div className="flex justify-between items-center text-stone-600">
             <span>Status Akun:</span>
-            <span className="font-mono font-bold text-rose-400 bg-stone-900 px-2 py-0.5 rounded border border-rose-800/40">
+            <span className="font-mono font-bold text-rose-700 bg-rose-100 px-2 py-0.5 rounded border border-rose-300">
               EXPIRED ({currentUser.subscriptionEndDate})
             </span>
           </div>
-          <div className="flex justify-between items-center text-stone-400">
+          <div className="flex justify-between items-center text-stone-600">
             <span>Email:</span>
-            <span className="font-mono text-stone-300">{currentUser.email}</span>
+            <span className="font-mono text-stone-800">{currentUser.email}</span>
           </div>
         </div>
 
         {/* Official Bank Account Payment Information Card */}
-        <div className="p-4 rounded-xl bg-[#181615] border border-stone-800 text-left space-y-2.5">
+        <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200 text-left space-y-2.5">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 text-stone-200 font-mono font-bold text-xs">
-              <CreditCard className="w-4 h-4 text-orange-400" />
+            <div className="flex items-center gap-1.5 text-stone-900 font-mono font-bold text-xs">
+              <CreditCard className="w-4 h-4 text-amber-600" />
               <span>Rekening Pembayaran Resmi</span>
             </div>
-            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-stone-900 text-stone-300 border border-stone-700">
+            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-white text-stone-800 border border-amber-200 shadow-xs">
               BCA Official
             </span>
           </div>
 
-          <div className="p-2.5 rounded-lg bg-[#110f0e] border border-stone-800 space-y-1.5 text-xs">
+          <div className="p-3 rounded-xl bg-white border border-amber-200/80 space-y-1.5 text-xs shadow-xs">
             <div className="flex justify-between items-center">
               <span className="text-stone-500 font-mono">Bank:</span>
-              <span className="font-mono font-bold text-stone-100 tracking-wide">{OFFICIAL_PAYMENT_INFO.bankName}</span>
+              <span className="font-mono font-bold text-stone-900 tracking-wide">{OFFICIAL_PAYMENT_INFO.bankName}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-stone-500 font-mono">Rekening:</span>
               <div className="flex items-center gap-2">
-                <span className="font-mono font-bold text-orange-400 text-sm tracking-wider">
+                <span className="font-mono font-bold text-amber-700 text-sm tracking-wider">
                   {OFFICIAL_PAYMENT_INFO.accountNumber}
                 </span>
                 <button
                   type="button"
                   onClick={handleCopyAccount}
-                  className={`px-2 py-1 rounded text-[10px] font-mono font-bold flex items-center gap-1 transition-all cursor-pointer ${
+                  className={`px-2 py-1 rounded-lg text-[10px] font-mono font-bold flex items-center gap-1 transition-all cursor-pointer ${
                     copied
-                      ? 'bg-orange-600 text-white'
-                      : 'bg-stone-800 hover:bg-stone-700 text-stone-300 border border-stone-700'
+                      ? 'bg-amber-600 text-white'
+                      : 'bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-300'
                   }`}
                   title="Salin Nomor Rekening"
                 >
@@ -136,13 +136,13 @@ export const SubscriptionExpiredModal: React.FC<SubscriptionExpiredModalProps> =
             </div>
             <div className="flex justify-between items-center">
               <span className="text-stone-500 font-mono">Atas Nama:</span>
-              <span className="font-mono font-bold text-stone-100 uppercase tracking-wide">
+              <span className="font-mono font-bold text-stone-900 uppercase tracking-wide">
                 {OFFICIAL_PAYMENT_INFO.accountHolder}
               </span>
             </div>
           </div>
 
-          <p className="text-[11px] text-stone-400 leading-relaxed bg-stone-900/80 p-2 rounded-lg border border-stone-800">
+          <p className="text-[11px] text-stone-600 leading-relaxed bg-white p-2 rounded-xl border border-amber-200">
             <strong>Perhatian:</strong> Hanya lakukan transfer ke <strong>{OFFICIAL_PAYMENT_INFO.fullLabel}</strong>.
           </p>
         </div>
@@ -150,7 +150,7 @@ export const SubscriptionExpiredModal: React.FC<SubscriptionExpiredModalProps> =
         {/* Package Renewal Selection with Savings Badges & Unique Transaction Code */}
         <div className="space-y-2 text-left">
           <div className="flex items-center justify-between text-xs">
-            <span className="font-bold text-stone-300">Pilih Paket Perpanjangan:</span>
+            <span className="font-bold text-stone-800">Pilih Paket Perpanjangan:</span>
             <span className="text-[10px] text-stone-500 font-mono">3 digit unik otomatis</span>
           </div>
 
@@ -162,29 +162,29 @@ export const SubscriptionExpiredModal: React.FC<SubscriptionExpiredModalProps> =
                   key={pkg.id}
                   type="button"
                   onClick={() => setSelectedPlanId(pkg.id)}
-                  className={`p-2.5 rounded-lg border text-left flex flex-col justify-between relative cursor-pointer transition-all ${
+                  className={`p-2.5 rounded-xl border text-left flex flex-col justify-between relative cursor-pointer transition-all ${
                     isSelected
-                      ? 'bg-stone-900 border-orange-500 text-orange-400 ring-1 ring-orange-500/50'
-                      : 'bg-[#181615] border-stone-800 hover:border-stone-700 text-stone-300'
+                      ? 'bg-amber-50 border-amber-500 text-amber-900 ring-2 ring-amber-500/20 shadow-xs'
+                      : 'bg-stone-50 border-stone-200 hover:border-stone-300 text-stone-700'
                   }`}
                 >
                   {pkg.discountBadge && (
-                    <span className="absolute -top-2 -right-1 px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-orange-600 text-white shadow-sm border border-orange-500">
+                    <span className="absolute -top-2 -right-1 px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-600 text-white shadow-xs">
                       {pkg.discountBadge}
                     </span>
                   )}
                   {pkg.popular && !pkg.discountBadge && (
-                    <span className="absolute -top-2 -right-1 px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-stone-800 text-stone-300 shadow-sm border border-stone-700">
+                    <span className="absolute -top-2 -right-1 px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-stone-800 text-stone-100 shadow-xs">
                       Populer
                     </span>
                   )}
                   <div>
-                    <div className={`font-bold text-[11px] ${isSelected ? 'text-orange-400' : 'text-stone-200'}`}>
+                    <div className={`font-bold text-[11px] ${isSelected ? 'text-amber-900' : 'text-stone-900'}`}>
                       {pkg.name}
                     </div>
                     <div className="text-[10px] text-stone-500 font-mono">{pkg.durationLabel}</div>
                   </div>
-                  <div className="mt-1 font-mono font-bold text-stone-100 text-xs">{formatRupiah(pkg.price)}</div>
+                  <div className="mt-1 font-mono font-bold text-stone-900 text-xs">{formatRupiah(pkg.price)}</div>
                 </button>
               );
             })}
@@ -196,33 +196,33 @@ export const SubscriptionExpiredModal: React.FC<SubscriptionExpiredModalProps> =
             const total = pkg.price + expiredUniqueCode;
 
             return (
-              <div className="p-3 rounded-lg bg-[#181615] border border-stone-800 space-y-1.5 text-xs">
-                <div className="flex justify-between items-center text-stone-400 text-[11px]">
+              <div className="p-3 rounded-xl bg-stone-50 border border-stone-200 space-y-1.5 text-xs shadow-xs">
+                <div className="flex justify-between items-center text-stone-600 text-[11px]">
                   <span>Harga Paket:</span>
-                  <span className="font-mono font-medium text-stone-200">{formatRupiah(pkg.price)}</span>
+                  <span className="font-mono font-medium text-stone-900">{formatRupiah(pkg.price)}</span>
                 </div>
                 <div className="flex justify-between items-center text-[11px]">
-                  <span className="text-stone-400">Nomor Unik Transaksi:</span>
-                  <span className="font-mono font-bold text-orange-400 bg-stone-900 px-1.5 py-0.5 rounded border border-orange-500/30">
+                  <span className="text-stone-600">Nomor Unik Transaksi:</span>
+                  <span className="font-mono font-bold text-amber-800 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
                     +{expiredUniqueCode}
                   </span>
                 </div>
-                <div className="pt-1.5 border-t border-stone-800 flex justify-between items-center bg-stone-900/60 -mx-1 px-2 py-1.5 rounded border border-stone-800">
+                <div className="pt-1.5 border-t border-stone-200 flex justify-between items-center bg-amber-50 -mx-1 px-2.5 py-1.5 rounded-lg border border-amber-200">
                   <div>
-                    <div className="text-stone-200 font-bold text-xs">Total Transfer:</div>
+                    <div className="text-stone-900 font-bold text-xs">Total Transfer:</div>
                     <div className="text-[9px] text-stone-500 font-mono">Tepat beserta 3 digit nomor unik</div>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <span className="font-mono font-bold text-orange-400 text-sm tracking-wide">
+                    <span className="font-mono font-bold text-amber-800 text-sm tracking-wide">
                       {formatRupiah(total)}
                     </span>
                     <button
                       type="button"
                       onClick={() => handleCopyTotal(total)}
-                      className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold flex items-center gap-1 cursor-pointer transition-all ${
+                      className={`px-2 py-0.5 rounded-lg text-[10px] font-mono font-bold flex items-center gap-1 cursor-pointer transition-all ${
                         copiedTotal
-                          ? 'bg-orange-600 text-white'
-                          : 'bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700'
+                          ? 'bg-amber-600 text-white'
+                          : 'bg-white hover:bg-stone-100 text-stone-700 border border-stone-300'
                       }`}
                       title="Salin Total Pembayaran"
                     >
@@ -240,7 +240,7 @@ export const SubscriptionExpiredModal: React.FC<SubscriptionExpiredModalProps> =
           <button
             type="button"
             onClick={handleWhatsAppContact}
-            className="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm"
+            className="w-full py-3 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs"
           >
             <MessageCircle className="w-4 h-4" />
             <span>Konfirmasi Perpanjangan via WhatsApp</span>
@@ -252,16 +252,16 @@ export const SubscriptionExpiredModal: React.FC<SubscriptionExpiredModalProps> =
               onClose();
               onOpenAuth();
             }}
-            className="w-full py-2.5 px-4 rounded-xl bg-stone-900 hover:bg-stone-800 text-stone-200 font-mono font-medium text-xs border border-stone-700 flex items-center justify-center gap-2 transition-all cursor-pointer"
+            className="w-full py-2.5 px-4 rounded-2xl bg-stone-100 hover:bg-stone-200 text-stone-800 font-mono font-medium text-xs border border-stone-200 flex items-center justify-center gap-2 transition-all cursor-pointer"
           >
-            <LogIn className="w-3.5 h-3.5 text-orange-400" />
+            <LogIn className="w-3.5 h-3.5 text-amber-600" />
             <span>Ganti Akun / Masuk Super Admin</span>
           </button>
 
           <button
             type="button"
             onClick={onClose}
-            className="text-xs text-stone-500 hover:text-stone-400 font-mono cursor-pointer"
+            className="text-xs text-stone-400 hover:text-stone-600 font-mono cursor-pointer"
           >
             Tutup
           </button>

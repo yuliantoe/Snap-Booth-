@@ -44,7 +44,11 @@ export const ScreensaverView: React.FC<ScreensaverViewProps> = ({
   const title = currentTheme.screensaverTitle || defaultPreset.title;
   const subtitle = currentTheme.screensaverSubtitle || defaultPreset.subtitle;
   const tagline = currentTheme.screensaverTagline || defaultPreset.tagline;
-  const badgeText = currentTheme.screensaverBadgeText || defaultPreset.badgeText;
+  const rawBadge = currentTheme.screensaverBadgeText !== undefined ? currentTheme.screensaverBadgeText : defaultPreset.badgeText;
+  const badgeText = (rawBadge || '')
+    .replace(/⭐/g, '')
+    .replace(/SPONSOR\s*SHOWCASE/gi, '')
+    .trim();
   const ctaText = currentTheme.screensaverCtaText || defaultPreset.ctaText;
   const highlights =
     currentTheme.screensaverHighlights && currentTheme.screensaverHighlights.length > 0
@@ -169,10 +173,9 @@ export const ScreensaverView: React.FC<ScreensaverViewProps> = ({
           </div>
         )}
 
-        {/* Badge Text (e.g. '⭐ OFFICIAL SNAPBOOTH STUDIO' or custom preset badge) */}
+        {/* Badge Text */}
         {badgeText && (
           <div className="mb-2.5 sm:mb-4 inline-flex items-center gap-1.5 px-3 py-0.5 sm:px-3.5 sm:py-1 rounded-full bg-white/15 border border-white/25 text-white/95 text-[10px] sm:text-xs font-mono uppercase tracking-widest backdrop-blur-md shadow-sm">
-            <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-300" />
             <span>{badgeText}</span>
           </div>
         )}
@@ -183,7 +186,7 @@ export const ScreensaverView: React.FC<ScreensaverViewProps> = ({
         </h1>
 
         {/* Event / Subtitle Banner */}
-        <div className="mt-2.5 sm:mt-4 inline-block px-3.5 py-1 sm:px-4 sm:py-1.5 rounded-full bg-orange-600/90 text-white font-bold text-xs sm:text-sm md:text-base tracking-wide border border-orange-400/60 shadow-xl backdrop-blur-md uppercase">
+        <div className="mt-2.5 sm:mt-4 inline-block px-3.5 py-1 sm:px-4 sm:py-1.5 rounded-full bg-amber-500/90 text-stone-950 font-bold text-xs sm:text-sm md:text-base tracking-wide border border-amber-300/60 shadow-xl backdrop-blur-md uppercase">
           {subtitle}
         </div>
 
@@ -213,7 +216,7 @@ export const ScreensaverView: React.FC<ScreensaverViewProps> = ({
         {/* Compact Interactive Start Button */}
         <div className="relative group">
           {/* Animated Glow Rings behind button */}
-          <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-r from-orange-600 via-amber-500 to-orange-600 opacity-60 blur-sm group-hover:opacity-90 animate-pulse transition duration-1000 group-hover:duration-200" />
+          <div className="absolute -inset-0.5 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-400 to-amber-600 opacity-60 blur-sm group-hover:opacity-90 animate-pulse transition duration-1000 group-hover:duration-200" />
 
           <button
             type="button"
@@ -227,9 +230,9 @@ export const ScreensaverView: React.FC<ScreensaverViewProps> = ({
                 onStartPhotobooth();
               }
             }}
-            className="relative px-6 sm:px-8 py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-mono font-bold text-xs sm:text-sm md:text-base tracking-wider shadow-lg transition-all transform active:scale-95 flex items-center gap-2.5 sm:gap-3 border border-orange-400/60 cursor-pointer"
+            className="relative px-6 sm:px-8 py-2.5 sm:py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:brightness-105 text-stone-950 font-mono font-bold text-xs sm:text-sm md:text-base tracking-wider shadow-lg transition-all transform active:scale-95 flex items-center gap-2.5 sm:gap-3 border border-amber-300/60 cursor-pointer"
           >
-            <div className="p-1.5 rounded-full bg-white/20 text-white shadow-inner flex items-center justify-center">
+            <div className="p-1.5 rounded-full bg-stone-950/15 text-stone-950 shadow-inner flex items-center justify-center">
               {currentUser ? (
                 <Home className="w-4 h-4 sm:w-5 sm:h-5 animate-bounce" />
               ) : (
@@ -237,10 +240,10 @@ export const ScreensaverView: React.FC<ScreensaverViewProps> = ({
               )}
             </div>
             <div className="flex flex-col items-start text-left">
-              <span className="leading-tight drop-shadow">
+              <span className="leading-tight drop-shadow-xs">
                 {currentUser ? '🏠 MASUK KE MENU HOME' : '🔐 MASUK / LOGIN KE SISTEM PHOTOBOOTH'}
               </span>
-              <span className="text-[9px] sm:text-[10px] font-sans font-normal text-white/85 tracking-normal">
+              <span className="text-[9px] sm:text-[10px] font-sans font-semibold text-stone-900/80 tracking-normal">
                 {currentUser
                   ? 'Sentuh untuk membuka menu utama tampilan home photobooth'
                   : 'Klik atau sentuh layar untuk membuka halaman login akun & PIN'}
@@ -275,7 +278,7 @@ export const ScreensaverView: React.FC<ScreensaverViewProps> = ({
                   }}
                   className={`h-2 rounded-full transition-all cursor-pointer ${
                     dotIdx === currentIdx
-                      ? 'w-6 bg-orange-500'
+                      ? 'w-6 bg-amber-400'
                       : 'w-2 bg-white/40 hover:bg-white/70'
                   }`}
                   title={`Foto ${dotIdx + 1}`}

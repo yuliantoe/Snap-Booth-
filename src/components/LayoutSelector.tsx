@@ -134,26 +134,26 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
       {/* Scrollable Layout Selection Content */}
       <div className="flex-1 min-h-0 overflow-y-auto pr-1 space-y-3 sm:space-y-4">
         {/* Welcome Banner (Compact) */}
-        <div className="relative rounded-xl bg-[#131110] border border-stone-800 p-3.5 sm:p-5 text-stone-100 shadow-sm">
+        <div className="relative rounded-xl bg-white border border-stone-200 p-3.5 sm:p-5 text-stone-900 shadow-sm">
           <div className="max-w-2xl space-y-1.5">
-            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-stone-900 border border-stone-800 text-stone-300 text-[10px] sm:text-[11px] font-mono uppercase tracking-wider">
-              <Sparkles className="w-3 h-3 text-orange-400" /> Sesi Selesai • {photos.length} Foto Siap
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-stone-100 border border-stone-200 text-stone-700 text-[10px] sm:text-[11px] font-mono uppercase tracking-wider">
+              <Sparkles className="w-3 h-3 text-orange-500" /> Sesi Selesai • {photos.length} Foto Siap
             </div>
-            <h2 className="text-xl sm:text-2xl font-serif font-bold tracking-tight text-stone-100">
+            <h2 className="text-xl sm:text-2xl font-serif font-bold tracking-tight text-stone-900">
               Pilih Format Cetak & Tata Letak
             </h2>
-            <p className="text-stone-400 text-xs leading-relaxed">
+            <p className="text-stone-500 text-xs leading-relaxed">
               Foto Anda telah siap. Tentukan format strip atau lembar cetak kenangan yang ingin dicetak dan dibagikan.
             </p>
 
             <div className="pt-1 flex flex-wrap items-center gap-2">
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-stone-900 border border-stone-800 text-xs text-stone-300 font-mono">
-                <span className="text-stone-500 text-[10px]">TEMA:</span>
-                <span className="font-bold text-orange-400 text-xs">{currentTheme.eventTitle}</span>
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-stone-50 border border-stone-200 text-xs text-stone-700 font-mono">
+                <span className="text-stone-400 text-[10px]">TEMA:</span>
+                <span className="font-bold text-orange-600 text-xs">{currentTheme.eventTitle}</span>
               </div>
               <button
                 onClick={onOpenThemeCustomizer}
-                className="text-xs font-mono font-medium text-orange-400 hover:text-orange-300 underline underline-offset-4 transition-colors"
+                className="text-xs font-mono font-medium text-orange-600 hover:text-orange-500 underline underline-offset-4 transition-colors"
               >
                 Ubah Tema →
               </button>
@@ -163,7 +163,7 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
 
         {/* Layout Selection Cards */}
         <div>
-          <h3 className="text-xs font-mono uppercase tracking-widest text-stone-400 font-bold mb-2.5 flex items-center gap-2">
+          <h3 className="text-xs font-mono uppercase tracking-widest text-stone-500 font-bold mb-2.5 flex items-center gap-2">
             FORMAT TATA LETAK STRIP ({layouts.length} OPSI)
           </h3>
 
@@ -177,8 +177,8 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
                 onClick={() => onSelectLayout(layout.id)}
                 className={`group relative p-5 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${
                   isSelected
-                    ? 'border-orange-500 bg-[#171513] ring-1 ring-orange-500/30 shadow-sm'
-                    : 'border-stone-800 bg-[#121110] hover:border-stone-700 hover:bg-[#161413]'
+                    ? 'border-orange-500 bg-orange-50/50 ring-2 ring-orange-500/20 shadow-md'
+                    : 'border-stone-200 bg-white hover:border-orange-400 hover:shadow-md'
                 }`}
               >
                 {layout.badge && (
@@ -189,21 +189,21 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
 
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <h4 className="font-bold text-stone-100 group-hover:text-orange-400 transition-colors text-sm sm:text-base">
+                    <h4 className="font-bold text-stone-900 group-hover:text-orange-600 transition-colors text-sm sm:text-base">
                       {layout.title}
                     </h4>
                     <div
                       className={`w-5 h-5 rounded-full flex items-center justify-center border transition-all ${
                         isSelected
                           ? 'bg-orange-600 border-orange-600 text-white'
-                          : 'border-stone-700 text-transparent'
+                          : 'border-stone-300 text-transparent'
                       }`}
                     >
                       <Check className="w-3 h-3 stroke-[3]" />
                     </div>
                   </div>
 
-                  <p className="text-xs text-stone-400 leading-relaxed">{layout.description}</p>
+                  <p className="text-xs text-stone-500 leading-relaxed">{layout.description}</p>
 
                   {/* Visual Strip Thumbnail Simulation with Real Photos */}
                   <div
@@ -415,9 +415,9 @@ export const LayoutSelector: React.FC<LayoutSelectorProps> = ({
                   </div>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-stone-800 flex items-center justify-between text-xs font-mono text-stone-400">
+                <div className="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between text-xs font-mono text-stone-500">
                   <span>{layout.slotsCount} SLOT FOTO</span>
-                  <span className="font-bold text-orange-400">PILIH FORMAT</span>
+                  <span className="font-bold text-orange-600">PILIH FORMAT</span>
                 </div>
               </div>
             );
