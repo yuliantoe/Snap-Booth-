@@ -10,6 +10,8 @@ import {
   Calendar,
   Sliders,
   Tv,
+  Maximize2,
+  Minimize2,
 } from 'lucide-react';
 import { EventTheme, UserAccount } from '../types';
 import { DEFAULT_SLIDESHOW_PRODUCT_PHOTOS } from '../utils/productPresets';
@@ -24,6 +26,8 @@ interface StartScreenProps {
   isDashboardMinimized?: boolean;
   onToggleMinimizeDashboard?: () => void;
   onOpenScreensaver?: () => void;
+  isFullscreen?: boolean;
+  onToggleFullscreen?: () => void;
 }
 
 // Preset aesthetic photobooth snapshots for the modern receipt strip preview
@@ -42,6 +46,8 @@ export const StartScreen: React.FC<StartScreenProps> = ({
   isDashboardMinimized = false,
   onToggleMinimizeDashboard,
   onOpenScreensaver,
+  isFullscreen = false,
+  onToggleFullscreen,
 }) => {
   const isLoggedIn = Boolean(currentUser);
   const homeStyle = currentTheme.homeStyle || 'classic';
@@ -424,6 +430,28 @@ export const StartScreen: React.FC<StartScreenProps> = ({
         </div>
 
       </div>
+
+      {/* Floating Kiosk Fullscreen Action Button (Convenient on Tablet & HP) */}
+      {onToggleFullscreen && (
+        <button
+          type="button"
+          onClick={onToggleFullscreen}
+          className="absolute bottom-2.5 sm:bottom-3 right-2.5 sm:right-3 z-30 flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full bg-white/90 hover:bg-white text-stone-700 hover:text-stone-950 border border-stone-300 shadow-md backdrop-blur-md text-[11px] sm:text-xs font-mono font-semibold transition-all active:scale-95 cursor-pointer"
+          title={isFullscreen ? 'Keluar Layar Penuh' : 'Mode Layar Penuh Kiosk Tablet/HP'}
+        >
+          {isFullscreen ? (
+            <>
+              <Minimize2 className="w-3.5 h-3.5 text-stone-600" />
+              <span className="hidden xs:inline">Keluar Penuh</span>
+            </>
+          ) : (
+            <>
+              <Maximize2 className="w-3.5 h-3.5 text-orange-600" />
+              <span className="hidden xs:inline">Layar Penuh</span>
+            </>
+          )}
+        </button>
+      )}
 
     </div>
   );

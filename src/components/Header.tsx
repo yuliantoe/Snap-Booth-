@@ -127,6 +127,32 @@ export const Header: React.FC<HeaderProps> = ({
                   </>
                 )}
               </button>
+
+              {/* Quick Fullscreen Kiosk Button (Accessible on Tablet & Mobile) */}
+              {onToggleFullscreen && (
+                <button
+                  type="button"
+                  onClick={onToggleFullscreen}
+                  className={`inline-flex items-center gap-1 px-2 py-0.5 text-[9px] sm:text-[10px] font-mono font-bold tracking-wide uppercase rounded-md cursor-pointer transition-all shrink-0 select-none active:scale-95 border ${
+                    isFullscreen
+                      ? 'bg-orange-600 text-white border-orange-600 hover:bg-orange-700 shadow-xs'
+                      : 'bg-stone-100 text-stone-700 border-stone-200 hover:bg-stone-200 hover:border-orange-500/50'
+                  }`}
+                  title={isFullscreen ? 'Keluar Layar Penuh (Kiosk)' : 'Masuk Layar Penuh (Kiosk) Tablet & HP'}
+                >
+                  {isFullscreen ? (
+                    <>
+                      <Minimize2 className="w-3 h-3 text-white" />
+                      <span className="hidden xs:inline">Keluar Penuh</span>
+                    </>
+                  ) : (
+                    <>
+                      <Maximize2 className="w-3 h-3 text-orange-600" />
+                      <span className="hidden xs:inline">Layar Penuh</span>
+                    </>
+                  )}
+                </button>
+              )}
             </div>
             <p className="text-[10px] sm:text-[11px] text-stone-500 truncate max-w-[120px] sm:max-w-xs font-mono">
               {currentUser?.role === 'super_admin' || !currentUser?.businessName || currentUser.businessName.includes('HQ Indonesia')

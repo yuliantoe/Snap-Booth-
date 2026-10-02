@@ -19,6 +19,7 @@ import {
   MousePointer,
   Maximize,
   Maximize2,
+  Minimize2,
   Crown,
   Zap,
   Columns,
@@ -66,6 +67,8 @@ interface ControlPanelModalProps {
   onLogout?: () => void;
   onOpenAuthModal?: () => void;
   onOpenScreensaver?: () => void;
+  isFullscreen?: boolean;
+  onToggleFullscreen?: () => void;
 }
 
 const PRESET_VIDEOS = [
@@ -191,6 +194,8 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
   onLogout,
   onOpenAuthModal,
   onOpenScreensaver,
+  isFullscreen = false,
+  onToggleFullscreen,
 }) => {
   const [activeTab, setActiveTab] = useState<'home' | 'theme' | 'upload_custom' | 'media' | 'system' | 'screensaver'>('home');
   const [themeForm, setThemeForm] = useState<EventTheme>({ ...currentTheme });
@@ -2558,6 +2563,61 @@ export const ControlPanelModal: React.FC<ControlPanelModalProps> = ({
                       </p>
                     </div>
                   </button>
+                </div>
+              </div>
+
+              {/* Fullscreen / Kiosk Mode Setting for Tablets & Mobile Phones */}
+              <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                    <Monitor className="w-4 h-4 text-orange-400" /> Mode Layar Penuh (Kiosk Mode) Tablet & Handphone
+                  </h3>
+                  <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border uppercase tracking-wider ${
+                    isFullscreen
+                      ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                      : 'bg-slate-800 text-slate-400 border-slate-700'
+                  }`}>
+                    {isFullscreen ? '🟢 Layar Penuh Aktif' : '⚪ Ukuran Biasa'}
+                  </span>
+                </div>
+
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Jadikan photobooth tampil penuh (fullscreen) tanpa gangguan bar browser atau tab, sangat cocok saat tablet/HP ditaruh di stand photobooth acara.
+                </p>
+
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                  {onToggleFullscreen && (
+                    <button
+                      type="button"
+                      onClick={onToggleFullscreen}
+                      className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer shadow-sm active:scale-95 border ${
+                        isFullscreen
+                          ? 'bg-rose-600 hover:bg-rose-500 text-white border-rose-500'
+                          : 'bg-orange-600 hover:bg-orange-500 text-white border-orange-500'
+                      }`}
+                    >
+                      {isFullscreen ? (
+                        <>
+                          <Minimize2 className="w-4 h-4" />
+                          <span>Keluar dari Layar Penuh</span>
+                        </>
+                      ) : (
+                        <>
+                          <Maximize2 className="w-4 h-4" />
+                          <span>Aktifkan Layar Penuh (Kiosk Mode)</span>
+                        </>
+                      )}
+                    </button>
+                  )}
+                </div>
+
+                <div className="p-3 bg-slate-900/80 rounded-xl border border-slate-800 text-[11px] text-slate-400 space-y-1">
+                  <p className="font-semibold text-slate-300 flex items-center gap-1.5">
+                    <span>💡 Tips Khusus iPad & iPhone (Apple Safari):</span>
+                  </p>
+                  <p className="leading-relaxed">
+                    Agar bar alamat URL Safari tidak muncul sama sekali di iPad/iPhone, gunakan fitur <strong>Share (Bagikan) ➔ Tambahkan ke Layar Utama (Add to Home Screen)</strong>. Buka SnapBooth dari ikon layar utama untuk pengalaman Kiosk 100% borderless!
+                  </p>
                 </div>
               </div>
 

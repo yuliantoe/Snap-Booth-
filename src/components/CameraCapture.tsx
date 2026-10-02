@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, RefreshCw, FlipHorizontal, Trash2, ArrowRight, Play, CheckCircle2, AlertCircle, SwitchCamera, Sparkles } from 'lucide-react';
+import { Camera, RefreshCw, FlipHorizontal, Trash2, ArrowRight, Play, CheckCircle2, AlertCircle, SwitchCamera, Sparkles, Maximize2, Minimize2, Eye } from 'lucide-react';
 import { PhotoSlot, LayoutType } from '../types';
 import { sounds } from '../utils/audio';
 import { useScreenOrientation } from '../utils/useScreenOrientation';
@@ -23,6 +23,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
 }) => {
   const orientationState = useScreenOrientation(tabletOrientation);
   const isLandscape = orientationState.isLandscape;
+  const isTablet = orientationState.deviceType === 'tablet' || (orientationState.width >= 600 && orientationState.width <= 1280) || (typeof navigator !== 'undefined' && navigator.maxTouchPoints > 1 && orientationState.width <= 1366);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -41,6 +42,8 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
   const [showResetConfirm, setShowResetConfirm] = useState<boolean>(false);
   const [retakeFeedback, setRetakeFeedback] = useState<string | null>(null);
   const [isStreamPortrait, setIsStreamPortrait] = useState<boolean>(false);
+  const [isPreviewMaximized, setIsPreviewMaximized] = useState<boolean>(false);
+  const [videoFit, setVideoFit] = useState<'cover' | 'contain'>('cover');
 
   const handleVideoMetadata = () => {
     const v = videoRef.current;
@@ -364,237 +367,313 @@ const createDemoPosePhoto = (poseIndex: number): string => {
   const currentSlotPhoto = photos[activeSlotIndex];
   const isRetakingActiveSlot = Boolean(currentSlotPhoto);
 
-  return (
-    <div className={`mx-auto p-1.5 sm:p-3 animate-in fade-in duration-200 w-full h-full max-h-full overflow-y-auto md:overflow-hidden flex flex-col justify-between ${
-      isLandscape ? 'max-w-7xl' : 'max-w-3xl md:max-w-4xl'
-    }`}>
-      <div className={`flex gap-2 sm:gap-4 flex-1 min-h-0 ${
-        isLandscape ? 'flex-row items-stretch' : 'flex-col justify-between'
-      }`}>
-        {/* Left Column: Live Webcam Viewfinder */}
-        <div className="flex-1 min-h-0 flex flex-col justify-between gap-1.5 sm:gap-2">
-          <div className={`relative ${
-            isLandscape 
-              ? 'flex-1 min-h-0 aspect-[4/3] max-h-[75dvh]' 
-              : isStreamPortrait 
-              ? 'aspect-[3/4] max-h-[46dvh] sm:max-h-[52dvh] w-auto mx-auto' 
-              : 'aspect-[4/3] max-h-[38dvh] sm:max-h-[46dvh] w-full mx-auto'
-          } rounded-xl bg-[#0a0b0e] border border-zinc-800 overflow-hidden shadow-lg flex items-center justify-center`}>
-            {/* Viewfinder Reticle Corners */}
-            <div className="absolute top-4 left-4 w-6 h-6 border-t-2 border-l-2 border-zinc-500/60 pointer-events-none z-10" />
-            <div className="absolute top-4 right-4 w-6 h-6 border-t-2 border-r-2 border-zinc-500/60 pointer-events-none z-10" />
-            <div className="absolute bottom-4 left-4 w-6 h-6 border-b-2 border-l-2 border-zinc-500/60 pointer-events-none z-10" />
-            <div className="absolute bottom-4 right-4 w-6 h-6 border-b-2 border-r-2 border-zinc-500/60 pointer-events-none z-10" />
+  // Render Viewfinder element (reusable across normal and maximized modes)
+  const renderViewfinder = (isMaxMode = false) => (
+    <div className={`relative w-full h-full flex items-center justify-center overflow-hidden ${
+      isMaxMode ? 'rounded-none' : 'rounded-xl sm:rounded-2xl'
+    } bg-[#0a0b0e] border border-zinc-800 shadow-xl`}>
+      {/* Viewfinder Reticle Corners */}
+      <div className="absolute top-4 left-4 w-6 h-6 border-t-2 border-l-2 border-zinc-500/60 pointer-events-none z-10" />
+      <div className="absolute top-4 right-4 w-6 h-6 border-t-2 border-r-2 border-zinc-500/60 pointer-events-none z-10" />
+      <div className="absolute bottom-4 left-4 w-6 h-6 border-b-2 border-l-2 border-zinc-500/60 pointer-events-none z-10" />
+      <div className="absolute bottom-4 right-4 w-6 h-6 border-b-2 border-r-2 border-zinc-500/60 pointer-events-none z-10" />
 
-            {/* Flash Overlay Effect */}
-            {flashEffect && <div className="absolute inset-0 bg-white z-30 animate-ping opacity-95" />}
+      {/* Flash Overlay Effect */}
+      {flashEffect && <div className="absolute inset-0 bg-white z-30 animate-ping opacity-95 pointer-events-none" />}
 
-            {/* Countdown Overlay - Clean no bounce slop */}
-            {activeCountdown !== null && (
-              <div className="absolute inset-0 z-20 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center text-white">
-                <span className="text-8xl sm:text-9xl font-black font-mono tracking-tighter text-orange-500">
-                  {activeCountdown}
-                </span>
-                <span className="text-xs sm:text-sm font-mono uppercase tracking-widest text-stone-300 mt-3 px-3 py-1 rounded bg-stone-900 border border-stone-700">
-                  BERSIAP FOTO
-                </span>
-              </div>
-            )}
+      {/* Countdown Overlay */}
+      {activeCountdown !== null && (
+        <div className="absolute inset-0 z-30 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center text-white pointer-events-none animate-in fade-in duration-150">
+          <span className="text-8xl sm:text-9xl md:text-[11rem] font-black font-mono tracking-tighter text-orange-500 drop-shadow-lg">
+            {activeCountdown}
+          </span>
+          <span className="text-xs sm:text-sm md:text-base font-mono uppercase tracking-widest text-stone-200 mt-4 px-4 py-1.5 rounded-full bg-stone-900/90 border border-stone-700 shadow-md">
+            BERSIAP FOTO #{activeSlotIndex + 1}
+          </span>
+        </div>
+      )}
 
-            {/* Video Stream */}
-            {!cameraError ? (
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                muted
-                onLoadedMetadata={handleVideoMetadata}
-                onCanPlay={handleVideoMetadata}
-                className={`w-full h-full object-cover transition-transform ${isMirrored ? 'scale-x-[-1]' : ''}`}
-              />
-            ) : (
-              <div className="p-4 sm:p-6 text-center space-y-3 sm:space-y-4 max-w-md">
-                <AlertCircle className="w-8 h-8 sm:w-10 sm:h-10 text-orange-400 mx-auto" />
-                <div className="space-y-1">
-                  <p className="text-xs sm:text-sm font-bold text-white">Kamera Fisik Tidak Aktif</p>
-                  <p className="text-[11px] sm:text-xs text-stone-400 leading-relaxed font-mono">{cameraError}</p>
-                </div>
-                <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
-                  <button
-                    onClick={handlePopulateDemoPhotos}
-                    className="px-3.5 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs shadow-sm transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer border border-orange-500"
-                  >
-                    <Camera className="w-3.5 h-3.5" /> Gunakan Foto Demo Studio
-                  </button>
-                  <button
-                    onClick={() => setSelectedDeviceId((prev) => (prev ? '' : 'retry'))}
-                    className="px-3 py-2 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-300 hover:text-white font-medium text-xs border border-stone-800 transition-all flex items-center gap-1 cursor-pointer"
-                  >
-                    <RefreshCw className="w-3 h-3" /> Coba Lagi
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Top Toolbar Controls over video */}
-            <div className="absolute top-2.5 sm:top-3 left-2.5 sm:left-3 right-2.5 sm:right-3 flex items-center justify-between z-10 pointer-events-auto gap-2">
-              <div className="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-md border border-stone-300 text-[11px] sm:text-xs font-mono font-medium text-stone-800 shadow-sm">
-                <span className={`w-2 h-2 rounded-full ${isRetakingActiveSlot ? 'bg-orange-500 animate-pulse' : 'bg-emerald-500'}`} />
-                <span>SLOT #{activeSlotIndex + 1} / {requiredCount}</span>
-                {isRetakingActiveSlot ? (
-                  <span className="text-[10px] bg-orange-100 text-orange-800 px-1.5 py-0.5 rounded border border-orange-300 font-bold ml-1 flex items-center gap-1">
-                    <RefreshCw className="w-2.5 h-2.5" /> FOTO ULANG
-                  </span>
-                ) : (
-                  <span className="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded border border-emerald-300 font-bold ml-1">
-                    KOSONG
-                  </span>
-                )}
-              </div>
-
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                {/* Switch Device dropdown */}
-                {devices.length > 1 && (
-                  <select
-                    value={selectedDeviceId}
-                    onChange={(e) => setSelectedDeviceId(e.target.value)}
-                    className="bg-white/95 backdrop-blur-md text-[11px] sm:text-xs text-stone-800 border border-stone-300 rounded-md px-2 py-1 focus:outline-none max-w-[110px] sm:max-w-none truncate font-mono shadow-xs"
-                  >
-                    {devices.map((d, idx) => (
-                      <option key={d.deviceId} value={d.deviceId}>
-                        {d.label || `Kamera ${idx + 1}`}
-                      </option>
-                    ))}
-                  </select>
-                )}
-
-                {/* Flip Camera Facing Mode */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setFacingMode((prev) => (prev === 'user' ? 'environment' : 'user'));
-                    setIsMirrored((prev) => !prev);
-                  }}
-                  className="p-1.5 sm:p-2 rounded-md backdrop-blur-md bg-white/95 text-stone-700 hover:text-stone-900 border border-stone-300 transition-all cursor-pointer shadow-xs"
-                  title={facingMode === 'user' ? 'Ganti ke Kamera Belakang' : 'Ganti ke Kamera Depan (Selfie)'}
-                >
-                  <SwitchCamera className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-600" />
-                </button>
-
-                {/* Flip Camera Mirror */}
-                <button
-                  type="button"
-                  onClick={() => setIsMirrored(!isMirrored)}
-                  className={`p-1.5 sm:p-2 rounded-md backdrop-blur-md transition-all border shadow-xs cursor-pointer ${
-                    isMirrored ? 'bg-orange-600 text-white border-orange-500 font-bold' : 'bg-white/95 text-stone-700 border-stone-300'
-                  }`}
-                  title="Cermin Horizontal"
-                >
-                  <FlipHorizontal className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                </button>
-              </div>
-            </div>
+      {/* Video Stream */}
+      {!cameraError ? (
+        <video
+          ref={videoRef}
+          autoPlay
+          playsInline
+          muted
+          onLoadedMetadata={handleVideoMetadata}
+          onCanPlay={handleVideoMetadata}
+          className={`w-full h-full transition-transform ${videoFit === 'cover' ? 'object-cover' : 'object-contain'} ${
+            isMirrored ? 'scale-x-[-1]' : ''
+          }`}
+        />
+      ) : (
+        <div className="p-4 sm:p-6 text-center space-y-3 sm:space-y-4 max-w-md z-10">
+          <AlertCircle className="w-10 h-10 sm:w-12 sm:h-12 text-orange-400 mx-auto" />
+          <div className="space-y-1">
+            <p className="text-sm sm:text-base font-bold text-white">Kamera Fisik Tidak Aktif</p>
+            <p className="text-xs text-stone-400 leading-relaxed font-mono">{cameraError}</p>
           </div>
-
-          {/* Shutter & Timer Controls Toolbar */}
-          <div className="bg-white border border-stone-200 rounded-xl p-3 sm:p-4 space-y-3 shadow-sm">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              {/* Timer Options */}
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <span className="text-xs font-mono font-medium text-stone-500">TIMER:</span>
-                {[0, 3, 5, 10].map((sec) => (
-                  <button
-                    key={sec}
-                    onClick={() => setCountdownTimer(sec)}
-                    className={`px-2.5 py-1 rounded-md text-xs font-mono font-bold transition-all cursor-pointer select-none border ${
-                      countdownTimer === sec
-                        ? 'bg-orange-600 text-white border-orange-500 shadow-xs'
-                        : 'bg-stone-100 text-stone-600 hover:text-stone-900 border-stone-200'
-                    }`}
-                  >
-                    {sec === 0 ? '0s' : `${sec}s`}
-                  </button>
-                ))}
-              </div>
-
-              {/* Shutter Trigger Buttons */}
-              <div className="flex items-center gap-2 sm:gap-3 flex-wrap sm:flex-nowrap">
-                {/* Burst Mode Button */}
-                <button
-                  onClick={handleStartBurstMode}
-                  disabled={isBurstMode || activeCountdown !== null}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-300 text-xs font-medium transition-all active:scale-95 disabled:opacity-50 cursor-pointer shadow-xs"
-                  title="Ambil foto otomatis berurutan untuk semua slot"
-                >
-                  <Play className="w-3.5 h-3.5 text-orange-600" />
-                  <span className="hidden xs:inline">Auto 4x Bergantian</span>
-                  <span className="xs:hidden">Auto 4x</span>
-                </button>
-
-                {/* Main Shutter Button */}
-                <button
-                  onClick={() => handleStartCapture(activeSlotIndex)}
-                  disabled={isBurstMode || activeCountdown !== null}
-                  className={`flex items-center gap-2 px-5 sm:px-6 py-2.5 rounded-lg text-white font-bold text-xs sm:text-sm shadow-md active:scale-[0.98] transition-all disabled:opacity-50 cursor-pointer border ${
-                    isRetakingActiveSlot
-                      ? 'bg-orange-600 hover:bg-orange-500 border-orange-500'
-                      : 'bg-orange-600 hover:bg-orange-500 border-orange-500'
-                  }`}
-                >
-                  {isRetakingActiveSlot ? (
-                    <>
-                      <RefreshCw className="w-4 h-4 text-orange-200" />
-                      <span>Foto Ulang Foto #{activeSlotIndex + 1}</span>
-                    </>
-                  ) : (
-                    <>
-                      <Camera className="w-4 h-4" />
-                      <span>Ambil Foto #{activeSlotIndex + 1}</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-
-            {/* Retake Mode Helper Notice */}
-            {isRetakingActiveSlot && (
-              <div className="pt-2 text-[11px] font-mono text-orange-700 flex flex-wrap items-center justify-between border-t border-stone-200 gap-2">
-                <span className="flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-orange-600 shrink-0" />
-                  Foto #{activeSlotIndex + 1} akan diganti pose baru. Foto lainnya di urutan tetap tersimpan aman.
-                </span>
-                <button
-                  type="button"
-                  onClick={() => handleRemovePhoto(activeSlotIndex)}
-                  className="text-stone-500 hover:text-rose-600 underline cursor-pointer text-[11px] font-mono"
-                >
-                  Kosongkan Slot #{activeSlotIndex + 1} Saja
-                </button>
-              </div>
-            )}
-
-            {/* Retake Success Toast */}
-            {retakeFeedback && (
-              <div className="text-[11px] font-mono text-emerald-700 flex items-center gap-1.5 border-t border-stone-200 pt-2 animate-in fade-in duration-200">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>{retakeFeedback}</span>
-              </div>
-            )}
+          <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+            <button
+              onClick={handlePopulateDemoPhotos}
+              className="px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs sm:text-sm shadow-md transition-all active:scale-95 flex items-center gap-2 cursor-pointer border border-orange-500"
+            >
+              <Camera className="w-4 h-4" /> Gunakan Foto Demo Studio
+            </button>
+            <button
+              onClick={() => setSelectedDeviceId((prev) => (prev ? '' : 'retry'))}
+              className="px-3.5 py-2 rounded-lg bg-stone-900 hover:bg-stone-800 text-stone-300 hover:text-white font-medium text-xs border border-stone-800 transition-all flex items-center gap-1.5 cursor-pointer"
+            >
+              <RefreshCw className="w-3.5 h-3.5" /> Coba Lagi
+            </button>
           </div>
         </div>
+      )}
 
-        {/* Right Column (or Bottom Column in Portrait): Photo Slots */}
-        <div className={`w-full ${isLandscape ? 'md:w-72 lg:w-80' : 'w-full'} flex flex-col justify-between gap-2 shrink-0`}>
-          <div className="bg-white border border-stone-200 rounded-xl p-2.5 sm:p-3 space-y-2 flex-1 min-h-0 flex flex-col justify-between shadow-sm">
+      {/* Top Floating Viewfinder Toolbar */}
+      <div className="absolute top-2.5 sm:top-3.5 left-2.5 sm:left-3.5 right-2.5 sm:right-3.5 flex items-center justify-between z-20 pointer-events-auto gap-2">
+        {/* Left: Slot Status Badge */}
+        <div className="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-mono font-medium text-stone-800 shadow-sm">
+          <span className={`w-2 h-2 rounded-full ${isRetakingActiveSlot ? 'bg-orange-500 animate-pulse' : 'bg-emerald-500'}`} />
+          <span className="font-bold">SLOT #{activeSlotIndex + 1} / {requiredCount}</span>
+          {isRetakingActiveSlot ? (
+            <span className="text-[10px] bg-orange-100 text-orange-800 px-1.5 py-0.5 rounded border border-orange-300 font-bold ml-0.5 flex items-center gap-1">
+              <RefreshCw className="w-2.5 h-2.5" /> FOTO ULANG
+            </span>
+          ) : (
+            <span className="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded border border-emerald-300 font-bold ml-0.5">
+              SIAP
+            </span>
+          )}
+        </div>
+
+        {/* Right: Camera Tools (Device, Flip, Mirror, Fit, Maximize) */}
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          {/* Switch Device Dropdown */}
+          {devices.length > 1 && (
+            <select
+              value={selectedDeviceId}
+              onChange={(e) => setSelectedDeviceId(e.target.value)}
+              className="bg-white/95 backdrop-blur-md text-xs text-stone-800 border border-stone-300 rounded-lg px-2.5 py-1.5 focus:outline-none max-w-[120px] sm:max-w-none truncate font-mono shadow-xs cursor-pointer"
+            >
+              {devices.map((d, idx) => (
+                <option key={d.deviceId} value={d.deviceId}>
+                  {d.label || `Kamera ${idx + 1}`}
+                </option>
+              ))}
+            </select>
+          )}
+
+          {/* Video Fit (Cover / Contain) */}
+          <button
+            type="button"
+            onClick={() => setVideoFit((prev) => (prev === 'cover' ? 'contain' : 'cover'))}
+            className={`p-1.5 sm:p-2 rounded-lg backdrop-blur-md transition-all border shadow-xs cursor-pointer text-xs font-mono flex items-center gap-1 ${
+              videoFit === 'cover'
+                ? 'bg-white/95 text-stone-700 hover:text-stone-900 border-stone-300'
+                : 'bg-stone-900 text-white border-stone-700 font-bold'
+            }`}
+            title={videoFit === 'cover' ? 'Penuh Layar (Klik untuk mode Asli)' : 'Asli Kamera (Klik untuk Penuh Layar)'}
+          >
+            <Eye className="w-3.5 h-3.5 text-orange-600" />
+            <span className="hidden md:inline">{videoFit === 'cover' ? 'Penuh' : 'Asli'}</span>
+          </button>
+
+          {/* Flip Camera Facing Mode */}
+          <button
+            type="button"
+            onClick={() => {
+              setFacingMode((prev) => (prev === 'user' ? 'environment' : 'user'));
+              setIsMirrored((prev) => !prev);
+            }}
+            className="p-1.5 sm:p-2 rounded-lg backdrop-blur-md bg-white/95 text-stone-700 hover:text-stone-900 border border-stone-300 transition-all cursor-pointer shadow-xs"
+            title={facingMode === 'user' ? 'Ganti ke Kamera Belakang' : 'Ganti ke Kamera Depan (Selfie)'}
+          >
+            <SwitchCamera className="w-4 h-4 text-orange-600" />
+          </button>
+
+          {/* Flip Camera Mirror */}
+          <button
+            type="button"
+            onClick={() => setIsMirrored(!isMirrored)}
+            className={`p-1.5 sm:p-2 rounded-lg backdrop-blur-md transition-all border shadow-xs cursor-pointer ${
+              isMirrored ? 'bg-orange-600 text-white border-orange-500 font-bold' : 'bg-white/95 text-stone-700 border-stone-300'
+            }`}
+            title="Cermin Horizontal"
+          >
+            <FlipHorizontal className="w-4 h-4" />
+          </button>
+
+          {/* Maximize Preview Toggle (Dedicated Full Preview Mode for Tablet / Kiosk) */}
+          <button
+            type="button"
+            onClick={() => setIsPreviewMaximized(!isPreviewMaximized)}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg backdrop-blur-md transition-all border shadow-xs cursor-pointer font-bold text-xs ${
+              isPreviewMaximized
+                ? 'bg-orange-600 text-white border-orange-500'
+                : 'bg-white/95 hover:bg-stone-100 text-stone-800 border-stone-300'
+            }`}
+            title={isPreviewMaximized ? 'Kecilkan Tampilan Preview' : 'Perbesar Tampilan Preview (Mode Tablet Layar Penuh)'}
+          >
+            {isPreviewMaximized ? (
+              <>
+                <Minimize2 className="w-4 h-4" />
+                <span className="hidden sm:inline">Kecilkan</span>
+              </>
+            ) : (
+              <>
+                <Maximize2 className="w-4 h-4 text-orange-600" />
+                <span className="hidden sm:inline">Perbesar Preview</span>
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // 1. IMMERSIVE MAXIMIZED PREVIEW MODE (When user clicks "Perbesar Preview" or in Full Tablet Kiosk mode)
+  if (isPreviewMaximized) {
+    return (
+      <div className="relative w-full h-full min-h-0 overflow-hidden flex flex-col justify-between p-1 sm:p-2 animate-in fade-in duration-200 select-none">
+        {/* Fullscreen Video Viewfinder */}
+        <div className="absolute inset-0 z-0">
+          {renderViewfinder(true)}
+        </div>
+
+        {/* Floating Bottom Console Dock */}
+        <div className="relative z-30 mt-auto flex flex-col gap-2 p-2 sm:p-3 max-w-4xl mx-auto w-full pointer-events-none">
+          {/* Compact Photo Slot Thumbnails Bar */}
+          <div className="pointer-events-auto bg-stone-950/85 backdrop-blur-md border border-white/15 rounded-xl p-2 flex items-center justify-between gap-2 shadow-2xl">
+            <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto py-0.5">
+              {Array.from({ length: requiredCount }).map((_, slotIdx) => {
+                const photo = photos[slotIdx];
+                const isActive = activeSlotIndex === slotIdx;
+
+                return (
+                  <button
+                    key={slotIdx}
+                    type="button"
+                    onClick={() => setActiveSlotIndex(slotIdx)}
+                    className={`relative w-12 h-10 sm:w-16 sm:h-12 rounded-lg border-2 overflow-hidden shrink-0 transition-all cursor-pointer ${
+                      isActive
+                        ? 'border-orange-500 ring-2 ring-orange-500/50 scale-105'
+                        : photo
+                        ? 'border-white/40 hover:border-white/70 opacity-90'
+                        : 'border-white/20 border-dashed opacity-60'
+                    }`}
+                  >
+                    {photo?.dataUrl ? (
+                      <img src={photo.dataUrl} alt={`Foto ${slotIdx + 1}`} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-stone-900 flex items-center justify-center">
+                        <Camera className="w-3.5 h-3.5 text-stone-400" />
+                      </div>
+                    )}
+                    <span className="absolute bottom-0.5 left-0.5 px-1 rounded bg-black/75 text-[9px] font-mono text-white font-bold leading-none py-0.5">
+                      #{slotIdx + 1}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Quick Next Button */}
+            <button
+              onClick={onContinueToLayout}
+              disabled={filledCount === 0}
+              className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg font-bold text-xs sm:text-sm shadow-md transition-all cursor-pointer shrink-0 ${
+                isAllFilled
+                  ? 'bg-orange-600 hover:bg-orange-500 text-white border border-orange-400 active:scale-95'
+                  : filledCount > 0
+                  ? 'bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-600'
+                  : 'bg-stone-900 text-stone-600 border border-stone-800 opacity-50 cursor-not-allowed'
+              }`}
+            >
+              <span>Lanjut</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          {/* Floating Ergonomic Shutter Bar */}
+          <div className="pointer-events-auto bg-stone-950/85 backdrop-blur-md border border-white/15 rounded-2xl p-2.5 sm:p-3 flex items-center justify-between gap-3 shadow-2xl">
+            {/* Timer Pills */}
+            <div className="flex items-center gap-1 sm:gap-1.5">
+              <span className="text-[11px] font-mono font-medium text-stone-300 hidden xs:inline">TIMER:</span>
+              {[0, 3, 5, 10].map((sec) => (
+                <button
+                  key={sec}
+                  onClick={() => setCountdownTimer(sec)}
+                  className={`px-2.5 py-1 rounded-md text-xs font-mono font-bold transition-all cursor-pointer ${
+                    countdownTimer === sec
+                      ? 'bg-orange-600 text-white shadow-xs'
+                      : 'bg-white/10 hover:bg-white/20 text-stone-200'
+                  }`}
+                >
+                  {sec === 0 ? '0s' : `${sec}s`}
+                </button>
+              ))}
+            </div>
+
+            {/* Shutter Triggers */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleStartBurstMode}
+                disabled={isBurstMode || activeCountdown !== null}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-stone-100 text-xs font-medium border border-white/20 transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
+                title="Ambil foto otomatis berurutan untuk semua slot"
+              >
+                <Play className="w-3.5 h-3.5 text-orange-400" />
+                <span className="hidden sm:inline">Auto 4x</span>
+              </button>
+
+              <button
+                onClick={() => handleStartCapture(activeSlotIndex)}
+                disabled={isBurstMode || activeCountdown !== null}
+                className="flex items-center gap-2 px-5 sm:px-7 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-bold text-sm shadow-xl border border-orange-400 active:scale-95 transition-all cursor-pointer"
+              >
+                {isRetakingActiveSlot ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 text-orange-200" />
+                    <span>Ulang Foto #{activeSlotIndex + 1}</span>
+                  </>
+                ) : (
+                  <>
+                    <Camera className="w-4 h-4" />
+                    <span>Ambil Foto #{activeSlotIndex + 1}</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. TABLET LANDSCAPE LAYOUT (Preview Takes Full Height, Controls Integrated into Right Panel)
+  if (isLandscape) {
+    return (
+      <div className="w-full h-full min-h-0 flex flex-row items-stretch gap-2.5 sm:gap-3 p-1 sm:p-2 md:p-3 overflow-hidden animate-in fade-in duration-200 select-none">
+        {/* Left Column: Live Webcam Viewfinder (EXPANDED TO FULL CONTAINER HEIGHT) */}
+        <div className="flex-1 h-full min-h-0 relative flex items-center justify-center">
+          {renderViewfinder(false)}
+        </div>
+
+        {/* Right Column: Integrated Booth Touch Console (Slots + Shutter Controls + Proceed) */}
+        <div className="w-72 sm:w-80 lg:w-84 flex flex-col justify-between gap-2.5 h-full min-h-0 bg-white border border-stone-200 rounded-xl sm:rounded-2xl p-2.5 sm:p-3.5 shadow-sm shrink-0 overflow-y-auto">
+          {/* Top Section: Photo Slots Grid */}
+          <div className="space-y-2">
             <div className="flex items-center justify-between border-b border-stone-100 pb-1.5">
               <div>
-                <h3 className="text-[11px] sm:text-xs font-bold text-stone-900 flex items-center gap-1.5 font-mono">
+                <h3 className="text-xs font-bold text-stone-900 flex items-center gap-1.5 font-mono">
                   SLOT FOTO ({filledCount}/{requiredCount})
                 </h3>
                 <p className="text-[10px] text-stone-500 font-mono mt-0.5">
-                  Klik slot foto mana pun untuk foto ulang
+                  Klik slot untuk foto ulang
                 </p>
               </div>
+
               <div className="flex items-center gap-1.5">
                 {filledCount > 0 && !showResetConfirm && (
                   <button
@@ -603,7 +682,7 @@ const createDemoPosePhoto = (poseIndex: number): string => {
                     className="text-[10px] font-mono text-stone-500 hover:text-rose-600 px-2 py-1 rounded bg-stone-100 border border-stone-200 transition-colors cursor-pointer"
                     title="Reset semua foto jika ingin mengulang dari awal"
                   >
-                    Reset Semua
+                    Reset
                   </button>
                 )}
                 {showResetConfirm && (
@@ -634,7 +713,7 @@ const createDemoPosePhoto = (poseIndex: number): string => {
             </div>
 
             {/* Photo Slots List */}
-            <div className={`grid ${isLandscape ? 'grid-cols-2' : 'grid-cols-4'} gap-1.5 sm:gap-2.5 overflow-y-auto max-h-[36dvh] sm:max-h-none`}>
+            <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
               {Array.from({ length: requiredCount }).map((_, slotIdx) => {
                 const photo = photos[slotIdx];
                 const isActive = activeSlotIndex === slotIdx;
@@ -652,8 +731,8 @@ const createDemoPosePhoto = (poseIndex: number): string => {
                     }`}
                   >
                     {/* Slot Number Badge */}
-                    <div className="absolute top-1 left-1 sm:top-1.5 sm:left-1.5 z-10">
-                      <span className={`px-1 sm:px-1.5 py-0.5 rounded font-mono text-[9px] sm:text-[10px] font-bold shadow-xs ${
+                    <div className="absolute top-1 left-1 z-10">
+                      <span className={`px-1.5 py-0.5 rounded font-mono text-[10px] font-bold shadow-xs ${
                         isActive
                           ? 'bg-orange-600 text-white border border-orange-500'
                           : photo
@@ -666,9 +745,9 @@ const createDemoPosePhoto = (poseIndex: number): string => {
 
                     {/* Active Tag */}
                     {isActive && (
-                      <div className="absolute top-1 right-1 sm:top-1.5 sm:right-1.5 z-10">
-                        <span className="bg-orange-600 text-white font-mono text-[8px] sm:text-[9px] font-black px-1 sm:px-1.5 py-0.5 rounded shadow-xs border border-orange-400">
-                          {photo ? 'ULANG' : 'TARGET'}
+                      <div className="absolute top-1 right-1 z-10">
+                        <span className="bg-orange-600 text-white font-mono text-[9px] font-black px-1.5 py-0.5 rounded shadow-xs border border-orange-400">
+                          {photo ? 'ULANG' : 'SIAP'}
                         </span>
                       </div>
                     )}
@@ -681,8 +760,8 @@ const createDemoPosePhoto = (poseIndex: number): string => {
                           className="w-full h-full object-cover"
                         />
 
-                        {/* Bottom Action Bar: Always visible on active slot or on hover */}
-                        <div className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/60 to-transparent p-1 sm:p-1.5 pt-3 sm:pt-4 flex items-center justify-between gap-1 transition-opacity ${
+                        {/* Bottom Action Bar */}
+                        <div className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/60 to-transparent p-1 pt-3 flex items-center justify-between gap-1 transition-opacity ${
                           isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
                         }`}>
                           <button
@@ -692,11 +771,11 @@ const createDemoPosePhoto = (poseIndex: number): string => {
                               setActiveSlotIndex(slotIdx);
                               handleStartCapture(slotIdx);
                             }}
-                            className="flex-1 py-0.5 sm:py-1 px-1 rounded bg-orange-600 hover:bg-orange-500 text-white font-mono text-[9px] sm:text-[10px] font-bold flex items-center justify-center gap-1 shadow cursor-pointer border border-orange-500 active:scale-95 transition-all truncate"
+                            className="flex-1 py-1 px-1 rounded bg-orange-600 hover:bg-orange-500 text-white font-mono text-[10px] font-bold flex items-center justify-center gap-1 shadow cursor-pointer border border-orange-500 active:scale-95 transition-all truncate"
                             title={`Foto ulang slot #${slotIdx + 1}`}
                           >
-                            <RefreshCw className="w-2.5 h-2.5 sm:w-3 sm:h-3 shrink-0" />
-                            <span className="hidden xs:inline">Ulang</span>
+                            <RefreshCw className="w-2.5 h-2.5 shrink-0" />
+                            <span>Ulang</span>
                           </button>
                           <button
                             type="button"
@@ -704,17 +783,17 @@ const createDemoPosePhoto = (poseIndex: number): string => {
                               e.stopPropagation();
                               handleRemovePhoto(slotIdx);
                             }}
-                            className="p-0.5 sm:p-1 rounded bg-stone-900 hover:bg-rose-900 text-stone-300 hover:text-white transition-colors cursor-pointer border border-stone-700 hover:border-rose-700 shrink-0"
+                            className="p-1 rounded bg-stone-900 hover:bg-rose-900 text-stone-300 hover:text-white transition-colors cursor-pointer border border-stone-700 hover:border-rose-700 shrink-0"
                             title={`Hapus foto di slot #${slotIdx + 1}`}
                           >
-                            <Trash2 className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                            <Trash2 className="w-3 h-3" />
                           </button>
                         </div>
                       </>
                     ) : (
-                      <div className="text-center p-1 sm:p-2 space-y-0.5">
-                        <Camera className={`w-3.5 h-3.5 sm:w-4 sm:h-4 mx-auto ${isActive ? 'text-orange-500 animate-pulse' : 'text-stone-400'}`} />
-                        <span className={`block text-[9px] sm:text-[10px] font-mono truncate ${isActive ? 'text-orange-600 font-bold' : 'text-stone-400'}`}>
+                      <div className="text-center p-1.5 space-y-0.5">
+                        <Camera className={`w-4 h-4 mx-auto ${isActive ? 'text-orange-500 animate-pulse' : 'text-stone-400'}`} />
+                        <span className={`block text-[10px] font-mono truncate ${isActive ? 'text-orange-600 font-bold' : 'text-stone-400'}`}>
                           #{slotIdx + 1} {isActive ? 'Siap' : 'Kosong'}
                         </span>
                       </div>
@@ -725,11 +804,72 @@ const createDemoPosePhoto = (poseIndex: number): string => {
             </div>
           </div>
 
-          {/* Proceed Button */}
+          {/* Middle Section: Shutter & Capture Controls */}
+          <div className="space-y-2.5 pt-2 border-t border-stone-100">
+            {/* Timer Selection */}
+            <div className="flex items-center justify-between gap-1.5">
+              <span className="text-[11px] font-mono font-medium text-stone-500">TIMER:</span>
+              <div className="flex items-center gap-1">
+                {[0, 3, 5, 10].map((sec) => (
+                  <button
+                    key={sec}
+                    onClick={() => setCountdownTimer(sec)}
+                    className={`px-2 py-1 rounded-md text-xs font-mono font-bold transition-all cursor-pointer border ${
+                      countdownTimer === sec
+                        ? 'bg-orange-600 text-white border-orange-500 shadow-xs'
+                        : 'bg-stone-100 text-stone-600 hover:text-stone-900 border-stone-200'
+                    }`}
+                  >
+                    {sec === 0 ? '0s' : `${sec}s`}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Auto Burst Button */}
+            <button
+              onClick={handleStartBurstMode}
+              disabled={isBurstMode || activeCountdown !== null}
+              className="w-full flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-300 text-xs font-medium transition-all active:scale-95 disabled:opacity-50 cursor-pointer shadow-xs"
+              title="Ambil foto otomatis berurutan untuk semua slot"
+            >
+              <Play className="w-3.5 h-3.5 text-orange-600" />
+              <span>Auto 4x Foto Bergantian</span>
+            </button>
+
+            {/* Primary Large Shutter Button */}
+            <button
+              onClick={() => handleStartCapture(activeSlotIndex)}
+              disabled={isBurstMode || activeCountdown !== null}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-bold text-sm shadow-md active:scale-[0.98] transition-all disabled:opacity-50 cursor-pointer border border-orange-500"
+            >
+              {isRetakingActiveSlot ? (
+                <>
+                  <RefreshCw className="w-4 h-4 text-orange-200" />
+                  <span>Foto Ulang Foto #{activeSlotIndex + 1}</span>
+                </>
+              ) : (
+                <>
+                  <Camera className="w-4 h-4" />
+                  <span>Ambil Foto #{activeSlotIndex + 1}</span>
+                </>
+              )}
+            </button>
+
+            {/* Retake feedback message */}
+            {retakeFeedback && (
+              <div className="text-[11px] font-mono text-emerald-700 flex items-center gap-1.5 pt-1 animate-in fade-in duration-200">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span>{retakeFeedback}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Bottom Section: Proceed Button */}
           <button
             onClick={onContinueToLayout}
             disabled={filledCount === 0}
-            className={`w-full flex items-center justify-center gap-2 py-2 sm:py-2.5 px-3.5 rounded-xl font-bold text-xs sm:text-sm transition-all shadow cursor-pointer ${
+            className={`w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm transition-all shadow cursor-pointer ${
               isAllFilled
                 ? 'bg-orange-600 hover:bg-orange-500 text-white active:scale-[0.98] border border-orange-500 shadow-sm'
                 : filledCount > 0
@@ -737,10 +877,193 @@ const createDemoPosePhoto = (poseIndex: number): string => {
                 : 'bg-stone-900 text-stone-600 border border-stone-800 cursor-not-allowed'
             }`}
           >
-            <span>Lanjut ke Tata Letak & Tema</span>
+            <span>Lanjut ke Tema & Cetak</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>
+      </div>
+    );
+  }
+
+  // 3. TABLET PORTRAIT LAYOUT (Preview Dramatically Enlarged to 65% - 70% of Screen Height)
+  return (
+    <div className="w-full h-full min-h-0 flex flex-col justify-between gap-2 p-1.5 sm:p-2.5 md:p-3 overflow-hidden animate-in fade-in duration-200 select-none">
+      {/* Top Section: Live Webcam Viewfinder (ENLARGED TO DOMINATE TABLET SCREEN) */}
+      <div className="flex-1 min-h-[58dvh] sm:min-h-[64dvh] md:min-h-[68dvh] w-full relative flex items-center justify-center">
+        {renderViewfinder(false)}
+      </div>
+
+      {/* Bottom Section: Sleek Touch Studio Console */}
+      <div className="shrink-0 bg-white border border-stone-200 rounded-xl sm:rounded-2xl p-2.5 sm:p-3 space-y-2 shadow-sm">
+        {/* Row 1: Compact Horizontal Slot Strip */}
+        <div className="flex items-center justify-between gap-2 border-b border-stone-100 pb-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto py-0.5 flex-1">
+            {Array.from({ length: requiredCount }).map((_, slotIdx) => {
+              const photo = photos[slotIdx];
+              const isActive = activeSlotIndex === slotIdx;
+
+              return (
+                <div
+                  key={slotIdx}
+                  onClick={() => setActiveSlotIndex(slotIdx)}
+                  className={`relative group h-12 w-16 sm:h-14 sm:w-20 rounded-lg border-2 overflow-hidden shrink-0 transition-all cursor-pointer flex items-center justify-center bg-stone-100 ${
+                    isActive
+                      ? 'border-orange-500 ring-2 ring-orange-500/30 shadow-sm'
+                      : photo
+                      ? 'border-stone-300 hover:border-stone-400'
+                      : 'border-dashed border-stone-300'
+                  }`}
+                >
+                  <span className={`absolute top-0.5 left-0.5 px-1 rounded font-mono text-[9px] font-bold z-10 ${
+                    isActive ? 'bg-orange-600 text-white' : 'bg-black/60 text-white'
+                  }`}>
+                    #{slotIdx + 1}
+                  </span>
+
+                  {photo?.dataUrl ? (
+                    <>
+                      <img src={photo.dataUrl} alt={`Foto ${slotIdx + 1}`} className="w-full h-full object-cover" />
+                      {isActive && (
+                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center gap-1">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleStartCapture(slotIdx);
+                            }}
+                            className="p-1 rounded bg-orange-600 text-white text-[9px] font-bold flex items-center"
+                            title="Foto ulang slot ini"
+                          >
+                            <RefreshCw className="w-2.5 h-2.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemovePhoto(slotIdx);
+                            }}
+                            className="p-1 rounded bg-stone-900 text-white text-[9px]"
+                            title="Hapus slot ini"
+                          >
+                            <Trash2 className="w-2.5 h-2.5" />
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <Camera className={`w-3.5 h-3.5 ${isActive ? 'text-orange-500 animate-pulse' : 'text-stone-400'}`} />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Reset All Action */}
+          {filledCount > 0 && !showResetConfirm && (
+            <button
+              type="button"
+              onClick={() => setShowResetConfirm(true)}
+              className="text-[10px] font-mono text-stone-500 hover:text-rose-600 px-2 py-1 rounded bg-stone-100 border border-stone-200 shrink-0 cursor-pointer"
+            >
+              Reset
+            </button>
+          )}
+          {showResetConfirm && (
+            <div className="flex items-center gap-1 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-300 shrink-0">
+              <span className="text-[10px] text-rose-700 font-mono">Reset?</span>
+              <button
+                type="button"
+                onClick={handleResetAllPhotos}
+                className="text-[10px] font-bold text-white bg-rose-600 px-1.5 py-0.5 rounded cursor-pointer"
+              >
+                Ya
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowResetConfirm(false)}
+                className="text-[10px] text-stone-600 px-1 py-0.5 cursor-pointer"
+              >
+                Batal
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Row 2: Ergonomic Touch Controls Bar */}
+        <div className="flex flex-wrap items-center justify-between gap-2 pt-0.5">
+          {/* Timer & Burst Controls */}
+          <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1 bg-stone-100 p-0.5 rounded-lg border border-stone-200">
+              {[0, 3, 5, 10].map((sec) => (
+                <button
+                  key={sec}
+                  onClick={() => setCountdownTimer(sec)}
+                  className={`px-2 py-1 rounded-md text-xs font-mono font-bold transition-all cursor-pointer ${
+                    countdownTimer === sec
+                      ? 'bg-orange-600 text-white shadow-xs'
+                      : 'text-stone-600 hover:text-stone-900'
+                  }`}
+                >
+                  {sec === 0 ? '0s' : `${sec}s`}
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={handleStartBurstMode}
+              disabled={isBurstMode || activeCountdown !== null}
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-300 text-xs font-medium transition-all active:scale-95 disabled:opacity-50 cursor-pointer shadow-xs"
+              title="Ambil foto otomatis berurutan 4x"
+            >
+              <Play className="w-3.5 h-3.5 text-orange-600" />
+              <span className="hidden sm:inline">Auto 4x</span>
+            </button>
+          </div>
+
+          {/* Shutter Button & Proceed Button */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => handleStartCapture(activeSlotIndex)}
+              disabled={isBurstMode || activeCountdown !== null}
+              className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs sm:text-sm shadow-md active:scale-95 transition-all cursor-pointer border border-orange-500"
+            >
+              {isRetakingActiveSlot ? (
+                <>
+                  <RefreshCw className="w-4 h-4 text-orange-200" />
+                  <span>Ulang #{activeSlotIndex + 1}</span>
+                </>
+              ) : (
+                <>
+                  <Camera className="w-4 h-4" />
+                  <span>Foto #{activeSlotIndex + 1}</span>
+                </>
+              )}
+            </button>
+
+            <button
+              onClick={onContinueToLayout}
+              disabled={filledCount === 0}
+              className={`flex items-center gap-1.5 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all shadow cursor-pointer ${
+                isAllFilled
+                  ? 'bg-orange-600 hover:bg-orange-500 text-white active:scale-95 border border-orange-500 shadow-sm'
+                  : filledCount > 0
+                  ? 'bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700'
+                  : 'bg-stone-900 text-stone-600 border border-stone-800 cursor-not-allowed opacity-50'
+              }`}
+            >
+              <span>Lanjut</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Retake feedback message */}
+        {retakeFeedback && (
+          <div className="text-[11px] font-mono text-emerald-700 flex items-center gap-1.5 pt-1 animate-in fade-in duration-200">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+            <span>{retakeFeedback}</span>
+          </div>
+        )}
       </div>
     </div>
   );

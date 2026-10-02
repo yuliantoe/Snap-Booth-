@@ -4,8 +4,6 @@ import {
   ChevronLeft,
   ChevronRight,
   CheckCircle,
-  LogIn,
-  Home,
   Sparkles,
 } from 'lucide-react';
 import { EventTheme, UserAccount } from '../types';
@@ -211,50 +209,11 @@ export const ScreensaverView: React.FC<ScreensaverViewProps> = ({
         )}
       </main>
 
-      {/* 4. Bottom Menu: Prominent Pulsing START PHOTOBOOTH Button & Slide Controls */}
-      <footer className="relative z-10 w-full px-4 sm:px-8 pb-6 sm:pb-10 pt-2 flex flex-col items-center gap-4 pointer-events-auto">
-        {/* Compact Interactive Start Button */}
-        <div className="relative group">
-          {/* Animated Glow Rings behind button */}
-          <div className="absolute -inset-0.5 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-400 to-amber-600 opacity-60 blur-sm group-hover:opacity-90 animate-pulse transition duration-1000 group-hover:duration-200" />
-
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              if (currentUser) {
-                onStartPhotobooth();
-              } else if (onOpenLogin) {
-                onOpenLogin();
-              } else {
-                onStartPhotobooth();
-              }
-            }}
-            className="relative px-6 sm:px-8 py-2.5 sm:py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:brightness-105 text-stone-950 font-mono font-bold text-xs sm:text-sm md:text-base tracking-wider shadow-lg transition-all transform active:scale-95 flex items-center gap-2.5 sm:gap-3 border border-amber-300/60 cursor-pointer"
-          >
-            <div className="p-1.5 rounded-full bg-stone-950/15 text-stone-950 shadow-inner flex items-center justify-center">
-              {currentUser ? (
-                <Home className="w-4 h-4 sm:w-5 sm:h-5 animate-bounce" />
-              ) : (
-                <LogIn className="w-4 h-4 sm:w-5 sm:h-5 animate-pulse" />
-              )}
-            </div>
-            <div className="flex flex-col items-start text-left">
-              <span className="leading-tight drop-shadow-xs">
-                {currentUser ? '🏠 MASUK KE MENU HOME' : '🔐 MASUK / LOGIN KE SISTEM PHOTOBOOTH'}
-              </span>
-              <span className="text-[9px] sm:text-[10px] font-sans font-semibold text-stone-900/80 tracking-normal">
-                {currentUser
-                  ? 'Sentuh untuk membuka menu utama tampilan home photobooth'
-                  : 'Klik atau sentuh layar untuk membuka halaman login akun & PIN'}
-              </span>
-            </div>
-          </button>
-        </div>
-
+      {/* 4. Bottom Controls & Indicators */}
+      <footer className="relative z-10 w-full px-4 sm:px-8 pb-6 sm:pb-8 pt-2 flex flex-col items-center gap-3 pointer-events-auto">
         {/* Slide Indicators & Navigation Controls */}
         {photos.length > 1 && (
-          <div className="flex items-center gap-3 mt-1 bg-black/40 px-3 py-1.5 rounded-full border border-white/10 backdrop-blur-md">
+          <div className="flex items-center gap-3 bg-black/40 px-3.5 py-1.5 rounded-full border border-white/10 backdrop-blur-md shadow-lg">
             <button
               type="button"
               onClick={(e) => {
@@ -301,9 +260,7 @@ export const ScreensaverView: React.FC<ScreensaverViewProps> = ({
         )}
 
         <p className="text-[11px] sm:text-xs text-stone-300 font-mono text-center drop-shadow">
-          {currentUser
-            ? '💡 Sentuh di mana saja pada layar atau tekan tombol untuk menuju tampilan home'
-            : '💡 Sentuh di mana saja pada layar atau tekan tombol untuk masuk ke tampilan login'}
+          💡 Sentuh di mana saja pada layar untuk memulai
         </p>
       </footer>
     </div>
