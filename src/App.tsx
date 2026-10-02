@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Maximize2, Minimize2, Sliders, RefreshCw, Tv } from 'lucide-react';
+import { Maximize2, Sliders, RefreshCw, Tv } from 'lucide-react';
 import {
   LayoutType,
   EventTheme,
@@ -22,8 +22,6 @@ import { AuthModal } from './components/AuthModal';
 import { SuperAdminModal } from './components/SuperAdminModal';
 import { SubscriptionExpiredModal } from './components/SubscriptionExpiredModal';
 import { ScreensaverView } from './components/ScreensaverView';
-import { IosFullscreenModal } from './components/IosFullscreenModal';
-import { useFullscreen } from './utils/useFullscreen';
 import {
   DEFAULT_USERS,
   subscribeToUsers,
@@ -68,16 +66,28 @@ export default function App() {
 
   // Dashboard view minimize state for clean photobooth kiosk screen
   const [isDashboardMinimized, setIsDashboardMinimized] = useState<boolean>(false);
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
 
-  // Multi-platform Fullscreen Management (Desktop, Android Tablet/HP, iOS Safari/iPad)
-  const {
-    isFullscreen,
-    isSimulated: isFullscreenSimulated,
-    toggleFullscreen: handleToggleFullscreen,
-    exitFullscreen: handleExitFullscreen,
-    showIosPrompt,
-    dismissIosPrompt,
-  } = useFullscreen();
+  // Sync fullscreen state
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(Boolean(document.fullscreenElement));
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
+  const handleToggleFullscreen = () => {
+    try {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    } catch {
+      // ignore
+    }
+  };
 
   // Clean up legacy gallery storage
   useEffect(() => {
@@ -453,7 +463,7 @@ export default function App() {
   };
 
   return (
-    <div className={`h-[100dvh] max-h-[100dvh] w-screen overflow-hidden bg-[#f0f2f5] text-stone-900 flex flex-col font-sans selection:bg-orange-600 selection:text-white antialiased select-none ${isFullscreen ? 'fixed inset-0 z-0' : ''}`}>
+    <div className="h-[100dvh] max-h-[100dvh] w-screen overflow-hidden bg-[#f0f2f5] text-stone-900 flex flex-col font-sans selection:bg-orange-600 selection:text-white antialiased select-none">
       {/* Navbar Header with Multi-Role Badges, User Dropdown, and Logout */}
       {!isDashboardMinimized ? (
         <div className="shrink-0 z-40 bg-white/95 backdrop-blur-md">
@@ -473,14 +483,16 @@ export default function App() {
             onOpenScreensaver={() => setIsScreensaverOpen(true)}
           />
 
-          {/* Step Progress Wizard Bar */}
-          <StepIndicator
-            currentStep={currentStep}
-            currentUser={currentUser}
-            onSelectStep={(step) => canNavigateTo(step) && setCurrentStep(step)}
-            canNavigateTo={canNavigateTo}
-            onOpenAuthModal={() => setIsAuthModalOpen(true)}
-          />
+          {/* Step Progress Wizard Bar (Hidden on mobile phones during capture for maximized viewfinder) */}
+          <div className={currentStep === 'capture' ? 'hidden sm:block' : 'block'}>
+            <StepIndicator
+              currentStep={currentStep}
+              currentUser={currentUser}
+              onSelectStep={(step) => canNavigateTo(step) && setCurrentStep(step)}
+              canNavigateTo={canNavigateTo}
+              onOpenAuthModal={() => setIsAuthModalOpen(true)}
+            />
+          </div>
         </div>
       ) : (
         /* Sleek Floating Minimized Dashboard Dock on Main Screen */
@@ -536,20 +548,6 @@ export default function App() {
               >
                 <RefreshCw className="w-3.5 h-3.5" />
               </button>
-
-              {/* Fullscreen Toggle on Tablet & Mobile Dock */}
-              <button
-                type="button"
-                onClick={handleToggleFullscreen}
-                className={`p-1.5 rounded-full transition-all cursor-pointer border ${
-                  isFullscreen
-                    ? 'bg-orange-600 hover:bg-orange-500 text-white border-orange-600 shadow-xs'
-                    : 'bg-stone-100 hover:bg-stone-200 text-stone-700 border-stone-200'
-                }`}
-                title={isFullscreen ? 'Keluar Layar Penuh' : 'Mode Layar Penuh (Kiosk) Tablet & HP'}
-              >
-                {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
-              </button>
             </div>
           </div>
         </header>
@@ -568,8 +566,6 @@ export default function App() {
             isDashboardMinimized={isDashboardMinimized}
             onToggleMinimizeDashboard={() => setIsDashboardMinimized(!isDashboardMinimized)}
             onOpenScreensaver={() => setIsScreensaverOpen(true)}
-            isFullscreen={isFullscreen}
-            onToggleFullscreen={handleToggleFullscreen}
           />
         )}
 
@@ -581,10 +577,6 @@ export default function App() {
             onContinueToLayout={() => setCurrentStep('theme_layout')}
             tabletOrientation={currentTheme.tabletOrientation}
             autoPrintEnabled={currentTheme.autoPrintEnabled}
-            isFullscreen={isFullscreen}
-            onToggleFullscreen={handleToggleFullscreen}
-            isDashboardMinimized={isDashboardMinimized}
-            onToggleMinimizeDashboard={() => setIsDashboardMinimized(!isDashboardMinimized)}
           />
         )}
 
@@ -624,8 +616,6 @@ export default function App() {
         onLogout={handleLogout}
         onOpenAuthModal={() => setIsAuthModalOpen(true)}
         onOpenScreensaver={() => setIsScreensaverOpen(true)}
-        isFullscreen={isFullscreen}
-        onToggleFullscreen={handleToggleFullscreen}
       />
 
       {/* Super Admin Management Portal Modal */}
@@ -688,12 +678,6 @@ export default function App() {
           }}
         />
       )}
-
-      {/* iOS Safari Home Screen Fullscreen Guide Modal */}
-      <IosFullscreenModal
-        isOpen={showIosPrompt}
-        onClose={dismissIosPrompt}
-      />
 
       {/* Footer - Slim & hidden when minimized or on mobile to preserve full screen height without scroll */}
       {!isDashboardMinimized && (

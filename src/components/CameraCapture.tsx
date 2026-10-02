@@ -431,33 +431,33 @@ const createDemoPosePhoto = (poseIndex: number): string => {
       )}
 
       {/* Top Floating Viewfinder Toolbar */}
-      <div className="absolute top-2.5 sm:top-3.5 left-2.5 sm:left-3.5 right-2.5 sm:right-3.5 flex items-center justify-between z-20 pointer-events-auto gap-2">
+      <div className="absolute top-2 sm:top-3.5 left-2 sm:left-3.5 right-2 sm:right-3.5 flex items-center justify-between z-20 pointer-events-auto gap-1 sm:gap-2">
         {/* Left: Slot Status Badge */}
-        <div className="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-lg border border-stone-300 text-xs font-mono font-medium text-stone-800 shadow-sm">
-          <span className={`w-2 h-2 rounded-full ${isRetakingActiveSlot ? 'bg-orange-500 animate-pulse' : 'bg-emerald-500'}`} />
-          <span className="font-bold">SLOT #{activeSlotIndex + 1} / {requiredCount}</span>
+        <div className="flex items-center gap-1.5 bg-black/65 backdrop-blur-md px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg border border-white/20 text-xs font-mono font-medium text-white shadow-sm shrink-0">
+          <span className={`w-2 h-2 rounded-full ${isRetakingActiveSlot ? 'bg-orange-500 animate-pulse' : 'bg-emerald-400'}`} />
+          <span className="font-bold">SLOT #{activeSlotIndex + 1}/{requiredCount}</span>
           {isRetakingActiveSlot ? (
-            <span className="text-[10px] bg-orange-100 text-orange-800 px-1.5 py-0.5 rounded border border-orange-300 font-bold ml-0.5 flex items-center gap-1">
-              <RefreshCw className="w-2.5 h-2.5" /> FOTO ULANG
+            <span className="text-[9px] sm:text-[10px] bg-orange-500/80 text-white px-1 sm:px-1.5 py-0.5 rounded font-bold ml-0.5 flex items-center gap-0.5">
+              <RefreshCw className="w-2.5 h-2.5" /> ULANG
             </span>
           ) : (
-            <span className="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded border border-emerald-300 font-bold ml-0.5">
+            <span className="text-[9px] sm:text-[10px] bg-emerald-500/80 text-white px-1 sm:px-1.5 py-0.5 rounded font-bold ml-0.5">
               SIAP
             </span>
           )}
         </div>
 
         {/* Right: Camera Tools (Device, Flip, Mirror, Fit, Maximize) */}
-        <div className="flex items-center gap-1.5 sm:gap-2">
+        <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
           {/* Switch Device Dropdown */}
           {devices.length > 1 && (
             <select
               value={selectedDeviceId}
               onChange={(e) => setSelectedDeviceId(e.target.value)}
-              className="bg-white/95 backdrop-blur-md text-xs text-stone-800 border border-stone-300 rounded-lg px-2.5 py-1.5 focus:outline-none max-w-[120px] sm:max-w-none truncate font-mono shadow-xs cursor-pointer"
+              className="bg-black/65 backdrop-blur-md text-[11px] sm:text-xs text-white border border-white/20 rounded-lg px-2 py-1 focus:outline-none max-w-[85px] sm:max-w-[120px] truncate font-mono shadow-xs cursor-pointer"
             >
               {devices.map((d, idx) => (
-                <option key={d.deviceId} value={d.deviceId}>
+                <option key={d.deviceId} value={d.deviceId} className="bg-stone-900 text-white">
                   {d.label || `Kamera ${idx + 1}`}
                 </option>
               ))}
@@ -470,12 +470,12 @@ const createDemoPosePhoto = (poseIndex: number): string => {
             onClick={() => setVideoFit((prev) => (prev === 'cover' ? 'contain' : 'cover'))}
             className={`p-1.5 sm:p-2 rounded-lg backdrop-blur-md transition-all border shadow-xs cursor-pointer text-xs font-mono flex items-center gap-1 ${
               videoFit === 'cover'
-                ? 'bg-white/95 text-stone-700 hover:text-stone-900 border-stone-300'
-                : 'bg-stone-900 text-white border-stone-700 font-bold'
+                ? 'bg-black/65 hover:bg-black/85 text-white border-white/20'
+                : 'bg-orange-600 text-white border-orange-500 font-bold'
             }`}
             title={videoFit === 'cover' ? 'Penuh Layar (Klik untuk mode Asli)' : 'Asli Kamera (Klik untuk Penuh Layar)'}
           >
-            <Eye className="w-3.5 h-3.5 text-orange-600" />
+            <Eye className="w-3.5 h-3.5 text-orange-400" />
             <span className="hidden md:inline">{videoFit === 'cover' ? 'Penuh' : 'Asli'}</span>
           </button>
 
@@ -486,10 +486,10 @@ const createDemoPosePhoto = (poseIndex: number): string => {
               setFacingMode((prev) => (prev === 'user' ? 'environment' : 'user'));
               setIsMirrored((prev) => !prev);
             }}
-            className="p-1.5 sm:p-2 rounded-lg backdrop-blur-md bg-white/95 text-stone-700 hover:text-stone-900 border border-stone-300 transition-all cursor-pointer shadow-xs"
+            className="p-1.5 sm:p-2 rounded-lg backdrop-blur-md bg-black/65 hover:bg-black/85 text-white border border-white/20 transition-all cursor-pointer shadow-xs"
             title={facingMode === 'user' ? 'Ganti ke Kamera Belakang' : 'Ganti ke Kamera Depan (Selfie)'}
           >
-            <SwitchCamera className="w-4 h-4 text-orange-600" />
+            <SwitchCamera className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-400" />
           </button>
 
           {/* Flip Camera Mirror */}
@@ -497,33 +497,33 @@ const createDemoPosePhoto = (poseIndex: number): string => {
             type="button"
             onClick={() => setIsMirrored(!isMirrored)}
             className={`p-1.5 sm:p-2 rounded-lg backdrop-blur-md transition-all border shadow-xs cursor-pointer ${
-              isMirrored ? 'bg-orange-600 text-white border-orange-500 font-bold' : 'bg-white/95 text-stone-700 border-stone-300'
+              isMirrored ? 'bg-orange-600 text-white border-orange-500 font-bold' : 'bg-black/65 hover:bg-black/85 text-white border-white/20'
             }`}
             title="Cermin Horizontal"
           >
-            <FlipHorizontal className="w-4 h-4" />
+            <FlipHorizontal className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
 
-          {/* Maximize Preview Toggle (Dedicated Full Preview Mode for Tablet / Kiosk) */}
+          {/* Maximize Preview Toggle */}
           <button
             type="button"
             onClick={() => setIsPreviewMaximized(!isPreviewMaximized)}
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg backdrop-blur-md transition-all border shadow-xs cursor-pointer font-bold text-xs ${
+            className={`flex items-center gap-1 p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg backdrop-blur-md transition-all border shadow-xs cursor-pointer font-bold text-xs ${
               isPreviewMaximized
                 ? 'bg-orange-600 text-white border-orange-500'
-                : 'bg-white/95 hover:bg-stone-100 text-stone-800 border-stone-300'
+                : 'bg-black/65 hover:bg-black/85 text-white border-white/20'
             }`}
-            title={isPreviewMaximized ? 'Kecilkan Tampilan Preview' : 'Perbesar Tampilan Preview (Mode Tablet Layar Penuh)'}
+            title={isPreviewMaximized ? 'Kecilkan Tampilan Preview' : 'Perbesar Tampilan Preview (Layar Penuh)'}
           >
             {isPreviewMaximized ? (
               <>
-                <Minimize2 className="w-4 h-4" />
+                <Minimize2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 <span className="hidden sm:inline">Kecilkan</span>
               </>
             ) : (
               <>
-                <Maximize2 className="w-4 h-4 text-orange-600" />
-                <span className="hidden sm:inline">Perbesar Preview</span>
+                <Maximize2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-400" />
+                <span className="hidden sm:inline">Perbesar</span>
               </>
             )}
           </button>
@@ -885,18 +885,18 @@ const createDemoPosePhoto = (poseIndex: number): string => {
     );
   }
 
-  // 3. TABLET PORTRAIT LAYOUT (Preview Dramatically Enlarged to 65% - 70% of Screen Height)
+  // 3. TABLET & MOBILE PORTRAIT LAYOUT (Preview Dramatically Enlarged to Fill Available Space)
   return (
-    <div className="w-full h-full min-h-0 flex flex-col justify-between gap-2 p-1.5 sm:p-2.5 md:p-3 overflow-hidden animate-in fade-in duration-200 select-none">
-      {/* Top Section: Live Webcam Viewfinder (ENLARGED TO DOMINATE TABLET SCREEN) */}
-      <div className="flex-1 min-h-[58dvh] sm:min-h-[64dvh] md:min-h-[68dvh] w-full relative flex items-center justify-center">
+    <div className="w-full h-full min-h-0 flex flex-col justify-between gap-1.5 sm:gap-2.5 p-1 sm:p-2 md:p-3 overflow-hidden animate-in fade-in duration-200 select-none">
+      {/* Top Section: Live Webcam Viewfinder (ENLARGED TO DOMINATE PHONE & TABLET SCREEN) */}
+      <div className="flex-1 min-h-0 w-full relative flex items-center justify-center">
         {renderViewfinder(false)}
       </div>
 
       {/* Bottom Section: Sleek Touch Studio Console */}
-      <div className="shrink-0 bg-white border border-stone-200 rounded-xl sm:rounded-2xl p-2.5 sm:p-3 space-y-2 shadow-sm">
+      <div className="shrink-0 bg-white border border-stone-200 rounded-xl sm:rounded-2xl p-2 sm:p-2.5 space-y-1.5 sm:space-y-2 shadow-sm">
         {/* Row 1: Compact Horizontal Slot Strip */}
-        <div className="flex items-center justify-between gap-2 border-b border-stone-100 pb-2">
+        <div className="flex items-center justify-between gap-1.5 sm:gap-2 border-b border-stone-100 pb-1.5">
           <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto py-0.5 flex-1">
             {Array.from({ length: requiredCount }).map((_, slotIdx) => {
               const photo = photos[slotIdx];
@@ -906,7 +906,7 @@ const createDemoPosePhoto = (poseIndex: number): string => {
                 <div
                   key={slotIdx}
                   onClick={() => setActiveSlotIndex(slotIdx)}
-                  className={`relative group h-12 w-16 sm:h-14 sm:w-20 rounded-lg border-2 overflow-hidden shrink-0 transition-all cursor-pointer flex items-center justify-center bg-stone-100 ${
+                  className={`relative group h-10 w-14 sm:h-14 sm:w-20 rounded-lg border-2 overflow-hidden shrink-0 transition-all cursor-pointer flex items-center justify-center bg-stone-100 ${
                     isActive
                       ? 'border-orange-500 ring-2 ring-orange-500/30 shadow-sm'
                       : photo
@@ -914,7 +914,7 @@ const createDemoPosePhoto = (poseIndex: number): string => {
                       : 'border-dashed border-stone-300'
                   }`}
                 >
-                  <span className={`absolute top-0.5 left-0.5 px-1 rounded font-mono text-[9px] font-bold z-10 ${
+                  <span className={`absolute top-0.5 left-0.5 px-1 rounded font-mono text-[8px] sm:text-[9px] font-bold z-10 ${
                     isActive ? 'bg-orange-600 text-white' : 'bg-black/60 text-white'
                   }`}>
                     #{slotIdx + 1}
@@ -931,7 +931,7 @@ const createDemoPosePhoto = (poseIndex: number): string => {
                               e.stopPropagation();
                               handleStartCapture(slotIdx);
                             }}
-                            className="p-1 rounded bg-orange-600 text-white text-[9px] font-bold flex items-center"
+                            className="p-1 rounded bg-orange-600 text-white text-[9px] font-bold flex items-center cursor-pointer"
                             title="Foto ulang slot ini"
                           >
                             <RefreshCw className="w-2.5 h-2.5" />
@@ -942,7 +942,7 @@ const createDemoPosePhoto = (poseIndex: number): string => {
                               e.stopPropagation();
                               handleRemovePhoto(slotIdx);
                             }}
-                            className="p-1 rounded bg-stone-900 text-white text-[9px]"
+                            className="p-1 rounded bg-stone-900 text-white text-[9px] cursor-pointer"
                             title="Hapus slot ini"
                           >
                             <Trash2 className="w-2.5 h-2.5" />
@@ -951,7 +951,7 @@ const createDemoPosePhoto = (poseIndex: number): string => {
                       )}
                     </>
                   ) : (
-                    <Camera className={`w-3.5 h-3.5 ${isActive ? 'text-orange-500 animate-pulse' : 'text-stone-400'}`} />
+                    <Camera className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${isActive ? 'text-orange-500 animate-pulse' : 'text-stone-400'}`} />
                   )}
                 </div>
               );
@@ -989,16 +989,16 @@ const createDemoPosePhoto = (poseIndex: number): string => {
           )}
         </div>
 
-        {/* Row 2: Ergonomic Touch Controls Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-2 pt-0.5">
-          {/* Timer & Burst Controls */}
-          <div className="flex items-center gap-1.5">
-            <div className="flex items-center gap-1 bg-stone-100 p-0.5 rounded-lg border border-stone-200">
+        {/* Row 2: Touch Controls Bar - Seamless Non-Wrapping on Phone & Tablet */}
+        <div className="flex items-center justify-between gap-1 sm:gap-2 pt-0.5">
+          {/* Left: Timer Pills & Auto 4x */}
+          <div className="flex items-center gap-1 shrink-0">
+            <div className="flex items-center gap-0.5 bg-stone-100 p-0.5 rounded-lg border border-stone-200">
               {[0, 3, 5, 10].map((sec) => (
                 <button
                   key={sec}
                   onClick={() => setCountdownTimer(sec)}
-                  className={`px-2 py-1 rounded-md text-xs font-mono font-bold transition-all cursor-pointer ${
+                  className={`px-1.5 sm:px-2 py-1 rounded-md text-[11px] sm:text-xs font-mono font-bold transition-all cursor-pointer ${
                     countdownTimer === sec
                       ? 'bg-orange-600 text-white shadow-xs'
                       : 'text-stone-600 hover:text-stone-900'
@@ -1012,54 +1012,57 @@ const createDemoPosePhoto = (poseIndex: number): string => {
             <button
               onClick={handleStartBurstMode}
               disabled={isBurstMode || activeCountdown !== null}
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-300 text-xs font-medium transition-all active:scale-95 disabled:opacity-50 cursor-pointer shadow-xs"
+              className="flex items-center gap-1 px-2 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-300 text-xs font-medium transition-all active:scale-95 disabled:opacity-50 cursor-pointer shadow-xs"
               title="Ambil foto otomatis berurutan 4x"
             >
-              <Play className="w-3.5 h-3.5 text-orange-600" />
-              <span className="hidden sm:inline">Auto 4x</span>
+              <Play className="w-3 h-3 text-orange-600" />
+              <span className="hidden xs:inline">Auto 4x</span>
             </button>
           </div>
 
-          {/* Shutter Button & Proceed Button */}
-          <div className="flex items-center gap-2">
+          {/* Center: Large Thumb-Friendly Shutter Button */}
+          <div className="flex-1 flex justify-center min-w-0 px-1">
             <button
               onClick={() => handleStartCapture(activeSlotIndex)}
               disabled={isBurstMode || activeCountdown !== null}
-              className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs sm:text-sm shadow-md active:scale-95 transition-all cursor-pointer border border-orange-500"
+              className="w-full max-w-[200px] flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs sm:text-sm shadow-md active:scale-95 transition-all cursor-pointer border border-orange-500 truncate"
             >
               {isRetakingActiveSlot ? (
                 <>
-                  <RefreshCw className="w-4 h-4 text-orange-200" />
-                  <span>Ulang #{activeSlotIndex + 1}</span>
+                  <RefreshCw className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-200 shrink-0" />
+                  <span className="truncate">Ulang #{activeSlotIndex + 1}</span>
                 </>
               ) : (
                 <>
-                  <Camera className="w-4 h-4" />
-                  <span>Foto #{activeSlotIndex + 1}</span>
+                  <Camera className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+                  <span className="truncate">Foto #{activeSlotIndex + 1}</span>
                 </>
               )}
             </button>
+          </div>
 
+          {/* Right: Proceed Button */}
+          <div className="shrink-0">
             <button
               onClick={onContinueToLayout}
               disabled={filledCount === 0}
-              className={`flex items-center gap-1.5 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all shadow cursor-pointer ${
+              className={`flex items-center gap-1 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all shadow cursor-pointer ${
                 isAllFilled
-                  ? 'bg-orange-600 hover:bg-orange-500 text-white active:scale-95 border border-orange-500 shadow-sm'
+                  ? 'bg-stone-900 hover:bg-black text-white active:scale-95 border border-stone-800 shadow-sm'
                   : filledCount > 0
                   ? 'bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700'
-                  : 'bg-stone-900 text-stone-600 border border-stone-800 cursor-not-allowed opacity-50'
+                  : 'bg-stone-200 text-stone-400 border border-stone-300 cursor-not-allowed opacity-50'
               }`}
             >
               <span>Lanjut</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
 
         {/* Retake feedback message */}
         {retakeFeedback && (
-          <div className="text-[11px] font-mono text-emerald-700 flex items-center gap-1.5 pt-1 animate-in fade-in duration-200">
+          <div className="text-[11px] font-mono text-emerald-700 flex items-center gap-1.5 pt-0.5 animate-in fade-in duration-200">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
             <span>{retakeFeedback}</span>
           </div>
